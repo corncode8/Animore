@@ -1,0 +1,14 @@
+server:
+  port: 8000
+spring:
+  datasource:
+    url: jdbc:mysql://db-animore.cq7hhy9uh3a2.ap-northeast-2.rds.amazonaws.com:3306/animore_db?
+    username: root
+    password: Animore100!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+spring.jpa:
+  database-platform: org.hibernate.dialect.MySQL8Dialect
+  hibernate:
+    ddl-auto: update
+
