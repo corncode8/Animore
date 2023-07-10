@@ -14,7 +14,6 @@ spring:
     username: cos
     password: cos1234
 
-
   jpa:
     hibernate:
       ddl-auto: update #create update none
@@ -23,23 +22,23 @@ spring:
     show-sql: true
 
 
-  spring:
-    security:
-      oauth2:
-        client:
-          registration:
-            kakao:
-              client-id: f8dc53cf8c5452b17f33260931bb4014
-              client-secret: FCHKqialO9oxtStnOliZsVrubEolwDmM
-              scope: profile_nicnake, account_email
-              client-name: Kakao
-              authorization-grant-type: authorization_code
-              redirect-ur: http://localhost:8080/auth/kakao/callback
-              client-authentication-method: POST
-          provider:
-            Kakao:
-              authorization-uri: https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=f8dc53cf8c5452b17f33260931bb4014&redirect_uri=http://localhost:8080/auth/kakao/callback
-              token-uri: https://kauth.kakao.com/oauth/token
-              user-info-uri: https://kapi.kakao.com/v2/user/me
-              user-name-attribute: id
 
+  security:
+     oauth2:
+       client:
+         registration:
+           kakao:
+             client-id: f8dc53cf8c5452b17f33260931bb4014
+             client-secret: FCHKqialO9oxtStnOliZsVrubEolwDmM
+             scope: profile_nickname,account_email,gender
+             client-name: kakao
+             authorization-grant-type: authorization_code
+             redirect-uri: http://localhost:8080/auth/kakao/callback
+             client-authentication-method: POST
+
+         provider:
+           kakao:
+             authorization-uri: https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=f8dc53cf8c5452b17f33260931bb4014&redirect_uri=http://localhost:8080/auth/kakao/callback
+             token-uri: https://kauth.kakao.com/oauth/token
+             user-info-uri: https://kapi.kakao.com/v2/user/me
+             user-name-attribute: id

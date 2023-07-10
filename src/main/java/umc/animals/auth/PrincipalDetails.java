@@ -2,10 +2,12 @@ package umc.animals.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import umc.animals.model.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 // 시큐리티가 /login주소 요청이 오면 낚아채서 로그인을 진행시킨다.
 // 로그인을 진행이 완료가 되면 시큐리티 session을 만들어 준다.(Security ContextHolder)
@@ -14,14 +16,26 @@ import java.util.Collection;
 // User오브젝트 타입 => UserDetails 타입 객체
 
 
-public class PrincipalDetails implements UserDetails  {
+public class PrincipalDetails implements UserDetails, OAuth2User {
 
     private User user;
+    private Map<String, Object> attributes;
 
-    public PrincipalDetails(User user){
+    public PrincipalDetails(User user,Map<String,Object> attributes){
+
         this.user = user;
+        this.attributes = attributes;
     }
 
+    public PrincipalDetails(User user){
+        this.user=user;
+    }
+
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -65,5 +79,10 @@ public class PrincipalDetails implements UserDetails  {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return user.getId()+"";
     }
 }

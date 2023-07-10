@@ -13,8 +13,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import umc.animals.oauth.PrincipalOauth2UserService;
 
 import static org.springframework.security.authorization.AuthorityAuthorizationManager.*;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -23,6 +26,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableMethodSecurity(securedEnabled = true,prePostEnabled = true)        //secure 어노테이션 활성화 ,preAuthorize어노테이션 활성화
 public class SecurityConfig {
+
+
+    @Autowired
+    private PrincipalOauth2UserService principalOauth2UserService;
 
 
 
@@ -46,10 +53,10 @@ public class SecurityConfig {
         http.formLogin(form -> form.defaultSuccessUrl("/")); //  /loginForm에서 login을 하면 "/" 위치로 보내주고 특정페이지에서 로그인하면 그 특정페이지로 리턴시켜줄게! -> 너무좋다!
 
 
-        http.oauth2Login(oauth -> oauth.loginPage("/loginForm")) //카카오 로그인이 완료된 뒤의 후처리가 필요함
+        http.oauth2Login(oauth -> oauth.loginPage("/loginForm"))  //카카오 로그인이 완료된 뒤의 후처리가 필요함
                 .oauth2Login(oauth->oauth.defaultSuccessUrl("/"))
                 .oauth2Login(oauth->oauth.failureUrl("/"))
-                .oauth2Login(oauth-> oauth.userInfoEndpoint().userService(dfdfd)); //이부분모르겠다
+                .oauth2Login(oauth -> oauth.userInfoEndpoint());//이부분모르겠다, 카카오 로그인이 완료된 뒤의 후처리가 필요함?
 
 
         return http.build();

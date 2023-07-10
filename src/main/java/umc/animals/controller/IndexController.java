@@ -80,4 +80,6 @@ public class IndexController {
     public String data(){
         return "데이터";
     }
+
+
    }
