@@ -1,0 +1,10 @@
+package umc.animore.repository;
+
+import umc.animore.model.Image;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ImageRepository extends JpaRepository<Image, Integer> {
+    Page<Image> findByStoreIsDiscounted(boolean isDiscounted, Pageable pageable);
+}
