@@ -1,11 +1,11 @@
 package com.example.animore.Search.model;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +27,8 @@ public class SearchHistory {
     @Column(name = "search_create_at")
     private String searchCreateAt;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "user_id")
-    //private User user;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id")
+//    private User user;
 
 }

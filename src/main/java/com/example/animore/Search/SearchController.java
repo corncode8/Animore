@@ -96,7 +96,7 @@ public class SearchController {
 
     //시도 검색 API - 검색화면
     @ResponseBody
-    @GetMapping("/search/test")
+    @GetMapping("/search/town")
     public BaseResponse<List<Store>> searchByTown(@RequestParam("city") String city, @RequestParam("district") String district) {
         try {
             if (district == null || district.equals("") || city == null || city.equals("")) {
@@ -123,22 +123,22 @@ public class SearchController {
         }
     }
 
-//    //후기많은순 API (3개씩) - 메인화면
-//    //GET /search/top3
-//    @ResponseBody
-//    @GetMapping("/search/top3")
-//    public BaseResponse<List<Store>> searchTopreview() {
-//        try {
-//            //int userIdx = jwtService.getUserIdx();
-//            int userIdx = 1; //임시지정
-//            List<Store> store = searchService.findStoresWithMostReviews();
-//            return new BaseResponse<>(store);
-//
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//
-//    }
+    //후기많은순 API  - 메인화면
+    //GET /search/top_reviews
+    @ResponseBody
+    @GetMapping("/search/top_reviews")
+    public BaseResponse<List<Store>> searchTopreview() {
+        try {
+            //int userIdx = jwtService.getUserIdx();
+            int userIdx = 1; //임시지정
+            List<Store> store = searchService.getStoresWithMostReviews();
+            return new BaseResponse<>(store);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+    }
 
 
 //    //최근 검색어 API (3개씩) - 메인화면
@@ -263,11 +263,6 @@ public class SearchController {
     }
 
      */
-
-
-
-
-
 
 }
 

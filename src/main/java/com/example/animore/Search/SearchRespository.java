@@ -5,6 +5,7 @@ import com.example.animore.Search.model.Town;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,6 +21,10 @@ public interface SearchRespository extends JpaRepository<Store, Integer> {
     
     //가게 시/도
     List<Store> findByTown (Town town);
+
+    //가장 많은 리뷰를 작성한 가게
+    @Query("SELECT r.store FROM Review r GROUP BY r.store ORDER BY COUNT(r) DESC")
+    List<Store> findStoresWithMostReviews();
 
 
     //4개 출력

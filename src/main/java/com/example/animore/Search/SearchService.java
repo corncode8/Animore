@@ -5,6 +5,7 @@ import com.example.Config.BaseResponse;
 import com.example.animore.Search.model.SearchHistory;
 import com.example.animore.Search.model.Store;
 import com.example.animore.Search.model.Town;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,29 +78,17 @@ public class SearchService {
     }
 
     //리뷰
-//    public List<Store> findStoresWithMostReviews() throws BaseException {
-//
-//        try {
-//            List<Object[]> results = reviewRepository.countReviewsByStore();
-//            System.out.println("가게정보: " + results);
-//
-//            List<Store> stores = new ArrayList<>();
-//            for (Object[] result : results) {
-//                Store store = (Store) result[0];
-//                stores.add(store);
-//            }
-//            return stores;
-//        } catch (Exception exception){
-//            throw new BaseException(RESPONSE_ERROR);
-//        }
-//
-//    }
+    public List<Store> getStoresWithMostReviews() throws BaseException {
 
+        try {
+            List<Store> stores = searchRespository.findStoresWithMostReviews();
+            stores.forEach(store -> Hibernate.initialize(store.getTown()));
+            return stores;
+        } catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
 
-
-
-
-
+    }
 
 //    //가게이름 - 후기 많은 순
 //    public List<Store> searchNameListTop(String storeName) throws BaseException {

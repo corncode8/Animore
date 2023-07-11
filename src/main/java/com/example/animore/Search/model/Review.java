@@ -1,11 +1,12 @@
 package com.example.animore.Search.model;
 
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -37,14 +38,20 @@ public class Review {
     @JoinColumn(name = "store_id")
     private Store store;
 
-//    // store 필드의 Getter
-//    public Store getStore() {
-//        return store;
-//    }
-//
-//    // store 필드의 Setter
-//    public void setStore(Store store) {
-//        this.store = store;
-//    }
+//    //다대일 관계
+//    //한 개의 User이 여러 개의 Review를 가질 수 있지만, 각각의 Review는 하나의 User에만 속할 수 있는 관계
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id")
+//    private User user;
+
+    // store 필드의 Getter
+    public Store getStore() {
+        return store;
+    }
+
+    // store 필드의 Setter
+    public void setStore(Store store) {
+        this.store = store;
+    }
 
 }
