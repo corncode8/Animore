@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -23,4 +26,9 @@ public class SearchHistory {
     private String searchQuery;
     @Column(name = "search_create_at")
     private String searchCreateAt;
+
+    //@ManyToOne(fetch = FetchType.LAZY)
+    //@JoinColumn(name = "user_id")
+    //private User user;
+
 }
