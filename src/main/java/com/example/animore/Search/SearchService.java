@@ -72,6 +72,17 @@ public class SearchService {
         }
     }
 
+    //가게이름 후기 평점 높은 순
+    public List<Store> searchNameReviewsAvgList(String storeName) throws BaseException {
+        try {
+            List<Store> store = searchRespository.findStoresWithHighestAverageScoreByStoreNameContaining(storeName);
+            return store;
+        }catch (Exception exception) {
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
+
 
     //주소
     public List<Store> searchLocationList(String storeLocation) throws BaseException {
@@ -94,7 +105,7 @@ public class SearchService {
     }
 
     //주소 후기 많은 순
-    public List<Store> searchLocationMostReviesList(String storeLocation) throws BaseException {
+    public List<Store> searchLocationMostReviewsList(String storeLocation) throws BaseException {
         try{
             List<Store> store = searchRespository.findStoresWithMostReviewsByStoreLocationContaining(storeLocation);
             return store;
@@ -103,8 +114,18 @@ public class SearchService {
         }
     }
 
+    //주소 후기 평점 평균 높은 순
+    public List<Store> searchLocationReviewsAvgList(String storeLocation) throws BaseException {
+        try{
+            List<Store> store = searchRespository.findStoresWithHighestAverageScoreByStoreLocationContaining(storeLocation);
+            return store;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
 
-    //시'도
+
+    //시도
     public List<Store> searchCityList(String city, String district) throws BaseException {
 
         try {
@@ -138,6 +159,19 @@ public class SearchService {
             System.out.println("가게정보: "+town);
 
             List<Store> store = searchRespository.findStoresWithMostReviewsByTown(town);
+            return store;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
+    //시도 후기 평점 평균 높은 순
+    public List<Store> searchCityListReviewsAvg(String city, String district) throws BaseException {
+        try {
+            Town town = townRepository.getTownIdByCityAndDistrict(city, district);
+            System.out.println("가게정보: "+town);
+
+            List<Store> store = searchRespository.findStoresWithHighestAverageScoreByTown(town);
             return store;
         }catch (Exception exception){
             throw new BaseException(RESPONSE_ERROR);

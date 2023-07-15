@@ -127,6 +127,39 @@ public class SearchController {
         }
     }
 
+    //가게이름 검색 후기 평점 평균 높은 순 API - 검색화면
+    @ResponseBody
+    @GetMapping("/search/name/avg")
+    public BaseResponse<List<Store>> searchNameReviewsAVG(@RequestParam(value = "query") String storeName) {
+        try {
+
+            if (storeName == null || storeName.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (storeName.length() > 20) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
+            }
+
+            //int userIdx = jwtService.getUserIdx();
+            int userIdx = 1; //임시지정
+            List<Store> store = searchService.searchNameReviewsAvgList(storeName);
+            searchService.postSearchHistory(userIdx, storeName);
+
+            System.out.println("query: " + storeName);
+            System.out.println("가게정보: " + store);
+
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
 
 
     //주소 검색 API - 검색화면
@@ -198,10 +231,9 @@ public class SearchController {
 
 
     //주소 검색 후기 많은 순 API -검색화면
-    //
     @ResponseBody
     @GetMapping("/search/location/top_reviews")
-    public BaseResponse<List<Store>> searchMostReviesLocation (@RequestParam(value = "query") String storeLocation) {
+    public BaseResponse<List<Store>> searchMostReviewsLocation (@RequestParam(value = "query") String storeLocation) {
         try {
             if (storeLocation == null || storeLocation.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -212,7 +244,40 @@ public class SearchController {
 
             //int userIdx = jwtService.getUserIdx();
             int userIdx = 1; //임시지정
-            List<Store> store = searchService.searchLocationMostReviesList(storeLocation);
+            List<Store> store = searchService.searchLocationMostReviewsList(storeLocation);
+            searchService.postSearchHistory(userIdx, storeLocation);
+
+            System.out.println("query: " + storeLocation);
+            System.out.println("가게정보: " + store);
+
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+    }
+
+    //주소 검색 후기 평점 평균 높은 순 API -검색화면
+    @ResponseBody
+    @GetMapping("/search/location/avg")
+    public BaseResponse<List<Store>> searchReviewsAvgLocation (@RequestParam(value = "query") String storeLocation) {
+        try {
+            if (storeLocation == null || storeLocation.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (storeLocation.length() > 100) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
+            }
+
+            //int userIdx = jwtService.getUserIdx();
+            int userIdx = 1; //임시지정
+            List<Store> store = searchService.searchLocationReviewsAvgList(storeLocation);
             searchService.postSearchHistory(userIdx, storeLocation);
 
             System.out.println("query: " + storeLocation);
@@ -286,7 +351,7 @@ public class SearchController {
         }
     }
 
-    //시도 후기 많은 순 API - 메인화면
+    //시도 후기 많은 순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/town/top_reviews")
     public BaseResponse<List<Store>> searchMostReviewsByTown (@RequestParam("city") String city, @RequestParam("district") String district){
@@ -300,6 +365,32 @@ public class SearchController {
 
             int userIdx = 1; // 임시지정
             List<Store> store = searchService.searchCityListMostReviews(city, district);
+            //searchService.postSearchHistory(userIdx, city + " " + district);
+
+            if (store.isEmpty()) {
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    //시도 후기 평점 평균 높은순 API - 검색화면
+    @ResponseBody
+    @GetMapping("/search/town/avg")
+    public BaseResponse<List<Store>> searchReviewsAvgByTown (@RequestParam("city") String city, @RequestParam("district") String district){
+        try {
+            if (district == null || district.equals("") || city == null || city.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (district.length() > 50 || city.length() > 50) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
+            }
+
+            int userIdx = 1; // 임시지정
+            List<Store> store = searchService.searchCityListReviewsAvg(city, district);
             //searchService.postSearchHistory(userIdx, city + " " + district);
 
             if (store.isEmpty()) {
