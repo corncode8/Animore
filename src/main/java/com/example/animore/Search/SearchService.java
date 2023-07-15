@@ -52,6 +52,16 @@ public class SearchService {
         }
     }
 
+    //가게이름 인기순
+    public List<Store> searchNameBestList(String storeName) throws BaseException {
+        try {
+            List<Store> store = searchRespository.findByStoreNameContainingOrderByStoreLikeDesc(storeName);
+            return store;
+        }catch (Exception exception) {
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
 
     //주소
     public List<Store> searchLocationList(String storeLocation) throws BaseException {
@@ -63,6 +73,17 @@ public class SearchService {
         }
     }
 
+    //주소 인기순
+    public List<Store> searchLocationBestList(String storeLocation) throws BaseException {
+        try{
+            List<Store> store = searchRespository.findByStoreLocationContainingOrderByStoreLikeDesc(storeLocation);
+            return store;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
+
     //시'도
     public List<Store> searchCityList(String city, String district) throws BaseException {
 
@@ -73,6 +94,19 @@ public class SearchService {
             List<Store> store = searchRespository.findByTown(town);
             return store;
         } catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
+    //시도 인기순
+    public List<Store> searchCityListBest(String city, String district) throws BaseException {
+        try {
+            Town town = townRepository.getTownIdByCityAndDistrict(city, district);
+            System.out.println("가게정보: "+town);
+
+            List<Store> store = searchRespository.findByTownOrderByStoreLikeDesc(town);
+            return store;
+        }catch (Exception exception){
             throw new BaseException(RESPONSE_ERROR);
         }
     }

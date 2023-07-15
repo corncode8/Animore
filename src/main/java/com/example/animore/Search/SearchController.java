@@ -60,6 +60,40 @@ public class SearchController {
         }
     }
 
+    //가게이름 검색 인기순 API - 검색화면
+    @ResponseBody
+    @GetMapping("/search/name/best")
+    public BaseResponse<List<Store>> searchNameBest(@RequestParam(value = "query") String storeName) {
+        try {
+
+            if (storeName == null || storeName.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (storeName.length() > 20) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
+            }
+
+            //int userIdx = jwtService.getUserIdx();
+            int userIdx = 1; //임시지정
+            List<Store> store = searchService.searchNameBestList(storeName);
+            searchService.postSearchHistory(userIdx, storeName);
+
+            System.out.println("query: " + storeName);
+            System.out.println("가게정보: " + store);
+
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
 
     //주소 검색 API - 검색화면
     @ResponseBody
@@ -76,6 +110,40 @@ public class SearchController {
             //int userIdx = jwtService.getUserIdx();
             int userIdx = 1; //임시지정
             List<Store> store = searchService.searchLocationList(storeLocation);
+            searchService.postSearchHistory(userIdx, storeLocation);
+
+            System.out.println("query: " + storeLocation);
+            System.out.println("가게정보: " + store);
+
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+    }
+
+    //주소 검색 인기순 API -검색화면
+    //
+    @ResponseBody
+    @GetMapping("/search/location/best")
+    public BaseResponse<List<Store>> searchBestLocation (@RequestParam(value = "query") String storeLocation) {
+        try {
+            if (storeLocation == null || storeLocation.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (storeLocation.length() > 100) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
+            }
+
+            //int userIdx = jwtService.getUserIdx();
+            int userIdx = 1; //임시지정
+            List<Store> store = searchService.searchLocationBestList(storeLocation);
             searchService.postSearchHistory(userIdx, storeLocation);
 
             System.out.println("query: " + storeLocation);
@@ -112,6 +180,32 @@ public class SearchController {
 
             System.out.println("query: " + city + " " + district);
             System.out.println("가게정보: " + store);
+
+            if (store.isEmpty()) {
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    //시도 인기순 API - 검색화면
+    @ResponseBody
+    @GetMapping("/search/town/best")
+    public BaseResponse<List<Store>> searchBestByTown (@RequestParam("city") String city, @RequestParam("district") String district){
+        try {
+            if (district == null || district.equals("") || city == null || city.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (district.length() > 50 || city.length() > 50) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
+            }
+
+            int userIdx = 1; // 임시지정
+            List<Store> store = searchService.searchCityListBest(city, district);
+            //searchService.postSearchHistory(userIdx, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
