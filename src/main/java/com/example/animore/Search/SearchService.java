@@ -62,6 +62,16 @@ public class SearchService {
         }
     }
 
+    //가게이름 후기 많은 순
+    public List<Store> searchNameMostReviewsList(String storeName) throws BaseException {
+        try {
+            List<Store> store = searchRespository.findStoresWithMostReviewsByStoreNameContaining(storeName);
+            return store;
+        }catch (Exception exception) {
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
 
     //주소
     public List<Store> searchLocationList(String storeLocation) throws BaseException {
@@ -77,6 +87,16 @@ public class SearchService {
     public List<Store> searchLocationBestList(String storeLocation) throws BaseException {
         try{
             List<Store> store = searchRespository.findByStoreLocationContainingOrderByStoreLikeDesc(storeLocation);
+            return store;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
+    //주소 후기 많은 순
+    public List<Store> searchLocationMostReviesList(String storeLocation) throws BaseException {
+        try{
+            List<Store> store = searchRespository.findStoresWithMostReviewsByStoreLocationContaining(storeLocation);
             return store;
         }catch (Exception exception){
             throw new BaseException(RESPONSE_ERROR);
@@ -105,6 +125,19 @@ public class SearchService {
             System.out.println("가게정보: "+town);
 
             List<Store> store = searchRespository.findByTownOrderByStoreLikeDesc(town);
+            return store;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
+    //시도 후기 많은 순
+    public List<Store> searchCityListMostReviews(String city, String district) throws BaseException {
+        try {
+            Town town = townRepository.getTownIdByCityAndDistrict(city, district);
+            System.out.println("가게정보: "+town);
+
+            List<Store> store = searchRespository.findStoresWithMostReviewsByTown(town);
             return store;
         }catch (Exception exception){
             throw new BaseException(RESPONSE_ERROR);
