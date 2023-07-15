@@ -11,14 +11,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.model.User;
-import umc.animore.repository.UserRepository;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Date;
 
 //스프링시큐리티에서 UsernamePasswordAuthenticationFilter 가 있음.
@@ -27,7 +25,7 @@ import java.util.Date;
 
 
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
 
@@ -37,13 +35,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     // login 요청을 하면 로그인 시도를 위해서 실행되는 함수
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        System.out.println("JwtAuthenticationFilter : 진입");
+        System.out.println("JwtUsernamePasswordAuthenticationFilter : 진입");
 
         // 1.username, password 받아서
 
         ObjectMapper om = new ObjectMapper();
         try {
             User user = om.readValue(request.getInputStream(),User.class);
+
+            System.out.println(user);
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword());

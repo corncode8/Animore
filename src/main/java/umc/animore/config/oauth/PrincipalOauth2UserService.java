@@ -44,6 +44,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oAuth2UserInfo = null;
         if(userRequest.getClientRegistration().getRegistrationId().equals("kakao")){	//추가
             oAuth2UserInfo = new KakaoUserInfo((Map<String, Object>)oAuth2User.getAttributes());
+
         }
 
         Optional<User> userOptional =
@@ -66,6 +67,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     .build();
             userRepository.save(user);
         }
+
+
 
         return new PrincipalDetails(user, oAuth2User.getAttributes());
 

@@ -6,17 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.CorsFilter;
-import umc.animore.config.CorsConfig;
-import umc.animore.config.jwt.JwtAuthenticationFilter;
+import umc.animore.config.jwt.JwtUsernamePasswordAuthenticationFilter;
 import umc.animore.config.jwt.JwtAuthorizationFilter;
+import umc.animore.config.oauth.OAuth2AuthenticationSuccessHandler;
 import umc.animore.config.oauth.PrincipalOauth2UserService;
 import umc.animore.repository.UserRepository;
 
@@ -40,6 +37,8 @@ public class SecurityConfig  {
 
     private final UserRepository userRepository;
 
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
 
 
     public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {
@@ -48,7 +47,7 @@ public class SecurityConfig  {
             AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
             http
                     .addFilter(corsConfig.corsFilter())
-                    .addFilter(new JwtAuthenticationFilter(authenticationManager))
+                    .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager))
                     .addFilter(new JwtAuthorizationFilter(authenticationManager,userRepository));
         }
     }
@@ -82,7 +81,9 @@ public class SecurityConfig  {
                 .defaultSuccessUrl("/")			// 로그인 성공하면 "/" 으로 이동
                 .failureUrl("/loginForm")		// 로그인 실패 시 /loginForm으로 이동
                 .userInfoEndpoint()			// 로그인 성공 후 사용자정보를 가져온다
-                .userService(principalOauth2UserService);	//사용자정보를 처리할 때 사용한다
+                .userService(principalOauth2UserService)
+                .and()
+                .successHandler(oAuth2AuthenticationSuccessHandler);	//사용자정보를 처리할 때 사용한다
 
         return http.build();
     }
