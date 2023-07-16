@@ -39,6 +39,10 @@ public class Store {
     private String modifyAt; // 수정 일자
     @Column(name = "store_like")
     private Integer storeLike; //찜 기능
+    @Column(name="latitude")
+    private double latitude; //위도
+    @Column(name="longitude")
+    private double longitude; //경도
 
     //다대일 관계
     //한 개의 Town이 여러 개의 Store를 가질 수 있지만, 각각의 Store는 하나의 Town에만 속할 수 있는 관계

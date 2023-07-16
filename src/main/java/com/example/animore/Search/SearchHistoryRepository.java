@@ -11,5 +11,5 @@ import java.util.List;
 public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Integer> {
 
     //최근 검색기록 - 3개
-    Page<SearchHistory> findByUserIdxOrderBySearchCreateAtDesc(int userIdx, Pageable pageable);
+    List<SearchHistory> findByUserIdxOrderBySearchCreateAtDesc(int userIdx);
 }

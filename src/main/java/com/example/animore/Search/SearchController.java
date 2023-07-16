@@ -160,7 +160,38 @@ public class SearchController {
         }
     }
 
+    //가게이름 검색 거리순 API - 검색화면
+    @ResponseBody
+    @GetMapping("/search/name/recommend")
+    public BaseResponse<List<Store>> searchNameRecommend(@RequestParam(value = "query") String storeName) {
+        try {
 
+            if (storeName == null || storeName.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (storeName.length() > 20) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
+            }
+
+            //int userIdx = jwtService.getUserIdx();
+            int userIdx = 1; //임시지정
+            List<Store> store = searchService.recommendNearestStore(storeName);
+            searchService.postSearchHistory(userIdx, storeName);
+
+            System.out.println("query: " + storeName);
+            System.out.println("가게정보: " + store);
+
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 
     //주소 검색 API - 검색화면
     @ResponseBody
@@ -196,7 +227,6 @@ public class SearchController {
     }
 
     //주소 검색 인기순 API -검색화면
-    //
     @ResponseBody
     @GetMapping("/search/location/best")
     public BaseResponse<List<Store>> searchBestLocation (@RequestParam(value = "query") String storeLocation) {
@@ -294,6 +324,39 @@ public class SearchController {
             return new BaseResponse<>((exception.getStatus()));
         }
 
+    }
+
+    //가게주소 검색 거리순 API - 검색화면
+    @ResponseBody
+    @GetMapping("/search/location/recommend")
+    public BaseResponse<List<Store>> searchLocationRecommend(@RequestParam(value = "query") String storeLocation) {
+        try {
+
+            if (storeLocation == null || storeLocation.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (storeLocation.length() > 20) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
+            }
+
+            //int userIdx = jwtService.getUserIdx();
+            int userIdx = 1; //임시지정
+            List<Store> store = searchService.recommendNearestStoreLocation(storeLocation);
+            searchService.postSearchHistory(userIdx, storeLocation);
+
+            System.out.println("query: " + storeLocation);
+            System.out.println("가게정보: " + store);
+
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
     }
 
     //시도 검색 API - 검색화면
@@ -403,6 +466,36 @@ public class SearchController {
         }
     }
 
+
+    //시도 검색 거리순 API - 검색화면
+    @ResponseBody
+    @GetMapping("/search/town/recommend")
+    public BaseResponse<List<Store>> searchByTownRecommend(@RequestParam("city") String city, @RequestParam("district") String district) {
+        try {
+            if (district == null || district.equals("") || city == null || city.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            if (district.length() > 50 || city.length() > 50) {
+                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
+            }
+
+            int userIdx = 1; // 임시지정
+            List<Store> store = searchService.recommendNearestStoreTown(city,district);
+            //searchService.postSearchHistory(userIdx, city + " " + district);
+
+            System.out.println("query: " + city + " " + district);
+            System.out.println("가게정보: " + store);
+
+            if (store.isEmpty()) {
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+
+            return new BaseResponse<>(store);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
     //후기많은순 API  - 메인화면
     //GET /search/top_reviews
     @ResponseBody
@@ -435,114 +528,6 @@ public class SearchController {
 //            return new BaseResponse<>((exception.getStatus()));
 //        }
 //    }
-
-
-
-
-//    //가게이름 검색 API - 검색화면 (페이징)
-//    //GET /search/storename?query=가게이름&page=2
-//    @ResponseBody
-//    @GetMapping("/search/storename")
-//    public BaseResponse<Page<Store>> searchName(@RequestParam(value = "query") String storeName, @RequestParam(defaultValue = "0") int page) {
-//        try {
-//
-//            if (storeName == null || storeName.equals("")) {
-//                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
-//            }
-//            if (storeName.length() > 20) {
-//                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
-//            }
-//
-//            //int userIdx = jwtService.getUserIdx();
-//            int userIdx = 1; //임시지정
-//            Page<Store> store = searchService.searchNameListTopPage(storeName, page);
-//            searchService.postSearchHistory(userIdx, storeName);
-//
-//            System.out.println("query: " + storeName);
-//            System.out.println("가게정보: " + store);
-//
-//            if (store.isEmpty()) {
-//                // 반환값이 없다
-//                return new BaseResponse<>(DATABASE_ERROR);
-//            }
-//
-//            return new BaseResponse<>(store);
-//
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
-
-
-
-
-
-//    //주소 검색 API - 검색화면 (페이징)
-//    //GET /search/storelocation?query=가게주소&page=2
-//    @ResponseBody
-//    @GetMapping("/search/storelocation")
-//    public BaseResponse<Page<Store>> searchLocation (@RequestParam(value = "query") String storeLocation,@RequestParam(defaultValue = "0") int page ) {
-//        try {
-//            if (storeLocation == null || storeLocation.equals("")) {
-//                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
-//            }
-//            if (storeLocation.length() > 100) {
-//                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
-//            }
-//
-//            //int userIdx = jwtService.getUserIdx();
-//            int userIdx = 1; //임시지정
-//            Page<Store> store = searchService.searchLocationListTopPage(storeLocation,page);
-//            searchService.postSearchHistory(userIdx, storeLocation);
-//
-//            System.out.println("query: " + storeLocation);
-//            System.out.println("가게정보: " + store);
-//
-//            if (store.isEmpty()) {
-//                // 반환값이 없다
-//                return new BaseResponse<>(DATABASE_ERROR);
-//            }
-//
-//            return new BaseResponse<>(store);
-//
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//
-//    }
-    /*
-
-    //시도 검색 API - 검색화면 (페이징)
-    //GET /search/storetown?townName=서울시&city=강남구
-    @ResponseBody
-    @GetMapping("/search/storetown")
-    public BaseResponse<Page<Store>> searchByTownAndCity(@RequestParam("city") String city, @RequestParam("district") String district, @RequestParam(defaultValue = "0") int page) {
-        try {
-            if (district == null || district.equals("") || city == null || city.equals("")) {
-                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
-            }
-            if (district.length() > 50 || city.length() > 50) {
-                return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
-            }
-
-            int userIdx = 1; // 임시지정
-            Page<Store> store = searchService.searchStoresByCityAndDistrict(city,district, page);
-            searchService.postSearchHistory(userIdx, city + " " + district);
-
-            System.out.println("query: " + city + " " + district);
-            System.out.println("가게정보: " + store);
-
-            if (store.isEmpty()) {
-                return new BaseResponse<>(DATABASE_ERROR);
-            }
-
-            return new BaseResponse<>(store);
-        } catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
-    }
-
-     */
 
 }
 

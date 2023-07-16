@@ -2,6 +2,7 @@ package com.example.animore.Search;
 
 import com.example.Config.BaseException;
 import com.example.Config.BaseResponse;
+import com.example.animore.Search.model.Location;
 import com.example.animore.Search.model.SearchHistory;
 import com.example.animore.Search.model.Store;
 import com.example.animore.Search.model.Town;
@@ -33,13 +34,17 @@ public class SearchService {
     @Autowired
     private ReviewRepository reviewRepository;
 
+    @Autowired
+    private LocationRepository locationRepository;
+
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired SearchService(SearchRespository searchRespository, SearchHistoryRepository searchHistoryRepository, TownRepository townRepository, ReviewRepository reviewRepository){
+    @Autowired SearchService(SearchRespository searchRespository, SearchHistoryRepository searchHistoryRepository, TownRepository townRepository, ReviewRepository reviewRepository, LocationRepository locationRepository){
         this.searchRespository = searchRespository;
         this.searchHistoryRepository = searchHistoryRepository;
         this.townRepository =townRepository;
         this.reviewRepository = reviewRepository;
+        this.locationRepository = locationRepository;
     }
 
     //가게이름
@@ -191,139 +196,160 @@ public class SearchService {
 
     }
 
-//    //가게이름 - 후기 많은 순
-//    public List<Store> searchNameListTop(String storeName) throws BaseException {
-//        try {
-//            List<Store> store = searchRespository.findByStoreNameContainingOrderByReviewsDesc(storeName);
-//            return store;
-//        }catch (Exception exception) {
-//            throw new BaseException(RESPONSE_ERROR);
-//        }
-//    }
-
-//    //가게이름 - 후기 많은 순 (4개씩)
-//    public Page<Store> searchNameListTopPage(String storeName, int page) throws BaseException {
-//        try {
-//            Pageable pageable = PageRequest.of(page,4);
-//            Page<Store> store = searchRespository.findByStoreNameContainingOrderByReviewsDesc(storeName,pageable);
-//            return store;
-//        }catch (Exception exception) {
-//            throw new BaseException(RESPONSE_ERROR);
-//        }
-//    }
-
-
-
-//    //주소 - 후기 많은 순(4개씩)
-//    public Page<Store> searchLocationListTopPage(String storeLocation, int page) throws BaseException {
-//        try {
-//            Pageable pageable = PageRequest.of(page,4);
-//            Page<Store> store = searchRespository.findByStoreLocationContainingOrderByReviewsDesc(storeLocation, pageable);
-//            return store;
-//        }catch (Exception exception) {
-//            throw new BaseException(RESPONSE_ERROR);
-//        }
-//    }
-/*
-    //시도 - 후기 많은 순 (4개씩)
-    public Page<Store> searchStoresByCityAndDistrict(String city, String district, int page) throws BaseException {
+    //거리순 - 가게이름
+    public List<Store> recommendNearestStore(String storeName) throws BaseException {
         try {
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            if (optionalLocation.isPresent()) {
+                Location currentLocation = optionalLocation.get();
 
-            //Town townId = townRepository.findTownByCityAndDistrict(city, district);
+                List<Store> allStores = searchRespository.findAll();
 
-            Pageable pageable = PageRequest.of(page, 4, Sort.by("reviews").descending());
+                List<Store> nearestStores = new ArrayList<>();
+                double minDistance = Double.MAX_VALUE;
 
-           // Page<Store> storePage = searchRespository.findByTownIdOrderByReviewsDesc(townId, pageable);
+                for (Store store : allStores) {
+                    if (store.getStoreName().equals(storeName)) {
+                        // 가게와 현재 위치 간의 거리 계산
+                        double distance = calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
+                                store.getLatitude(), store.getLongitude());
 
-            if (storePage.isEmpty()) {
-                // 결과가 없는 경우 빈 페이지 생성
-                return Page.empty();
+                        // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestStores.clear();
+                            nearestStores.add(store);
+                        } else if (distance == minDistance) {
+                            nearestStores.add(store);
+                        }
+                    }
+                }
+
+                return nearestStores;
             }
-
-            // 결과가 3개 미만인 경우, 빈 엔티티를 추가하여 출력할 수 있도록 합니다.
-            int missingCount = Math.max(4 - storePage.getContent().size(), 0);
-            List<Store> content = new ArrayList<>(storePage.getContent());
-            for (int i = 0; i < missingCount; i++) {
-                content.add(new Store());
-            }
-
-            Page<Store> store = new PageImpl<>(content, pageable, storePage.getTotalElements());
-
-            return store;
-        }catch (Exception exception) {
+            return null;
+        } catch (Exception exception) {
             throw new BaseException(RESPONSE_ERROR);
         }
     }
 
- */
 
-    /*
-    public List<Store> searchStoresByCityAndDistrict(String city, String district) throws BaseException {
-
+    //거리순 - 가게주소
+    public List<Store> recommendNearestStoreLocation(String storeLocation) throws BaseException {
         try {
-            List<Town> towns = townRepository.findByCityAndDistrict(city, district);
-            List<Store> stores = new ArrayList<>();
-            for (Town town : towns) {
-                stores.addAll(town.getStores());
-            }
-            return stores;
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            if (optionalLocation.isPresent()) {
+                Location currentLocation = optionalLocation.get();
 
-        } catch (Exception exception){
+                List<Store> allStores = searchRespository.findAll();
+
+                List<Store> nearestStores = new ArrayList<>();
+                double minDistance = Double.MAX_VALUE;
+
+                for (Store store : allStores) {
+                    if (store.getStoreLocation().equals(storeLocation)) {
+                        // 가게와 현재 위치 간의 거리 계산
+                        double distance = calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
+                                store.getLatitude(), store.getLongitude());
+
+                        // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestStores.clear();
+                            nearestStores.add(store);
+                        } else if (distance == minDistance) {
+                            nearestStores.add(store);
+                        }
+                    }
+                }
+
+                return nearestStores;
+            }
+            return null;
+        } catch (Exception exception) {
             throw new BaseException(RESPONSE_ERROR);
         }
-
     }
 
-     */
+
+    //거리순 - 가게시도
+    public List<Store> recommendNearestStoreTown(String city, String district) throws BaseException {
+        try {
+            Town town = townRepository.getTownIdByCityAndDistrict(city, district);
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            if (optionalLocation.isPresent()) {
+                Location currentLocation = optionalLocation.get();
+
+                List<Store> allStores = searchRespository.findAll();
+
+                List<Store> nearestStores = new ArrayList<>();
+                double minDistance = Double.MAX_VALUE;
+
+                for (Store store : allStores) {
+                    if (store.getTown().equals(town)) {
+                        // 가게와 현재 위치 간의 거리 계산
+                        double distance = calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
+                                store.getLatitude(), store.getLongitude());
+
+                        // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestStores.clear();
+                            nearestStores.add(store);
+                        } else if (distance == minDistance) {
+                            nearestStores.add(store);
+                        }
+                    }
+                }
+
+                return nearestStores;
+            }
+            return null;
+        } catch (Exception exception) {
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
 
 
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // 지구의 반지름 (단위: km)
 
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
 
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-//    //후기많은순
-//    public List<Store> getTopStoresByReviewCount() throws BaseException {
-//        try{
-//            List<Store> store = searchRespository.findByOrderByReviewsDesc();
-//            return store;
-//        }catch (Exception exception){
-//            throw new BaseException(RESPONSE_ERROR);
-//        }
-//    }
+        double distance = R * c;
 
-//    //후기 많은 순 (3개씩) - 메인화면(예약 많은 순이긴 한데 일단 예약 페이지 없어서 후기 순으로 만듦)
-//    public Page<Store> getTopStoresByReviewCountPage(int page) throws BaseException {
-//        try {
-//            Pageable pageable = PageRequest.of(page,3);
-//            Page<Store> store = searchRespository.findByOrderByReviewsDesc(pageable);
-//            return store;
-//        }catch (Exception exception) {
-//            throw new BaseException(RESPONSE_ERROR);
-//        }
-//    }
-
+        return distance;
+    }
 
     //최근 검색기록 (3개씩)
-    public Page<SearchHistory> searchHistory(int userIdx, int page) throws BaseException {
+    public List<SearchHistory> searchHistory(int userIdx) throws BaseException {
         try {
-            Pageable pageable = PageRequest.of(page,3);
-            Page<SearchHistory> searchHistoryRes = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx, pageable);
+            List<SearchHistory> searchHistoryRes = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
             return searchHistoryRes;
         }catch (Exception exception){
             throw  new BaseException(RESPONSE_ERROR);
         }
     }
 
-    public void postSearchHistory(int userIdx, String searchQuery) {
-        Page<SearchHistory> searchHistoryPage = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx,PageRequest.of(0, 3));
 
-        if (searchHistoryPage.getTotalElements() < 3) {
-            saveQuery(userIdx, searchQuery);
-        } else {
-            List<SearchHistory> searchHistoryList = searchHistoryPage.getContent();
-            SearchHistory oldestSearchHistory = searchHistoryList.get(searchHistoryList.size() - 1);
-            searchHistoryRepository.delete(oldestSearchHistory);
-            saveQuery(userIdx, searchQuery);
-        }
+
+    public void postSearchHistory(int userIdx, String searchQuery) {
+        List<SearchHistory> searchHistoryPage = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
+
+//        if (searchHistoryPage.getTotalElements() < 3) {
+//            saveQuery(userIdx, searchQuery);
+//        } else {
+//            List<SearchHistory> searchHistoryList = searchHistoryPage.getContent();
+//            SearchHistory oldestSearchHistory = searchHistoryList.get(searchHistoryList.size() - 1);
+//            searchHistoryRepository.delete(oldestSearchHistory);
+//            saveQuery(userIdx, searchQuery);
+//        }
     }
 
     private void saveQuery(int userIdx, String searchQuery) {
