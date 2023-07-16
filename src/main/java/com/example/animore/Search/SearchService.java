@@ -338,18 +338,16 @@ public class SearchService {
     }
 
 
-
     public void postSearchHistory(int userIdx, String searchQuery) {
-        List<SearchHistory> searchHistoryPage = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
+        List<SearchHistory> searchHistoryList = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
 
-//        if (searchHistoryPage.getTotalElements() < 3) {
-//            saveQuery(userIdx, searchQuery);
-//        } else {
-//            List<SearchHistory> searchHistoryList = searchHistoryPage.getContent();
-//            SearchHistory oldestSearchHistory = searchHistoryList.get(searchHistoryList.size() - 1);
-//            searchHistoryRepository.delete(oldestSearchHistory);
-//            saveQuery(userIdx, searchQuery);
-//        }
+        if (searchHistoryList.size() < 3) {
+            saveQuery(userIdx, searchQuery);
+        } else {
+            SearchHistory oldestSearchHistory = searchHistoryList.get(searchHistoryList.size() - 1);
+            searchHistoryRepository.delete(oldestSearchHistory);
+            saveQuery(userIdx, searchQuery);
+        }
     }
 
     private void saveQuery(int userIdx, String searchQuery) {

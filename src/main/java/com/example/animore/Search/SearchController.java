@@ -373,7 +373,7 @@ public class SearchController {
 
             int userIdx = 1; // 임시지정
             List<Store> store = searchService.searchCityList(city,district);
-            //searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userIdx, city + " " + district);
 
             System.out.println("query: " + city + " " + district);
             System.out.println("가게정보: " + store);
@@ -402,7 +402,7 @@ public class SearchController {
 
             int userIdx = 1; // 임시지정
             List<Store> store = searchService.searchCityListBest(city, district);
-            //searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userIdx, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
@@ -428,7 +428,7 @@ public class SearchController {
 
             int userIdx = 1; // 임시지정
             List<Store> store = searchService.searchCityListMostReviews(city, district);
-            //searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userIdx, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
@@ -454,7 +454,7 @@ public class SearchController {
 
             int userIdx = 1; // 임시지정
             List<Store> store = searchService.searchCityListReviewsAvg(city, district);
-            //searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userIdx, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
@@ -481,7 +481,7 @@ public class SearchController {
 
             int userIdx = 1; // 임시지정
             List<Store> store = searchService.recommendNearestStoreTown(city,district);
-            //searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userIdx, city + " " + district);
 
             System.out.println("query: " + city + " " + district);
             System.out.println("가게정보: " + store);
