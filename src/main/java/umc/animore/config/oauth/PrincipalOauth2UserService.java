@@ -28,7 +28,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     // userRequest 는 code를 받아서 accessToken을 응답 받은 객체
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(userRequest); // google의 회원 프로필 조회
+        OAuth2User oAuth2User = super.loadUser(userRequest); //
 
         // code를 통해 구성한 정보
         System.out.println("userRequest clientRegistration : " + userRequest.getClientRegistration());
@@ -44,7 +44,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oAuth2UserInfo = null;
         if(userRequest.getClientRegistration().getRegistrationId().equals("kakao")){	//추가
             oAuth2UserInfo = new KakaoUserInfo((Map<String, Object>)oAuth2User.getAttributes());
-
+        }else if(userRequest.getClientRegistration().getRegistrationId().equals("naver")){
+            oAuth2UserInfo = new NaverUserInfo((Map<String, Object>)oAuth2User.getAttributes().get("response"));
         }
 
         Optional<User> userOptional =
