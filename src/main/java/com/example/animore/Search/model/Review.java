@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -24,14 +27,16 @@ public class Review {
     private Integer userIdx;
     @Column(name = "pet_id")
     private Integer petId;
+    @CreationTimestamp
     @Column(name = "created_date")
-    private String createdDate;
+    private Timestamp createdDate;
+    @UpdateTimestamp
     @Column(name = "modified_date")
-    private String modifiedDate;
+    private Timestamp modifiedDate;
     @Column(name = "review_content")
     private String reviewContent;
     @Column(name="review_like")
-    private double reviewLike;
+    private Double reviewLike;
 
     //일대다 관계
     //가게에는 여러 개의 리뷰를 작성할 수 있고, 리뷰는 한 가게에 하나씩만 작성할 수 있는 관계

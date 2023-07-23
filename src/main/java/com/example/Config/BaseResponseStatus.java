@@ -22,7 +22,11 @@ public enum BaseResponseStatus { //열거 상수를 통해 응답상태를 나�
     DATABASE_ERROR(false,4000,"데이터베이스 연결에 실패"),
 
     SERVER_ERROR(false,4001,"서버 연결 실패"),
-    NO_MATCHING_STORE(false,4002,"데이터베이스에 저장된 값이 없음");
+    NO_MATCHING_STORE(false,4002,"데이터베이스에 저장된 값이 없음"),
+
+    //5000 : 후기작성 오류
+    EMPTY_REVIEW_CONTENT(false,5000,"후기 내용 입력안함"),
+    EMPTY_REVIEW_LIKE(false,5000,"후기 별점 입력안함");
 
 
     private final boolean isSuccess;
