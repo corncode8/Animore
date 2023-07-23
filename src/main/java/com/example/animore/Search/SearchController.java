@@ -513,6 +513,23 @@ public class SearchController {
 
     }
 
+    //예약많은순 API  - 메인화면
+    //GET /search/top_reservation
+    @ResponseBody
+    @GetMapping("/search/top_reservation")
+    public BaseResponse<List<Store>> searchTopreservation() {
+        try {
+            //int userIdx = jwtService.getUserIdx();
+            int userIdx = 1; //임시지정
+            List<Store> store = searchService.searchReservationMost();
+            return new BaseResponse<>(store);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+    }
+
 
 //    //최근 검색어 API (3개씩) - 메인화면
 //    //GET /search/recent?page=1

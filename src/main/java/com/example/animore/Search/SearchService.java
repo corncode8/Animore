@@ -358,4 +358,13 @@ public class SearchService {
         searchHistoryRepository.save(searchHistory);
     }
 
+    //예약 많은 순
+    public List<Store> searchReservationMost() throws BaseException {
+        try{
+            List<Store> store = searchRespository.findStoresWithMostReservations();
+            return store;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
 }
