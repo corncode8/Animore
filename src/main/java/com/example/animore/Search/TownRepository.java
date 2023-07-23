@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TownRepository extends JpaRepository<Town, Integer> {
+public interface TownRepository extends JpaRepository<Town,Long> {
 
     Town getTownIdByCityAndDistrict(String city, String district); //town_id찾기
 }

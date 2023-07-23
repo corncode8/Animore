@@ -19,8 +19,8 @@ import javax.persistence.*;
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "store_idx")
-    private Integer storeIdx; //가게 idx
+    @Column(name = "store_id")
+    private Long storeId; //가게 idx
     @Column(name = "store_name")
     private String storeName; //가게 이름
     @Column(name = "store_location")

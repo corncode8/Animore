@@ -23,8 +23,8 @@ import java.time.LocalDateTime;
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="reservation_idx")
-    private Integer reservationId; //업체 idx
+    @Column(name="reservation_id")
+    private Long reservationId; //업체 idx
     @Column(name="user_phone")
     private String userPhone; //보호자 전번
     @Column(name = "address")
@@ -61,7 +61,7 @@ public class Reservation {
 //    private User user;              // 유저_idx
 
     @ManyToOne
-    @JoinColumn(name= "store_idx")
+    @JoinColumn(name= "store_id")
     private Store store;            // 업체_idx
 
 

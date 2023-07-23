@@ -11,11 +11,11 @@ import static com.example.Config.BaseResponseStatus.RESPONSE_ERROR;
 @Service
 public class StoreService {
     private StoreRepository storeRepository;
-    //private ReviewRepository reviewRepository;
+    private ReviewRepository reviewRepository;
 
-    public StoreService(StoreRepository storeRepository){
+    public StoreService(StoreRepository storeRepository, ReviewRepository reviewRepository){
         this.storeRepository = storeRepository;
-        //this.reviewRepository = reviewReopsitory;
+        this.reviewRepository = reviewRepository;
     }
 
 //    public List<Store> addReviewToStore(int storeIdx) throws BaseException {

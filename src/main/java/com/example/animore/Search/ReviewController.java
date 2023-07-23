@@ -48,7 +48,7 @@ public class ReviewController {
     }
 
     @PatchMapping("/reviews/update/{reviewId}")
-    public BaseResponse<Review> updatePartialReview(@PathVariable Integer reviewId, @RequestBody Review review) {
+    public BaseResponse<Review> updatePartialReview(@PathVariable Long reviewId, @RequestBody Review review) {
         try {
             Review updatedReview = reviewService.updatePartialReview(reviewId,review);
             return new BaseResponse<>(true, "리뷰 수정 성공", 1000, updatedReview);
@@ -60,7 +60,7 @@ public class ReviewController {
     //리뷰 삭제
     @ResponseBody
     @DeleteMapping("/reviews/{reviewId}")
-    public BaseResponse<Review> deleteReview(@PathVariable Integer reviewId) {
+    public BaseResponse<Review> deleteReview(@PathVariable Long reviewId) {
         try {
             Review deletedReview = reviewService.deleteReview(reviewId);
             return new BaseResponse<>(true, "리뷰 삭제 성공", 1000, deletedReview);
@@ -72,7 +72,7 @@ public class ReviewController {
     //리뷰조회
     @ResponseBody
     @GetMapping("/reviews/{reviewId}")
-    public BaseResponse<List<Review>> getReviewById(@PathVariable Integer reviewId) {
+    public BaseResponse<List<Review>> getReviewById(@PathVariable Long reviewId) {
         try{
             if (reviewId == null){
                 return new BaseResponse<>(BaseResponseStatus.GET_SEARCH_EMPTY_QUERY);
@@ -88,7 +88,7 @@ public class ReviewController {
     //특정 가게의 모든 리뷰 조회
     @ResponseBody
     @GetMapping("/reviews/store/{storeId}")
-    public BaseResponse<List<Review>> getReviewsByStoreId(@PathVariable Integer storeId){
+    public BaseResponse<List<Review>> getReviewsByStoreId(@PathVariable Long storeId){
         try{
             if (storeId == null){
                 return new BaseResponse<>(BaseResponseStatus.GET_SEARCH_EMPTY_QUERY);

@@ -199,7 +199,7 @@ public class SearchService {
     //거리순 - 가게이름
     public List<Store> recommendNearestStore(String storeName) throws BaseException {
         try {
-            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1L));
             if (optionalLocation.isPresent()) {
                 Location currentLocation = optionalLocation.get();
 
@@ -237,7 +237,7 @@ public class SearchService {
     //거리순 - 가게주소
     public List<Store> recommendNearestStoreLocation(String storeLocation) throws BaseException {
         try {
-            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1L));
             if (optionalLocation.isPresent()) {
                 Location currentLocation = optionalLocation.get();
 
@@ -276,7 +276,7 @@ public class SearchService {
     public List<Store> recommendNearestStoreTown(String city, String district) throws BaseException {
         try {
             Town town = townRepository.getTownIdByCityAndDistrict(city, district);
-            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1L));
             if (optionalLocation.isPresent()) {
                 Location currentLocation = optionalLocation.get();
 
@@ -328,7 +328,7 @@ public class SearchService {
     }
 
     //최근 검색기록 (3개씩)
-    public List<SearchHistory> searchHistory(int userIdx) throws BaseException {
+    public List<SearchHistory> searchHistory(Long userIdx) throws BaseException {
         try {
             List<SearchHistory> searchHistoryRes = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
             return searchHistoryRes;
@@ -338,7 +338,7 @@ public class SearchService {
     }
 
 
-    public void postSearchHistory(int userIdx, String searchQuery) {
+    public void postSearchHistory(Long userIdx, String searchQuery) {
         List<SearchHistory> searchHistoryList = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
 
         if (searchHistoryList.size() < 3) {
@@ -350,7 +350,7 @@ public class SearchService {
         }
     }
 
-    private void saveQuery(int userIdx, String searchQuery) {
+    private void saveQuery(Long userIdx, String searchQuery) {
         SearchHistory searchHistory = new SearchHistory();
         searchHistory.setUserIdx(userIdx);
         searchHistory.setSearchQuery(searchQuery);
