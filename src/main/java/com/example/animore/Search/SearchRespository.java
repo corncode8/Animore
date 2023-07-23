@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SearchRespository extends JpaRepository<Store, Integer> {
+public interface SearchRespository extends JpaRepository<Store,Long> {
 
     //가게이름
     List<Store> findByStoreNameContaining(String storeName);

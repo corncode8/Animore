@@ -22,11 +22,9 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
-    private Integer reviewId;
-    @Column(name = "user_idx")
-    private Integer userIdx;
+    private Long reviewId;
     @Column(name = "pet_id")
-    private Integer petId;
+    private Long petId;
     @CreationTimestamp
     @Column(name = "created_date")
     private Timestamp createdDate;
@@ -41,16 +39,16 @@ public class Review {
     //일대다 관계
     //가게에는 여러 개의 리뷰를 작성할 수 있고, 리뷰는 한 가게에 하나씩만 작성할 수 있는 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_idx")
+    @JoinColumn(name = "store_id")
     @JsonIgnore
     private Store store;
 
-//    //다대일 관계
-//    //한 개의 User이 여러 개의 Review를 가질 수 있지만, 각각의 Review는 하나의 User에만 속할 수 있는 관계
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
-//    @JsonIgnore
-//    private User user;
+    //다대일 관계
+    //한 개의 User이 여러 개의 Review를 가질 수 있지만, 각각의 Review는 하나의 User에만 속할 수 있는 관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
     // store 필드의 Getter
     public Store getStore() {

@@ -41,7 +41,7 @@ public class SearchController {
             }
 
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchNameList(storeName);
             searchService.postSearchHistory(userIdx, storeName);
 
@@ -74,7 +74,7 @@ public class SearchController {
             }
 
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchNameBestList(storeName);
             searchService.postSearchHistory(userIdx, storeName);
 
@@ -107,8 +107,8 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            //Long userIdx = jwtService.getUserIdx();
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchNameMostReviewsList(storeName);
             searchService.postSearchHistory(userIdx, storeName);
 
@@ -140,8 +140,8 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            //Long userIdx = jwtService.getUserIdx();
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchNameReviewsAvgList(storeName);
             searchService.postSearchHistory(userIdx, storeName);
 
@@ -173,8 +173,8 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            //Long userIdx = jwtService.getUserIdx();
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.recommendNearestStore(storeName);
             searchService.postSearchHistory(userIdx, storeName);
 
@@ -206,7 +206,7 @@ public class SearchController {
             }
 
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchLocationList(storeLocation);
             searchService.postSearchHistory(userIdx, storeLocation);
 
@@ -239,7 +239,7 @@ public class SearchController {
             }
 
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchLocationBestList(storeLocation);
             searchService.postSearchHistory(userIdx, storeLocation);
 
@@ -273,7 +273,7 @@ public class SearchController {
             }
 
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchLocationMostReviewsList(storeLocation);
             searchService.postSearchHistory(userIdx, storeLocation);
 
@@ -306,7 +306,7 @@ public class SearchController {
             }
 
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchLocationReviewsAvgList(storeLocation);
             searchService.postSearchHistory(userIdx, storeLocation);
 
@@ -340,7 +340,7 @@ public class SearchController {
             }
 
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.recommendNearestStoreLocation(storeLocation);
             searchService.postSearchHistory(userIdx, storeLocation);
 
@@ -371,7 +371,7 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            int userIdx = 1; // 임시지정
+            Long userIdx = 1L; // 임시지정
             List<Store> store = searchService.searchCityList(city,district);
             searchService.postSearchHistory(userIdx, city + " " + district);
 
@@ -400,7 +400,7 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            int userIdx = 1; // 임시지정
+            Long userIdx = 1L; // 임시지정
             List<Store> store = searchService.searchCityListBest(city, district);
             searchService.postSearchHistory(userIdx, city + " " + district);
 
@@ -426,7 +426,7 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            int userIdx = 1; // 임시지정
+            Long userIdx = 1L; // 임시지정
             List<Store> store = searchService.searchCityListMostReviews(city, district);
             searchService.postSearchHistory(userIdx, city + " " + district);
 
@@ -452,7 +452,7 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            int userIdx = 1; // 임시지정
+            Long userIdx = 1L; // 임시지정
             List<Store> store = searchService.searchCityListReviewsAvg(city, district);
             searchService.postSearchHistory(userIdx, city + " " + district);
 
@@ -479,7 +479,7 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            int userIdx = 1; // 임시지정
+            Long userIdx = 1L; // 임시지정
             List<Store> store = searchService.recommendNearestStoreTown(city,district);
             searchService.postSearchHistory(userIdx, city + " " + district);
 
@@ -503,7 +503,7 @@ public class SearchController {
     public BaseResponse<List<Store>> searchTopreview() {
         try {
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.getStoresWithMostReviews();
             return new BaseResponse<>(store);
 
@@ -520,7 +520,7 @@ public class SearchController {
     public BaseResponse<List<Store>> searchTopreservation() {
         try {
             //int userIdx = jwtService.getUserIdx();
-            int userIdx = 1; //임시지정
+            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchReservationMost();
             return new BaseResponse<>(store);
 
@@ -538,7 +538,7 @@ public class SearchController {
 //    public BaseResponse<Page<SearchHistory>> searchHistory(@RequestParam(defaultValue = "0") int page) {
 //        try {
 //            //int userIdx = jwtService.getUserIdx();
-//            int userIdx = 1; //임시지정
+//            Long userIdx = 1L; //임시지정
 //            Page<SearchHistory> searchHistory = searchService.searchHistory(userIdx,page);
 //            return new BaseResponse<>(searchHistory);
 //        } catch (BaseException exception){

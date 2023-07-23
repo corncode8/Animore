@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface StoreRepository extends JpaRepository<Store,Integer> {
-    List<Store> findByStoreIdx(int storeIdx);
+public interface StoreRepository extends JpaRepository<Store,Long> {
+    //List<Store> findByStoreIdx(Long storeId);
 
 }

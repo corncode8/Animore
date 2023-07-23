@@ -31,9 +31,9 @@ public class ReviewService {
     }
 
     //리뷰 조회 (특정 가게의 모든 리뷰)
-    public List<Review> getReviewsByStoreId(Integer storeIdx) throws BaseException {
+    public List<Review> getReviewsByStoreId(Long storeId) throws BaseException {
         try {
-            List<Review> reviews = reviewRepository.findByStoreStoreIdx(storeIdx);
+            List<Review> reviews = reviewRepository.findByStoreStoreId(storeId);
             return reviews;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
@@ -41,7 +41,7 @@ public class ReviewService {
     }
 
     //리뷰 조회 (리뷰 id)
-    public List<Review> getReviewById(Integer reviewId) throws BaseException {
+    public List<Review> getReviewById(Long reviewId) throws BaseException {
         try {
             List<Review> reviews = reviewRepository.findByReviewId(reviewId);
             return reviews;
@@ -51,7 +51,7 @@ public class ReviewService {
     }
 
     //리뷰 삭제
-    public Review deleteReview(Integer reviewId) throws BaseException  {
+    public Review deleteReview(Long reviewId) throws BaseException  {
         Review deletedReview = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_MATCHING_STORE));
 
@@ -76,7 +76,7 @@ public class ReviewService {
     }
 
     // 리뷰 부분 수정
-    public Review updatePartialReview(Integer reviewId, Review updatedReview) throws BaseException {
+    public Review updatePartialReview(Long reviewId, Review updatedReview) throws BaseException {
         try {
             Review existingReview = reviewRepository.findById(reviewId).orElse(null);
             if (existingReview != null) {
