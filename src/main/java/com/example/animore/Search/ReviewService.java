@@ -66,6 +66,8 @@ public class ReviewService {
             if (existingReview !=null){
                 existingReview.setReviewContent(updatedReview.getReviewContent());
                 existingReview.setModifiedDate(new Timestamp(System.currentTimeMillis()));
+                existingReview.setPetId(updatedReview.getPetId());
+                existingReview.setReviewLike(updatedReview.getReviewLike());
             }
             // 수정된 리뷰 저장
             return reviewRepository.save(existingReview);
@@ -83,6 +85,8 @@ public class ReviewService {
                 // 리뷰의 일부 필드만 업데이트
                 if (updatedReview.getReviewContent() != null) {
                     existingReview.setReviewContent(updatedReview.getReviewContent());
+                    existingReview.setPetId(updatedReview.getPetId());
+                    existingReview.setReviewLike(updatedReview.getReviewLike());
                     existingReview.setModifiedDate(new Timestamp(System.currentTimeMillis())); // 수정 날짜 업데이트
                 }
 
