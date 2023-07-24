@@ -9,10 +9,10 @@ server:
 
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/security?serverTimezone=Asia/Seoul
-    username: cos
-    password: cos1234
+      url: jdbc:mysql://db-animore.cq7hhy9uh3a2.ap-northeast-2.rds.amazonaws.com:3306/animore_db?
+      username: root
+      password: Animore100!
+      driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -61,4 +61,6 @@ spring:
 
 
 
+upload:
+  path: C:\Users\master\OneDrive\Desktop\animore\
 

@@ -29,12 +29,15 @@ public class KakaoUserInfo implements OAuth2UserInfo{
 
     @Override
     public String getEmail() {
-        return (String) attributes.get("email");
+        return (String) attributesAccount.get("email");
     }
 
     @Override
     public String getName() {
-        return (String) attributes.get("name");
+        return (String) attributesProfile.get("name");
     }
+
+    @Override
+    public String getGender(){ return (String) attributesAccount.get("gender");}
 
 }

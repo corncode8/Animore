@@ -34,6 +34,7 @@ public class NaverUserInfo implements OAuth2UserInfo{
     }
 
 
+    @Override
     public String getGender(){ return (String) attributes.get("gender"); }
 
 }

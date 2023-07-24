@@ -32,6 +32,14 @@ dependencies {
 	// https://mvnrepository.com/artifact/com.auth0/java-jwt
 	implementation group: 'com.auth0', name: 'java-jwt', version: '3.10.2'
 
+
+	// https://mvnrepository.com/artifact/commons-io/commons-io
+	// 파일 확장자 쉽게 구하기
+	implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+	// 랜덤 난수, 문자열 생성
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'

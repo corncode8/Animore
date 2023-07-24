@@ -52,6 +52,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                 userRepository.findByProviderAndProviderId(oAuth2UserInfo.getProvider(), oAuth2UserInfo.getProviderId());
 
         User user;
+
         if (userOptional.isPresent()) {
             user = userOptional.get();
             // user가 존재하면 update 해주기
@@ -65,6 +66,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     .role("ROLE_USER")
                     .provider(oAuth2UserInfo.getProvider())
                     .providerId(oAuth2UserInfo.getProviderId())
+                    .gender(oAuth2UserInfo.getGender())
                     .build();
             userRepository.save(user);
         }
