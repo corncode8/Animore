@@ -7,6 +7,7 @@ import umc.animore.model.Store;
 import java.util.List;
 
 public interface StoreRepository extends JpaRepository<Store,Integer> {
-    List<Store> findByStoreIdx(int storeIdx);
+//    List<Store> findByStoreIdx(int storeIdx);
 
+    Store findByStoreId(Long storeId);
 }

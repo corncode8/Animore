@@ -8,6 +8,8 @@ public interface PetRepository extends JpaRepository<Pet, Integer>{
 
     Pet findByUser_id(Long userId);
 
+    Pet findByUser(User user);
+
 
 
 }

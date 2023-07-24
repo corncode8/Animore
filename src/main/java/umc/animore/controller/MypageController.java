@@ -5,6 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -119,7 +120,13 @@ public class MypageController {
     }
 
 
-
+    @ResponseBody
+    @GetMapping("/mainImages")
+    public Page<Image> getImagesByPage(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "3") int size,
+                                       @RequestParam(defaultValue = "true") boolean isDiscounted) {
+        return imageService.getImagesByPage(page, size, isDiscounted);
+    }
 
 
 

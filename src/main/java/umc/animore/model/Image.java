@@ -36,6 +36,14 @@ public class Image {
     @JoinColumn(name = "review_id")
     private Review review;
 
+    @ManyToOne
+    @JoinColumn(name = "reservationId")
+    private Reservation reservation;
+
+    @ManyToOne
+    @JoinColumn(name="storeId")
+    private Store store;
+
     // @ManyToOne
     // @JoinColumn(name = "reservation_id")
     // private Reservation reservation;

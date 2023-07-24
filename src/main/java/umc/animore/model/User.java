@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 
 // ORM - Object Relation Mapping
 
@@ -44,4 +45,7 @@ public class User {
 
     @CreationTimestamp
     private Timestamp createDate;
+
+    @UpdateTimestamp
+    private Timestamp updateTime;
 }

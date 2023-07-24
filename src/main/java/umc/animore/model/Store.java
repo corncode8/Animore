@@ -19,20 +19,20 @@ import javax.persistence.*;
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "store_idx")
-    private Integer storeIdx; //가게 idx
+    @Column(name = "store_id")
+    private Integer storeId; //업체 id
     @Column(name = "store_name")
-    private String storeName; //가게 이름
+    private String storeName; //업체 이름
     @Column(name = "store_location")
-    private String storeLocation; //가게 주소
+    private String storeLocation; //업체 주소
     @Column(name = "store_number")
-    private String storeNumber; // 가게 번호
+    private String storeNumber; // 업체 번호
     @Column(name = "store_recent")
-    private Integer storeRecent; // 가게 최근 예약
+    private Integer storeRecent; // 업체 최근 예약
     @Column(name = "store_explain")
-    private String storeExplain; // 가게 설명글
+    private String storeExplain; // 업체 설명글
     @Column(name = "store_image_url")
-    private String storeImageUrl; // 가게 이미지 URL
+    private String storeImageUrl; // 업체 이미지 URL
     @Column(name = "create_at")
     private String createAt; // 생성 일자
     @Column(name = "modify_at")
@@ -43,6 +43,9 @@ public class Store {
     private double latitude; //위도
     @Column(name="longitude")
     private double longitude; //경도
+
+    private boolean isDiscounted;       // 할인 여부
+
 
     //다대일 관계
     //한 개의 Town이 여러 개의 Store를 가질 수 있지만, 각각의 Store는 하나의 Town에만 속할 수 있는 관계
