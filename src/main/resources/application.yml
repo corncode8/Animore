@@ -10,9 +10,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/security?serverTimezone=Asia/Seoul
-    username: cos
-    password: cos1234
+    url: 
+    username: 
+    password: 
 
   jpa:
     hibernate:
@@ -28,8 +28,8 @@ spring:
        client:
          registration:
            kakao:
-             client-id: f8dc53cf8c5452b17f33260931bb4014
-             client-secret: FCHKqialO9oxtStnOliZsVrubEolwDmM
+             client-id: 
+             client-secret: 
              scope: profile_nickname,account_email,gender
              client-name: kakao
              authorization-grant-type: authorization_code
