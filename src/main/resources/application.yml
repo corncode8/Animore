@@ -1,6 +1,13 @@
+
 server:
   port: 8000
 spring:
+
+  datasource:
+    url: 
+    username: 
+    password: 
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 
 spring.jpa:
