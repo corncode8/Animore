@@ -11,8 +11,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -52,9 +50,6 @@ public class Review {
     @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Image> images = new ArrayList<>();
-
     // store 필드의 Getter
     public Store getStore() {
         return store;
@@ -63,16 +58,6 @@ public class Review {
     // store 필드의 Setter
     public void setStore(Store store) {
         this.store = store;
-    }
-
-    // 이미지 필드의 getter
-    public List<Image> getImages() {
-        return images;
-    }
-
-    // 이미지 필드의 setter
-    public void setImages(List<Image> images) {
-        this.images = images;
     }
 
 }
