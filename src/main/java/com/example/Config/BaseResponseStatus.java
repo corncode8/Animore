@@ -26,7 +26,8 @@ public enum BaseResponseStatus { //열거 상수를 통해 응답상태를 나�
 
     //5000 : 후기작성 오류
     EMPTY_REVIEW_CONTENT(false,5000,"후기 내용 입력안함"),
-    EMPTY_REVIEW_LIKE(false,5000,"후기 별점 입력안함");
+    EMPTY_REVIEW_LIKE(false,5001,"후기 별점 입력안함"),
+    IMAGE_UPLOAD_ERROR(false,5003,"이미지 저장에 실패했습니다.");
 
 
     private final boolean isSuccess;

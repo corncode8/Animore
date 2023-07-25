@@ -5,6 +5,8 @@ import com.example.Config.BaseResponse;
 import com.example.Config.BaseResponseStatus;
 import com.example.animore.Search.model.Review;
 import com.example.animore.Search.model.SearchHistory;
+import com.example.animore.Search.model.Store;
+import com.example.animore.Search.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +21,19 @@ import static com.example.Config.BaseResponseStatus.DATABASE_ERROR;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ImageService imageService;
 
     @Autowired
-    ReviewService(ReviewRepository reviewRepository){
+    ReviewService(ReviewRepository reviewRepository, ImageService imageService){
         this.reviewRepository = reviewRepository;
+        this.imageService=imageService;
     }
 
     //리뷰 작성
-    public Review createReview(Review review) throws BaseException {
+    public Review createReview(Review review, Store store, User user) throws BaseException {
+
+        review.setStore(store);
+        review.setUser(user);
         return reviewRepository.save(review);
     }
 
