@@ -45,29 +45,40 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        //JWT 토큰을 검증을 해서 정상적인 사용자인지 확인
-        String jwtToken = request.getHeader("Authorization").replace("Bearer ","");
 
-        System.out.print(jwtToken);
+        try {
+            //JWT 토큰을 검증을 해서 정상적인 사용자인지 확인
+            String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
 
-        String username =
-                JWT.require(Algorithm.HMAC512("cos")).build().verify(jwtToken).getClaim("username").asString();
+            System.out.print(jwtToken);
 
-        System.out.print(username);
+            String username =
+                    JWT.require(Algorithm.HMAC512("cos")).build().verify(jwtToken).getClaim("username").asString();
 
-        // 서명이 정상적으로 됨
-        if(username != null) {
-            User userEntity = userRepository.findByUsername(username);
+            System.out.print(username);
 
-            PrincipalDetails principalDetails = new PrincipalDetails(userEntity);
+            // 서명이 정상적으로 됨
+            if (username != null) {
+                User userEntity = userRepository.findByUsername(username);
+
+                PrincipalDetails principalDetails = new PrincipalDetails(userEntity);
 
 
-            //Jwt 토큰 서명을 통해서 서명이 정상이면 Authentication 객체를 만들어준다.
-            Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(principalDetails,null,principalDetails.getAuthorities());
+                //Jwt 토큰 서명을 통해서 서명이 정상이면 Authentication 객체를 만들어준다.
+                Authentication authentication =
+                        new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
 
-            // 강제로 시큐리티의 세션에 접근하여 Authentication 객체를 저장
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                // 강제로 시큐리티의 세션에 접근하여 Authentication 객체를 저장
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        }
+        catch(IllegalArgumentException){
+
+        }
+        } catch (ExpiredJwtException e) {
+            logger.warn("the token is expired and not valid anymore", e);
+        } catch(SignatureException e){
+            logger.error("Authentication Failed. Username or Password not valid.");
         }
 
         chain.doFilter(request,response);

@@ -10,7 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import umc.animore.config.auth.PrincipalDetails;
+import umc.animore.lib.encrypt.Helper;
 import umc.animore.model.User;
+import umc.animore.redis.RefreshToken;
+import umc.animore.repository.RefreshTokenRedisRepository;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -18,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+
+import static java.time.LocalTime.now;
 
 //스프링시큐리티에서 UsernamePasswordAuthenticationFilter 가 있음.
 // /login 요청해서 username, password 전송하면(pst)
@@ -29,7 +34,7 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
 
     private final AuthenticationManager authenticationManager;
 
-
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
 
     // login 요청을 하면 로그인 시도를 위해서 실행되는 함수
@@ -85,7 +90,20 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
                                         .withClaim("username",principalDetails.getUser().getUsername())
                                                 .sign(Algorithm.HMAC512("cos"));
 
+        String refreshToken = JWT.create()
+                .withClaim("type", "refresh")
+                .withIssuedAt(new Date(System.currentTimeMillis()))   //토큰 발행 시간 정보
+                .withExpiresAt(new Date(System.currentTimeMillis()+(600000*10))) //토큰 만료 시간 설정
+                .sign(Algorithm.HMAC512("cos"));
+
+        refreshTokenRedisRepository.save(RefreshToken.builder()
+                        .id(principalDetails.getUser().getId())
+                        .ip(Helper.getClientIp(request))
+                        .authorities(principalDetails.getAuthorities())
+                        .refreshToken(refreshToken).build());
+
         response.addHeader("Authorization","Bearer " + jwtToken);
+
 
 
 

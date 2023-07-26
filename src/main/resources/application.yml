@@ -14,6 +14,10 @@ spring:
       password: Animore100!
       driver-class-name: com.mysql.cj.jdbc.Driver
 
+  redis:
+    host: localhost
+    port: 6379
+
   jpa:
     hibernate:
       ddl-auto: update #create update none
@@ -45,6 +49,21 @@ spring:
             redirect-uri: http://localhost:8080/login/oauth2/code/naver
             client-authentication-method: POST
 
+          facebook:
+            client-id: 1221566275198331
+            client-secret: 3a993ac29f1b49d46608417f16a52a13
+            scope: public_profile, email
+
+
+          google:
+            client-id: 868335399925-2n7t9a1kgckmom5ai4b0rrhofm7a32e0.apps.googleusercontent.com
+            client-secret: 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
+            scope: profile, email
+
+
+
+
+
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -61,6 +80,9 @@ spring:
 
 
 
-upload:
-  path: C:\Users\master\OneDrive\Desktop\animore\
+upload_path: C:\Users\master\OneDrive\Desktop\animore\
+
+
+
+
 
