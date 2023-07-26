@@ -6,7 +6,7 @@ import umc.animore.model.User;
 
 public interface PetRepository extends JpaRepository<Pet, Integer>{
 
-    Pet findByUser_id(Long userId);
+    Pet findTop1ByUser_idOrderByPetId(Long userId);
 
 
 

@@ -39,7 +39,7 @@ public class Pet {
     @Column(name = "pet_specials")
     private String petSpecials;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;

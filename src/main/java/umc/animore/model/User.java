@@ -2,12 +2,11 @@ package umc.animore.model;
 
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+
 import org.hibernate.annotations.CreationTimestamp;
 
 import lombok.AllArgsConstructor;
@@ -23,6 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+
     @Id // primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -37,6 +37,12 @@ public class User {
     private String nickname;
     private String aboutMe;
     private String nationality;
+
+    @OneToOne(mappedBy = "user",cascade=CascadeType.ALL)
+    private Image image;
+
+    @OneToMany(mappedBy ="user", cascade=CascadeType.ALL)
+    private List<Pet> pets = new ArrayList<Pet>();
 
     // OAuth를 위해 구성한 추가 필드 2개
     private String provider;

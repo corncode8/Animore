@@ -37,6 +37,7 @@ public class KakaoUserInfo implements OAuth2UserInfo{
         return (String) attributesProfile.get("name");
     }
 
+
     @Override
     public String getGender(){ return (String) attributesAccount.get("gender");}
 

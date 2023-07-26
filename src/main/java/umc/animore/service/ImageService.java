@@ -18,14 +18,23 @@ public class ImageService {
     UserRepository userRepository;
 
     @Transactional
-    public void save(Image image,Long userId){
+    public void save(Image image,Long userId,String nickname, String aboutMe){
 
         User user = userRepository.findById(userId);
-        Image img = new Image();
+        user.setNickname(nickname);
+        user.setAboutMe(aboutMe);
+
+        Image img = user.getImage();
+
+        if(img ==null){
+            img = new Image();
+            img.setUser(user);
+        }
+
         img.setImgName(image.getImgName());
         img.setImgOriName(image.getImgOriName());
         img.setImgPath(image.getImgPath());
-        img.setUser(user);
+
 
         imageRepository.save(img);
     }
