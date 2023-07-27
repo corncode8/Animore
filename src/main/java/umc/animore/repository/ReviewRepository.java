@@ -4,6 +4,12 @@ package umc.animore.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import umc.animore.model.Review;
 
-public interface ReviewRepository extends JpaRepository<Review,Integer> {
-    //List<Object[]> countReviewsByStore();
+import java.util.List;
+
+public interface ReviewRepository extends JpaRepository<Review,Long> {
+    List<Review> findByStoreStoreId(Long storeId);
+
+    List<Review> findByUserId(Long userId);
+
+    Review findByReviewId(Long reviewId);
 }

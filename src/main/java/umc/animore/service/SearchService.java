@@ -13,6 +13,8 @@ import umc.animore.model.Store;
 import umc.animore.model.Town;
 import umc.animore.repository.*;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -205,7 +207,7 @@ public class SearchService {
 
     public List<Store> recommendNearestStore(String storeName) throws BaseException {
         try {
-            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1L));
             if (optionalLocation.isPresent()) {
                 Location currentLocation = optionalLocation.get();
 
@@ -243,7 +245,7 @@ public class SearchService {
     //거리순 - 가게주소
     public List<Store> recommendNearestStoreLocation(String storeLocation) throws BaseException {
         try {
-            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1L));
             if (optionalLocation.isPresent()) {
                 Location currentLocation = optionalLocation.get();
 
@@ -282,7 +284,7 @@ public class SearchService {
     public List<Store> recommendNearestStoreTown(String city, String district) throws BaseException {
         try {
             Town town = townRepository.getTownIdByCityAndDistrict(city, district);
-            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1));
+            Optional<Location> optionalLocation = Optional.ofNullable(locationRepository.findByLocationId(1L));
             if (optionalLocation.isPresent()) {
                 Location currentLocation = optionalLocation.get();
 
@@ -334,7 +336,7 @@ public class SearchService {
     }
 
     //최근 검색기록 (3개씩)
-    public List<SearchHistory> searchHistory(int userIdx) throws BaseException {
+    public List<SearchHistory> searchHistory(Long userIdx) throws BaseException {
         try {
             List<SearchHistory> searchHistoryRes = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
             return searchHistoryRes;
@@ -344,7 +346,7 @@ public class SearchService {
     }
 
 
-    public void postSearchHistory(int userIdx, String searchQuery) {
+    public void postSearchHistory(Long userIdx, String searchQuery) {
         List<SearchHistory> searchHistoryList = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
 
         if (searchHistoryList.size() < 3) {
@@ -356,12 +358,28 @@ public class SearchService {
         }
     }
 
-    private void saveQuery(int userIdx, String searchQuery) {
+    private void saveQuery(Long userIdx, String searchQuery) {
         SearchHistory searchHistory = new SearchHistory();
+
+        // 현재 시간을 기준으로 Timestamp 객체 생성
+        Timestamp timestamp = Timestamp.from(Instant.now());
         searchHistory.setUserIdx(userIdx);
         searchHistory.setSearchQuery(searchQuery);
-        searchHistory.setSearchCreateAt(String.valueOf(LocalDateTime.now()));
+
+//      //SearchHistory 객체에 Timestamp 할당
+        searchHistory.setSearchCreateAt(timestamp);
         searchHistoryRepository.save(searchHistory);
+    }
+
+
+    //예약 많은 순
+    public List<Store> searchReservationMost() throws BaseException {
+        try{
+            List<Store> store = searchRespository.findStoresWithMostReservations();
+            return store;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
     }
 
 }

@@ -25,7 +25,7 @@ public class LocationController {
 
 
     @GetMapping("/{locationId}")
-    public Location getLocation(@PathVariable int locationId) {
+    public Location getLocation(@PathVariable Long locationId) {
         return locationRepository.findByLocationId(locationId);
     }
 }

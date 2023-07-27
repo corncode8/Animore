@@ -10,7 +10,7 @@ import umc.animore.model.Town;
 import java.util.List;
 
 @Repository
-public interface SearchRespository extends JpaRepository<Store, Integer> {
+public interface SearchRespository extends JpaRepository<Store, Long> {
 
     //가게이름
     List<Store> findByStoreNameContaining(String storeName);
@@ -60,6 +60,11 @@ public interface SearchRespository extends JpaRepository<Store, Integer> {
     //가장 많은 리뷰를 작성한 가게
     @Query("SELECT r.store FROM Review r GROUP BY r.store ORDER BY COUNT(r) DESC")
     List<Store> findStoresWithMostReviews();
+
+    //예약이 가장 많은 순의 가게
+    @Query("SELECT r.store FROM Reservation r WHERE r.confirmed = 1 GROUP BY r.store ORDER BY COUNT(r) DESC")
+    List<Store> findStoresWithMostReservations();
+
 
 
 }

@@ -12,11 +12,12 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "Image")
+@Table(name = "image")
 public class Image {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @Column(name = "img_id")
     private Long imageId;
 
     @Column(name = "img_name")
@@ -37,20 +38,17 @@ public class Image {
     private Review review;
 
     @ManyToOne
-    @JoinColumn(name = "reservationId")
+    @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 
     @ManyToOne
-    @JoinColumn(name="storeId")
+    @JoinColumn(name="store_id")
     private Store store;
 
-    // @ManyToOne
-    // @JoinColumn(name = "reservation_id")
-    // private Reservation reservation;
-
-    //    @ManyToOne
-    //    @JoinColumn(name = "reservation_id")
-    //    private Reservation reservation;
+    // 이미지와 Review를 연결하는 메서드
+    public void setReview(Review review) {
+        this.review = review;
+    }
 
 
 

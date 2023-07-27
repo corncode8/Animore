@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 
 @Getter
@@ -20,7 +22,7 @@ public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "store_id")
-    private Integer storeId; //업체 id
+    private Long storeId; //업체 id
     @Column(name = "store_name")
     private String storeName; //업체 이름
     @Column(name = "store_location")
@@ -34,9 +36,9 @@ public class Store {
     @Column(name = "store_image_url")
     private String storeImageUrl; // 업체 이미지 URL
     @Column(name = "create_at")
-    private String createAt; // 생성 일자
+    private Timestamp createAt; // 생성 일자
     @Column(name = "modify_at")
-    private String modifyAt; // 수정 일자
+    private Timestamp modifyAt; // 수정 일자
     @Column(name = "store_like")
     private Integer storeLike; //찜 기능
     @Column(name="latitude")

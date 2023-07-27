@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8000
   servlet:
     context-path: /
     encoding:
@@ -9,10 +9,10 @@ server:
 
 spring:
   datasource:
-      url: 
-      username: 
-      password: 
-      driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://db-animore.cq7hhy9uh3a2.ap-northeast-2.rds.amazonaws.com:3306/animore?
+    username: root
+    password: Animore100!
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -28,8 +28,8 @@ spring:
       client:
         registration:
           kakao:
-            client-id: 
-            client-secret: 
+            client-id: f8dc53cf8c5452b17f33260931bb4014
+            client-secret: FCHKqialO9oxtStnOliZsVrubEolwDmM
             scope: profile_nickname,account_email,gender
             client-name: kakao
             authorization-grant-type: authorization_code
@@ -37,8 +37,8 @@ spring:
             client-authentication-method: POST
 
           naver:
-            client-id: 
-            client-secret: 
+            client-id: HZl59ItB9qgvLI7S49iu
+            client-secret: v6SemnBc8V
             scope: id, nickname, name, email, gender
             client-name: naver
             authorization-grant-type: authorization_code
@@ -47,8 +47,8 @@ spring:
 
         provider:
           kakao:
-            authorization-uri: 
-            token-uri: 
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
@@ -63,4 +63,3 @@ spring:
 
 upload:
   path: C:\Users\master\OneDrive\Desktop\animore\
-

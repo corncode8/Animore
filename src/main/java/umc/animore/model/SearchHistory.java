@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -17,13 +18,13 @@ public class SearchHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "search_id")
-    private int searchId;
+    private Long searchId;
     @Column(name = "user_idx")
-    private int userIdx;
+    private Long userIdx;
     @Column(name = "search_query")
     private String searchQuery;
     @Column(name = "search_create_at")
-    private String searchCreateAt;
+    private Timestamp searchCreateAt;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id")

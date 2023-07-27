@@ -19,18 +19,20 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "reservation")
 public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int reservationId;
+    @Column(name = "reservation_id")
+    private Long reservationId;
 
     @ManyToOne
-    @JoinColumn(name="userId")
+    @JoinColumn(name="user_id")
     private User user;              // 유저_idx
 
     @ManyToOne
-    @JoinColumn(name= "storeId")
+    @JoinColumn(name= "store_id")
     private Store store;            // 업체_idx
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -48,9 +50,7 @@ public class Reservation {
     private LocalDateTime startTime;        // 예약 시간
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
-    private String confirmed;       // 예약 확정 여부
-
-
+    private Integer confirmed;       // 예약 확정 여부
 
     @CreationTimestamp
     private Timestamp create_at;    // 예약 생성 시간
