@@ -9,14 +9,14 @@ server:
 
 spring:
   datasource:
-      url: jdbc:mysql://db-animore.cq7hhy9uh3a2.ap-northeast-2.rds.amazonaws.com:3306/animore_db?
-      username: root
-      password: Animore100!
+      url: 
+      username: 
+      password: 
       driver-class-name: com.mysql.cj.jdbc.Driver
 
   redis:
     host: localhost
-    port: 6379
+    port: 
 
   jpa:
     hibernate:
@@ -32,17 +32,17 @@ spring:
       client:
         registration:
           kakao:
-            client-id: f8dc53cf8c5452b17f33260931bb4014
-            client-secret: FCHKqialO9oxtStnOliZsVrubEolwDmM
-            scope: profile_nickname,account_email,gender
+            client-id: 
+            client-secret: 
+            scope: 
             client-name: kakao
             authorization-grant-type: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             client-authentication-method: POST
 
           naver:
-            client-id: HZl59ItB9qgvLI7S49iu
-            client-secret: v6SemnBc8V
+            client-id: 
+            client-secret: 
             scope: id, nickname, name, email, gender
             client-name: naver
             authorization-grant-type: authorization_code
@@ -50,14 +50,14 @@ spring:
             client-authentication-method: POST
 
           facebook:
-            client-id: 1221566275198331
-            client-secret: 3a993ac29f1b49d46608417f16a52a13
+            client-id: 
+            client-secret: 
             scope: public_profile, email
 
 
           google:
-            client-id: 868335399925-2n7t9a1kgckmom5ai4b0rrhofm7a32e0.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 
+            client-secret: 
             scope: profile, email
 
 
