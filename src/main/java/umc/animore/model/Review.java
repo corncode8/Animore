@@ -36,7 +36,7 @@ public class Review {
     @Column(name = "review_content")
     private String reviewContent;
     @Column(name="review_like")
-    private double reviewLike;
+    private Double reviewLike;
 
     //일대다 관계
     //가게에는 여러 개의 리뷰를 작성할 수 있고, 리뷰는 한 가게에 하나씩만 작성할 수 있는 관계
@@ -77,6 +77,18 @@ public class Review {
     // 이미지 리스트 필드의 setter
     public void setImages(List<Image> images) {
         this.images = images;
+    }
+
+    // 이미지 추가 메서드
+    public void addImage(Image image) {
+        images.add(image);
+        image.setReview(this);
+    }
+
+    // 이미지 삭제 메서드
+    public void removeImage(Image image) {
+        images.remove(image);
+        image.setReview(null);
     }
 
 

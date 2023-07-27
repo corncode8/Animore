@@ -93,25 +93,220 @@ public class ReviewController {
     }
 */
 
-    @PutMapping("/reviews/update")
-    public BaseResponse<Review> updateReview(@RequestBody Review review) {
+    @PutMapping("/reviews/update/{reviewId}")
+    public BaseResponse<ReviewDTO> updateReview(@PathVariable Long reviewId,@RequestBody ReviewDTO reviewDTO) {
         try {
+            Review review = reviewService.getReviewById(reviewId);
+
+            review.setReviewContent(reviewDTO.getReviewContent());
+            review.setReviewLike(reviewDTO.getReviewLike());
+            review.setPetId(reviewDTO.getPetId());
+
+
+            // 이미지 수정 로직 (기존 이미지들 삭제 후 새로운 이미지 추가)
+            List<ImageDTO> imageDTOList = reviewDTO.getImages();
+            if (imageDTOList != null && !imageDTOList.isEmpty()) {
+
+                imageService.deleteImagesByReview(review); // 기존 이미지들 삭제
+
+                for (ImageDTO imageDTO : imageDTOList) {
+                    Image image = new Image();
+                    image.setImgName(imageDTO.getImgName());
+                    image.setImgOriName(imageDTO.getImgOriName());
+                    image.setImgPath(imageDTO.getImgPath());
+                    image.setReview(review);
+                    review.getImages().add(image);
+                }
+            }
+
             Review updatedReview = reviewService.updateReview(review);
-            return new BaseResponse<>(true, "리뷰 수정 성공", 1000, updatedReview);
+
+            // 업데이트된 리뷰 정보와 이미지 정보를 리턴
+            ReviewDTO updatedReviewDTO = new ReviewDTO();
+            updatedReviewDTO.setReviewId(updatedReview.getReviewId());
+            updatedReviewDTO.setPetId(updatedReview.getPetId());
+            updatedReviewDTO.setCreatedDate(updatedReview.getCreatedDate());
+            updatedReviewDTO.setModifiedDate(updatedReview.getModifiedDate());
+            updatedReviewDTO.setReviewContent(updatedReview.getReviewContent());
+            updatedReviewDTO.setReviewLike(updatedReview.getReviewLike());
+            updatedReviewDTO.setStoreId(updatedReview.getStore().getStoreId());
+            updatedReviewDTO.setUserId(updatedReview.getUser().getId());
+
+            List<Image> updatedImages = imageService.getImagesByReview(updatedReview);
+            List<ImageDTO> updatedImageDTOList = new ArrayList<>();
+            for (Image image : updatedImages) {
+                ImageDTO imageDTO = new ImageDTO();
+                imageDTO.setImageId(image.getImageId());
+                imageDTO.setImgName(image.getImgName());
+                imageDTO.setImgOriName(image.getImgOriName());
+                imageDTO.setImgPath(image.getImgPath());
+                updatedImageDTOList.add(imageDTO);
+            }
+            updatedReviewDTO.setImages(updatedImageDTOList);
+
+            return new BaseResponse<>(true, "리뷰 수정 성공", 1000, updatedReviewDTO);
         } catch (BaseException exception) {
             return new BaseResponse<>(false, exception.getStatus().getMessage(), exception.getStatus().getCode(), null);
         }
     }
 
+    /*
+    * PATCH  http://localhost:8000/reviews/update/1
+    * {
+    "images":[
+        {
+            "imgOriName": "수정.jpg"
+        }
+
+        ]
+    }
+    *
+    * */
     @PatchMapping("/reviews/update/{reviewId}")
-    public BaseResponse<Review> updatePartialReview(@PathVariable Long reviewId, @RequestBody Review review) {
+    public BaseResponse<ReviewDTO> updatePartialReview(@PathVariable Long reviewId, @RequestBody ReviewDTO reviewDTO) {
         try {
-            Review updatedReview = reviewService.updatePartialReview(reviewId,review);
-            return new BaseResponse<>(true, "리뷰 수정 성공", 1000, updatedReview);
+                Review review = reviewService.getReviewById(reviewId);
+
+                // 리뷰의 일부분만 업데이트
+                if (reviewDTO.getReviewContent() != null) {
+                    review.setReviewContent(reviewDTO.getReviewContent());
+                }
+                if (reviewDTO.getReviewLike() != null) {
+                    review.setReviewLike(reviewDTO.getReviewLike());
+                }
+                if (reviewDTO.getPetId() != null) {
+                    review.setPetId(reviewDTO.getPetId());
+                }
+
+                // 이미지를 부분적으로 수정
+                List<ImageDTO> imageDTOList = reviewDTO.getImages();
+                if (imageDTOList != null && !imageDTOList.isEmpty()) {
+                    List<Image> images = imageService.getImagesByReview(review);
+                    for (int i = 0; i < Math.min(images.size(), imageDTOList.size()); i++) {
+                        ImageDTO imageDTO = imageDTOList.get(i);
+                        Image image = images.get(i);
+                        if (imageDTO.getImgName() != null) {
+                            image.setImgName(imageDTO.getImgName());
+                        }
+                        if (imageDTO.getImgOriName() != null) {
+                            image.setImgOriName(imageDTO.getImgOriName());
+                        }
+                        if (imageDTO.getImgPath() != null) {
+                            image.setImgPath(imageDTO.getImgPath());
+                        }
+                    }
+                }
+
+                // 리뷰와 이미지 업데이트
+                Review updatedReview = reviewService.updatePartialReview(reviewId,review);
+
+                // 업데이트된 리뷰 정보와 이미지 정보를 리턴
+                ReviewDTO updatedReviewDTO = new ReviewDTO();
+                updatedReviewDTO.setReviewId(updatedReview.getReviewId());
+                updatedReviewDTO.setPetId(updatedReview.getPetId());
+                updatedReviewDTO.setCreatedDate(updatedReview.getCreatedDate());
+                updatedReviewDTO.setModifiedDate(updatedReview.getModifiedDate());
+                updatedReviewDTO.setReviewContent(updatedReview.getReviewContent());
+                updatedReviewDTO.setReviewLike(updatedReview.getReviewLike());
+                updatedReviewDTO.setStoreId(updatedReview.getStore().getStoreId());
+                updatedReviewDTO.setUserId(updatedReview.getUser().getId());
+
+                List<Image> updatedImages = imageService.getImagesByReview(updatedReview);
+                List<ImageDTO> updatedImageDTOList = new ArrayList<>();
+                for (Image image : updatedImages) {
+                    ImageDTO imageDTO = new ImageDTO();
+                    imageDTO.setImageId(image.getImageId());
+                    imageDTO.setImgName(image.getImgName());
+                    imageDTO.setImgOriName(image.getImgOriName());
+                    imageDTO.setImgPath(image.getImgPath());
+                    updatedImageDTOList.add(imageDTO);
+                }
+                updatedReviewDTO.setImages(updatedImageDTOList);
+            return new BaseResponse<>(true, "리뷰 수정 성공", 1000, updatedReviewDTO);
         } catch (BaseException exception) {
             return new BaseResponse<>(false, exception.getStatus().getMessage(), exception.getStatus().getCode(), null);
         }
     }
+
+    @PatchMapping("/reviews/update_add/{reviewId}")
+    public BaseResponse<ReviewDTO> updatePartialReviewandAdd(@PathVariable Long reviewId, @RequestBody ReviewDTO reviewDTO) {
+        try {
+            Review review = reviewService.getReviewById(reviewId);
+
+            // 리뷰의 일부분만 업데이트
+            if (reviewDTO.getReviewContent() != null) {
+                review.setReviewContent(reviewDTO.getReviewContent());
+            }
+            if (reviewDTO.getReviewLike() != null) {
+                review.setReviewLike(reviewDTO.getReviewLike());
+            }
+            if (reviewDTO.getPetId() != null) {
+                review.setPetId(reviewDTO.getPetId());
+            }
+
+            // 이미지를 부분적으로 수정
+            List<ImageDTO> imageDTOList = reviewDTO.getImages();
+            if (imageDTOList != null && !imageDTOList.isEmpty()) {
+                List<Image> images = imageService.getImagesByReview(review);
+                for (int i = 0; i < Math.min(images.size(), imageDTOList.size()); i++) {
+                    ImageDTO imageDTO = imageDTOList.get(i);
+                    Image image = images.get(i);
+                    if (imageDTO.getImgName() != null) {
+                        image.setImgName(imageDTO.getImgName());
+                    }
+                    if (imageDTO.getImgOriName() != null) {
+                        image.setImgOriName(imageDTO.getImgOriName());
+                    }
+                    if (imageDTO.getImgPath() != null) {
+                        image.setImgPath(imageDTO.getImgPath());
+                    }
+                }
+            }
+
+            // 새로운 이미지 추가
+            List<ImageDTO> newImageDTOList = reviewDTO.getNewImages();
+            if (newImageDTOList != null && !newImageDTOList.isEmpty()) {
+                for (ImageDTO newImageDTO : newImageDTOList) {
+                    Image newImage = new Image();
+                    newImage.setImgName(newImageDTO.getImgName());
+                    newImage.setImgOriName(newImageDTO.getImgOriName());
+                    newImage.setImgPath(newImageDTO.getImgPath());
+                    // 새로운 이미지를 리뷰에 연결
+                    review.addImage(newImage);
+                }
+            }
+
+            // 리뷰와 이미지 업데이트
+            Review updatedReview = reviewService.updatePartialReview(reviewId,review);
+
+            // 업데이트된 리뷰 정보와 이미지 정보를 리턴
+            ReviewDTO updatedReviewDTO = new ReviewDTO();
+            updatedReviewDTO.setReviewId(updatedReview.getReviewId());
+            updatedReviewDTO.setPetId(updatedReview.getPetId());
+            updatedReviewDTO.setCreatedDate(updatedReview.getCreatedDate());
+            updatedReviewDTO.setModifiedDate(updatedReview.getModifiedDate());
+            updatedReviewDTO.setReviewContent(updatedReview.getReviewContent());
+            updatedReviewDTO.setReviewLike(updatedReview.getReviewLike());
+            updatedReviewDTO.setStoreId(updatedReview.getStore().getStoreId());
+            updatedReviewDTO.setUserId(updatedReview.getUser().getId());
+
+            List<Image> updatedImages = imageService.getImagesByReview(updatedReview);
+            List<ImageDTO> updatedImageDTOList = new ArrayList<>();
+            for (Image image : updatedImages) {
+                ImageDTO imageDTO = new ImageDTO();
+                imageDTO.setImageId(image.getImageId());
+                imageDTO.setImgName(image.getImgName());
+                imageDTO.setImgOriName(image.getImgOriName());
+                imageDTO.setImgPath(image.getImgPath());
+                updatedImageDTOList.add(imageDTO);
+            }
+            updatedReviewDTO.setImages(updatedImageDTOList);
+            return new BaseResponse<>(true, "리뷰 수정 성공", 1000, updatedReviewDTO);
+        } catch (BaseException exception) {
+            return new BaseResponse<>(false, exception.getStatus().getMessage(), exception.getStatus().getCode(), null);
+        }
+    }
+
 
     //리뷰 삭제
     @ResponseBody
@@ -119,6 +314,9 @@ public class ReviewController {
     public BaseResponse<Review> deleteReview(@PathVariable Long reviewId) {
         try {
             Review deletedReview = reviewService.deleteReview(reviewId);
+
+            // 이미지 삭제 로직 (리뷰에 속한 이미지들 모두 삭제)
+           imageService.deleteImagesByReviewId(reviewId);
             return new BaseResponse<>(true, "리뷰 삭제 성공", 1000, deletedReview);
         } catch (BaseException exception) {
             return new BaseResponse<>(false, exception.getStatus().getMessage(), exception.getStatus().getCode(), null);

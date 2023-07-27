@@ -60,7 +60,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
     }
 
@@ -93,7 +93,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
     }
 
@@ -193,7 +193,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
     }
 
@@ -225,7 +225,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
 
     }
@@ -258,7 +258,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
 
     }
@@ -292,7 +292,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
 
     }
@@ -325,7 +325,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
 
     }
@@ -359,7 +359,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
     }
 
@@ -529,7 +529,7 @@ public class SearchController {
             return new BaseResponse<>(store);
 
         } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+            return new BaseResponse<>(exception.getStatus());
         }
 
     }

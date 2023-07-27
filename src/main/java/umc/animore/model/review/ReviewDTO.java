@@ -22,9 +22,10 @@ public class ReviewDTO {
     private Timestamp createdDate;
     private Timestamp modifiedDate;
     private String reviewContent;
-    private double reviewLike;
+    private Double reviewLike;
     private Long storeId;
     private Long userId;
     private List<ImageDTO> images;
+    private List<ImageDTO> newImages;
 
 }

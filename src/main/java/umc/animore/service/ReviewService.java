@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import umc.animore.config.exception.BaseException;
 import umc.animore.config.exception.BaseResponseStatus;
+import umc.animore.model.Image;
 import umc.animore.model.Review;
 import umc.animore.model.Store;
 import umc.animore.model.User;
@@ -82,7 +83,24 @@ public class ReviewService {
                 existingReview.setPetId(updatedReview.getPetId());
                 existingReview.setReviewLike(updatedReview.getReviewLike());
             }
-            // 수정된 리뷰 저장
+            // 이미지를 업데이트합니다.
+            List<Image> imageList = updatedReview.getImages();
+            if (imageList != null && !imageList.isEmpty()) {
+                // 리뷰에 속한 모든 이미지를 삭제합니다.
+                imageService.deleteImagesByReview(existingReview);
+
+                // 새로운 이미지들을 추가합니다.
+                for (Image image : imageList) {
+                    Image newImage = new Image();
+                    newImage.setImgName(image.getImgName());
+                    newImage.setImgOriName(image.getImgOriName());
+                    newImage.setImgPath(image.getImgPath());
+                    newImage.setReview(existingReview);
+                    existingReview.getImages().add(newImage);
+                }
+            }
+
+            // 변경사항을 저장합니다.
             return reviewRepository.save(existingReview);
 
         } catch (Exception exception) {
@@ -95,17 +113,41 @@ public class ReviewService {
         try {
             Review existingReview = reviewRepository.findById(reviewId).orElse(null);
             if (existingReview != null) {
-                // 리뷰의 일부 필드만 업데이트
+
                 if (updatedReview.getReviewContent() != null) {
                     existingReview.setReviewContent(updatedReview.getReviewContent());
-                    existingReview.setPetId(updatedReview.getPetId());
+                }
+                if (updatedReview.getReviewLike() != null) {
                     existingReview.setReviewLike(updatedReview.getReviewLike());
-                    existingReview.setModifiedDate(new Timestamp(System.currentTimeMillis())); // 수정 날짜 업데이트
+                }
+                if (updatedReview.getPetId() != null) {
+                    existingReview.setPetId(updatedReview.getPetId());
                 }
 
+            // 이미지 업데이트
+            List<Image> existingImages = existingReview.getImages();
+            List<Image> updatedImages = updatedReview.getImages();
+            if (existingImages != null && updatedImages != null) {
+                for (int i = 0; i < Math.min(existingImages.size(), updatedImages.size()); i++) {
+                    Image existingImage = existingImages.get(i);
+                    Image updatedImage = updatedImages.get(i);
+                    if (updatedImage.getImgName() != null) {
+                        existingImage.setImgName(updatedImage.getImgName());
+                    }
+                    if (updatedImage.getImgOriName() != null) {
+                        existingImage.setImgOriName(updatedImage.getImgOriName());
+                    }
+                    if (updatedImage.getImgPath() != null) {
+                        existingImage.setImgPath(updatedImage.getImgPath());
+                    }
+                }
             }
-            // 수정된 리뷰 저장!
-            return reviewRepository.save(existingReview);
+
+            existingReview.setModifiedDate(new Timestamp(System.currentTimeMillis())); // 수정 날짜 업데이트
+        }
+
+        // 수정된 리뷰 저장!
+        return reviewRepository.save(existingReview);
 
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
