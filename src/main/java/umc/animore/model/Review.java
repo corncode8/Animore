@@ -50,7 +50,8 @@ public class Review {
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "image_id")
+    @JoinColumn(name = "img_id")
+
     private List<Image> images = new ArrayList<>();
 
 

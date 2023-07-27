@@ -52,6 +52,8 @@ public class Reservation {
     private LocalDateTime endTime;
     private Integer confirmed;       // 예약 확정 여부
 
+    private String cause;           // 예약 반려 사유
+
     @CreationTimestamp
     private Timestamp create_at;    // 예약 생성 시간
     @UpdateTimestamp

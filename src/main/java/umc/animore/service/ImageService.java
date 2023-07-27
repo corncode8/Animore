@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
-import static umc.animore.config.exception.BaseResponseStatus.IMAGE_UPLOAD_ERROR;
+//import static umc.animore.config.exception.BaseResponseStatus.IMAGE_UPLOAD_ERROR;
 
 @Service
 public class ImageService {
@@ -79,11 +79,11 @@ public class ImageService {
         String imageName = UUID.randomUUID().toString() + extension;
 
         File file = new File(UPLOAD_DIR + imageName);
-        try {
-            imageFile.transferTo(file);
-        } catch (Exception exception) {
-            throw new BaseException(IMAGE_UPLOAD_ERROR);
-        }
+//        try {
+//            imageFile.transferTo(file);
+//        } catch (Exception exception) {
+//            throw new BaseException(IMAGE_UPLOAD_ERROR);
+//        }
 
         return imageName;
     }

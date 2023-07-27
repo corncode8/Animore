@@ -80,16 +80,18 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
 
         String jwtToken = JWT.create()
                 .withSubject("cos토큰")
-                        .withExpiresAt(new Date(System.currentTimeMillis()+(60000*10)))
-                                .withClaim("id",principalDetails.getUser().getId())
-                                        .withClaim("username",principalDetails.getUser().getUsername())
-                                                .sign(Algorithm.HMAC512("cos"));
+                .withExpiresAt(new Date(System.currentTimeMillis()+(60000*10)))
+                .withClaim("id",principalDetails.getUser().getId())
+                .withClaim("username",principalDetails.getUser().getUsername())
+                .sign(Algorithm.HMAC512("cos"));
 
         response.addHeader("Authorization","Bearer " + jwtToken);
 
 
 
     }
+
+
 
 
     @Override

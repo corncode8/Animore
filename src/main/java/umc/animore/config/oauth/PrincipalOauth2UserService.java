@@ -24,7 +24,6 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     private UserRepository userRepository;
 
 
-
     // userRequest 는 code를 받아서 accessToken을 응답 받은 객체
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -42,10 +41,14 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 
         OAuth2UserInfo oAuth2UserInfo = null;
-        if(userRequest.getClientRegistration().getRegistrationId().equals("kakao")){	//추가
-            oAuth2UserInfo = new KakaoUserInfo((Map<String, Object>)oAuth2User.getAttributes());
-        }else if(userRequest.getClientRegistration().getRegistrationId().equals("naver")){
-            oAuth2UserInfo = new NaverUserInfo((Map<String, Object>)oAuth2User.getAttributes().get("response"));
+        if (userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {    //추가
+            oAuth2UserInfo = new KakaoUserInfo((Map<String, Object>) oAuth2User.getAttributes());
+        } else if (userRequest.getClientRegistration().getRegistrationId().equals("naver")) {
+            oAuth2UserInfo = new NaverUserInfo((Map<String, Object>) oAuth2User.getAttributes().get("response"));
+        } else if (userRequest.getClientRegistration().getRegistrationId().equals("facebook")) {
+            oAuth2UserInfo = new FacebookUserInfo((Map<String, Object>) oAuth2User.getAttributes());
+        } else if (userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            oAuth2UserInfo = new GoogleUserInfo((Map<String, Object>) oAuth2User.getAttributes());
         }
 
         Optional<User> userOptional =
@@ -70,7 +73,6 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     .build();
             userRepository.save(user);
         }
-
 
 
         return new PrincipalDetails(user, oAuth2User.getAttributes());
