@@ -33,7 +33,7 @@ public class Review {
     @Column(name = "modified_date")
     private Timestamp modifiedDate;
     @Column(name = "review_content")
-    private Timestamp reviewContent;
+    private String reviewContent;
     @Column(name="review_like")
     private double reviewLike;
 
