@@ -7,9 +7,9 @@ import umc.animore.model.Review;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review,Long> {
-    List<Review> findByStoreStoreId(Long storeId);
+    Review findByStoreStoreId(Long storeId);
 
-    List<Review> findByUserId(Long userId);
+    Review findByUserId(Long userId);
 
     Review findByReviewId(Long reviewId);
 }

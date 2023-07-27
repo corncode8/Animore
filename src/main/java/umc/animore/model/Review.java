@@ -1,6 +1,7 @@
 package umc.animore.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,7 +34,7 @@ public class Review {
     @Column(name = "modified_date")
     private Timestamp modifiedDate;
     @Column(name = "review_content")
-    private Timestamp reviewContent;
+    private String reviewContent;
     @Column(name="review_like")
     private double reviewLike;
 
@@ -41,19 +42,20 @@ public class Review {
     //가게에는 여러 개의 리뷰를 작성할 수 있고, 리뷰는 한 가게에 하나씩만 작성할 수 있는 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
+    @JsonIgnore
     private Store store;
 
     //다대일 관계
     //한 개의 User이 여러 개의 Review를 가질 수 있지만, 각각의 Review는 하나의 User에만 속할 수 있는 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "img_id")
-
+    @JsonIgnore
     private List<Image> images = new ArrayList<>();
-
 
     // store 필드의 Getter
     public Store getStore() {
@@ -67,6 +69,7 @@ public class Review {
 
 
     // 이미지 리스트 필드의 getter
+    @JsonIgnore
     public List<Image> getImages() {
         return images;
     }

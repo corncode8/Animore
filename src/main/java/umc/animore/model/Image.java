@@ -1,5 +1,6 @@
 package umc.animore.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,18 +32,22 @@ public class Image {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "review_id")
+    @JsonIgnore
     private Review review;
 
     @ManyToOne
     @JoinColumn(name = "reservation_id")
+    @JsonIgnore
     private Reservation reservation;
 
     @ManyToOne
     @JoinColumn(name="store_id")
+    @JsonIgnore
     private Store store;
 
     // 이미지와 Review를 연결하는 메서드

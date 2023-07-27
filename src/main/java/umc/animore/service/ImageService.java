@@ -94,4 +94,5 @@ public class ImageService {
         return imageRepository.findByReview(review);
 
     }
+
 }

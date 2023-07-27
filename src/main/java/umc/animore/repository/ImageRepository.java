@@ -15,4 +15,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     Page<Image> findByStoreIsDiscounted(boolean isDiscounted, Pageable pageable);
 
     List<Image> findByReview(Review review);
+
 }

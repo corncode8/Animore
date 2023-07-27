@@ -10,11 +10,16 @@ import umc.animore.model.Image;
 import umc.animore.model.Review;
 import umc.animore.model.Store;
 import umc.animore.model.User;
+import umc.animore.model.review.ImageDTO;
+import umc.animore.model.review.ReviewDTO;
 import umc.animore.service.ImageService;
 import umc.animore.service.ReviewService;
 import umc.animore.service.StoreService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ReviewController {
@@ -88,8 +93,6 @@ public class ReviewController {
     }
 */
 
-
-
     @PutMapping("/reviews/update")
     public BaseResponse<Review> updateReview(@RequestBody Review review) {
         try {
@@ -123,53 +126,81 @@ public class ReviewController {
     }
 
     //리뷰조회
+    //http://localhost:8000/reviews/1
     @ResponseBody
     @GetMapping("/reviews/{reviewId}")
-    public BaseResponse<Review> getReviewById(@PathVariable Long reviewId) {
+    public BaseResponse<ReviewDTO> getReviewById(@PathVariable Long reviewId) {
         try{
-            if (reviewId == null){
+            if (reviewId == null) {
                 return new BaseResponse<>(BaseResponseStatus.GET_SEARCH_EMPTY_QUERY);
             }
-            Review review = reviewService.getReviewById(reviewId);
 
+            Review review = reviewService.getReviewById(reviewId);
             List<Image> images = imageService.getImagesByReview(review);
 
-            review.setImages(images);
+            ReviewDTO reviewDTO = new ReviewDTO();
+            reviewDTO.setReviewId(review.getReviewId());
+            reviewDTO.setPetId(review.getPetId());
+            reviewDTO.setCreatedDate(review.getCreatedDate());
+            reviewDTO.setModifiedDate(review.getModifiedDate());
+            reviewDTO.setReviewContent(review.getReviewContent());
+            reviewDTO.setReviewLike(review.getReviewLike());
+            reviewDTO.setStoreId(review.getStore().getStoreId());
+            reviewDTO.setUserId(review.getUser().getId());
 
-            return new BaseResponse<>(review);
+            List<ImageDTO> imageDTOList = new ArrayList<>();
+            for (Image image : images) {
+                ImageDTO imageDTO = new ImageDTO();
+                imageDTO.setImageId(image.getImageId());
+                imageDTO.setImgName(image.getImgName());
+                imageDTO.setImgOriName(image.getImgOriName());
+                imageDTO.setImgPath(image.getImgPath());
+                imageDTOList.add(imageDTO);
+            }
+            reviewDTO.setImages(imageDTOList);
+
+            return new BaseResponse<>(reviewDTO);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }
 
-//    // 리뷰에 연결된 이미지 목록 조회
-//    @ResponseBody
-//    @GetMapping("/{reviewId}/images")
-//    public BaseResponse<List<Image>> getImagesByReview(@PathVariable Long reviewId) {
-//        try {
-//            if (reviewId == null) {
-//                return new BaseResponse<>(BaseResponseStatus.GET_SEARCH_EMPTY_QUERY);
-//            }
-//            Review review = reviewService.getReviewById(reviewId);
-//            //List<Image> images = imageService.getImagesByReview(review);
-//            return new BaseResponse<>(review);
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
 
     //특정 가게의 모든 리뷰 조회
     //http://localhost:8000/reviews/store/1
     @ResponseBody
     @GetMapping("/reviews/store/{storeId}")
-    public BaseResponse<List<Review>> getReviewsByStoreId(@PathVariable Long storeId){
+    public BaseResponse<ReviewDTO> getReviewsByStoreId(@PathVariable Long storeId){
         try{
-            if (storeId == null){
+            if (storeId == null) {
                 return new BaseResponse<>(BaseResponseStatus.GET_SEARCH_EMPTY_QUERY);
             }
-            List<Review> reviews = reviewService.getReviewsByStoreId(storeId);
 
-            return new BaseResponse<>(reviews);
+            Review review = reviewService.getReviewsByStoreId(storeId);
+            List<Image> images = imageService.getImagesByReview(review);
+
+            ReviewDTO reviewDTO = new ReviewDTO();
+            reviewDTO.setReviewId(review.getReviewId());
+            reviewDTO.setPetId(review.getPetId());
+            reviewDTO.setCreatedDate(review.getCreatedDate());
+            reviewDTO.setModifiedDate(review.getModifiedDate());
+            reviewDTO.setReviewContent(review.getReviewContent());
+            reviewDTO.setReviewLike(review.getReviewLike());
+            reviewDTO.setStoreId(review.getStore().getStoreId());
+            reviewDTO.setUserId(review.getUser().getId());
+
+            List<ImageDTO> imageDTOList = new ArrayList<>();
+            for (Image image : images) {
+                ImageDTO imageDTO = new ImageDTO();
+                imageDTO.setImageId(image.getImageId());
+                imageDTO.setImgName(image.getImgName());
+                imageDTO.setImgOriName(image.getImgOriName());
+                imageDTO.setImgPath(image.getImgPath());
+                imageDTOList.add(imageDTO);
+            }
+            reviewDTO.setImages(imageDTOList);
+
+            return new BaseResponse<>(reviewDTO);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
@@ -179,14 +210,37 @@ public class ReviewController {
     //http://localhost:8000/reviews/user/1
     @ResponseBody
     @GetMapping("/reviews/user/{userId}")
-    public BaseResponse<List<Review>> getReviewsByUserId(@PathVariable Long userId){
+    public BaseResponse<ReviewDTO> getReviewsByUserId(@PathVariable Long userId){
         try{
-            if (userId == null){
+            if (userId == null) {
                 return new BaseResponse<>(BaseResponseStatus.GET_SEARCH_EMPTY_QUERY);
             }
-            List<Review> reviews = reviewService.getReviewsById(userId);
 
-            return new BaseResponse<>(reviews);
+            Review review = reviewService.getReviewsById(userId);
+            List<Image> images = imageService.getImagesByReview(review);
+
+            ReviewDTO reviewDTO = new ReviewDTO();
+            reviewDTO.setReviewId(review.getReviewId());
+            reviewDTO.setPetId(review.getPetId());
+            reviewDTO.setCreatedDate(review.getCreatedDate());
+            reviewDTO.setModifiedDate(review.getModifiedDate());
+            reviewDTO.setReviewContent(review.getReviewContent());
+            reviewDTO.setReviewLike(review.getReviewLike());
+            reviewDTO.setStoreId(review.getStore().getStoreId());
+            reviewDTO.setUserId(review.getUser().getId());
+
+            List<ImageDTO> imageDTOList = new ArrayList<>();
+            for (Image image : images) {
+                ImageDTO imageDTO = new ImageDTO();
+                imageDTO.setImageId(image.getImageId());
+                imageDTO.setImgName(image.getImgName());
+                imageDTO.setImgOriName(image.getImgOriName());
+                imageDTO.setImgPath(image.getImgPath());
+                imageDTOList.add(imageDTO);
+            }
+            reviewDTO.setImages(imageDTOList);
+
+            return new BaseResponse<>(reviewDTO);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
