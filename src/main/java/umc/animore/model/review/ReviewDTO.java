@@ -28,4 +28,10 @@ public class ReviewDTO {
     private List<ImageDTO> images;
     private List<ImageDTO> newImages;
 
+    // 추가: 이미지 정보를 삭제된 리뷰의 ID로 설정하는 메소드
+    public void setDeletedReviewId(Long reviewId) {
+        // 삭제된 리뷰의 ID만 필요하므로, ID만 설정하면 됩니다.
+        this.reviewId = reviewId;
+    }
+
 }

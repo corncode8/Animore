@@ -311,13 +311,18 @@ public class ReviewController {
     //리뷰 삭제
     @ResponseBody
     @DeleteMapping("/reviews/{reviewId}")
-    public BaseResponse<Review> deleteReview(@PathVariable Long reviewId) {
+    public BaseResponse<ReviewDTO> deleteReview(@PathVariable Long reviewId) {
         try {
-            Review deletedReview = reviewService.deleteReview(reviewId);
 
             // 이미지 삭제 로직 (리뷰에 속한 이미지들 모두 삭제)
-           imageService.deleteImagesByReviewId(reviewId);
-            return new BaseResponse<>(true, "리뷰 삭제 성공", 1000, deletedReview);
+            imageService.deleteImagesByReviewId(reviewId);
+
+            Review deletedReview = reviewService.deleteReview(reviewId);
+
+            // 삭제된 리뷰의 ID를 ReviewDTO에 설정하여 반환
+            ReviewDTO deletedReviewDTO = new ReviewDTO();
+            deletedReviewDTO.setDeletedReviewId(reviewId);
+            return new BaseResponse<>(true, "리뷰 삭제 성공", 1000, deletedReviewDTO);
         } catch (BaseException exception) {
             return new BaseResponse<>(false, exception.getStatus().getMessage(), exception.getStatus().getCode(), null);
         }
