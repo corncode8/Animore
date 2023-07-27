@@ -35,18 +35,19 @@ public class ReviewService {
     }
 
     //리뷰 조회 (특정 가게의 모든 리뷰)
-    public Review getReviewsByStoreId(Long storeId) throws BaseException {
+    public List<Review> getReviewsByStoreId(Long storeId) throws BaseException {
         try {
-            return reviewRepository.findByStoreStoreId(storeId);
+            List<Review> reviews = reviewRepository.findByStoreStoreId(storeId);
+            return reviews;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
     //리뷰 조회 (특정 사용자의 모든 리뷰)
-    public Review getReviewsById(Long userId) throws BaseException {
+    public List<Review> getReviewsById(Long userId) throws BaseException {
         try {
-            Review reviews = reviewRepository.findByUserId(userId);
+            List<Review> reviews = reviewRepository.findByUserId(userId);
             return reviews;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);

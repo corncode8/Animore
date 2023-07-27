@@ -170,37 +170,43 @@ public class ReviewController {
     //http://localhost:8000/reviews/store/1
     @ResponseBody
     @GetMapping("/reviews/store/{storeId}")
-    public BaseResponse<ReviewDTO> getReviewsByStoreId(@PathVariable Long storeId){
+    public BaseResponse<List<ReviewDTO>> getReviewsByStoreId(@PathVariable Long storeId){
         try{
             if (storeId == null) {
                 return new BaseResponse<>(BaseResponseStatus.GET_SEARCH_EMPTY_QUERY);
             }
 
-            Review review = reviewService.getReviewsByStoreId(storeId);
-            List<Image> images = imageService.getImagesByReview(review);
+            List<Review> reviews = reviewService.getReviewsByStoreId(storeId);
 
-            ReviewDTO reviewDTO = new ReviewDTO();
-            reviewDTO.setReviewId(review.getReviewId());
-            reviewDTO.setPetId(review.getPetId());
-            reviewDTO.setCreatedDate(review.getCreatedDate());
-            reviewDTO.setModifiedDate(review.getModifiedDate());
-            reviewDTO.setReviewContent(review.getReviewContent());
-            reviewDTO.setReviewLike(review.getReviewLike());
-            reviewDTO.setStoreId(review.getStore().getStoreId());
-            reviewDTO.setUserId(review.getUser().getId());
+            List<ReviewDTO> reviewDTOList = new ArrayList<>();
+            for (Review review : reviews) {
+                List<Image> images = imageService.getImagesByReview(review);
 
-            List<ImageDTO> imageDTOList = new ArrayList<>();
-            for (Image image : images) {
-                ImageDTO imageDTO = new ImageDTO();
-                imageDTO.setImageId(image.getImageId());
-                imageDTO.setImgName(image.getImgName());
-                imageDTO.setImgOriName(image.getImgOriName());
-                imageDTO.setImgPath(image.getImgPath());
-                imageDTOList.add(imageDTO);
+                ReviewDTO reviewDTO = new ReviewDTO();
+                reviewDTO.setReviewId(review.getReviewId());
+                reviewDTO.setPetId(review.getPetId());
+                reviewDTO.setCreatedDate(review.getCreatedDate());
+                reviewDTO.setModifiedDate(review.getModifiedDate());
+                reviewDTO.setReviewContent(review.getReviewContent());
+                reviewDTO.setReviewLike(review.getReviewLike());
+                reviewDTO.setStoreId(review.getStore().getStoreId());
+                reviewDTO.setUserId(review.getUser().getId());
+
+                List<ImageDTO> imageDTOList = new ArrayList<>();
+                for (Image image : images) {
+                    ImageDTO imageDTO = new ImageDTO();
+                    imageDTO.setImageId(image.getImageId());
+                    imageDTO.setImgName(image.getImgName());
+                    imageDTO.setImgOriName(image.getImgOriName());
+                    imageDTO.setImgPath(image.getImgPath());
+                    imageDTOList.add(imageDTO);
+                }
+                reviewDTO.setImages(imageDTOList);
+
+                reviewDTOList.add(reviewDTO);
             }
-            reviewDTO.setImages(imageDTOList);
 
-            return new BaseResponse<>(reviewDTO);
+            return new BaseResponse<>(reviewDTOList);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
@@ -210,37 +216,42 @@ public class ReviewController {
     //http://localhost:8000/reviews/user/1
     @ResponseBody
     @GetMapping("/reviews/user/{userId}")
-    public BaseResponse<ReviewDTO> getReviewsByUserId(@PathVariable Long userId){
+    public BaseResponse<List<ReviewDTO>> getReviewsByUserId(@PathVariable Long userId){
         try{
             if (userId == null) {
                 return new BaseResponse<>(BaseResponseStatus.GET_SEARCH_EMPTY_QUERY);
             }
 
-            Review review = reviewService.getReviewsById(userId);
-            List<Image> images = imageService.getImagesByReview(review);
+            List<Review> reviews = reviewService.getReviewsById(userId);
+            List<ReviewDTO> reviewDTOList = new ArrayList<>();
+            for (Review review : reviews) {
+                List<Image> images = imageService.getImagesByReview(review);
 
-            ReviewDTO reviewDTO = new ReviewDTO();
-            reviewDTO.setReviewId(review.getReviewId());
-            reviewDTO.setPetId(review.getPetId());
-            reviewDTO.setCreatedDate(review.getCreatedDate());
-            reviewDTO.setModifiedDate(review.getModifiedDate());
-            reviewDTO.setReviewContent(review.getReviewContent());
-            reviewDTO.setReviewLike(review.getReviewLike());
-            reviewDTO.setStoreId(review.getStore().getStoreId());
-            reviewDTO.setUserId(review.getUser().getId());
+                ReviewDTO reviewDTO = new ReviewDTO();
+                reviewDTO.setReviewId(review.getReviewId());
+                reviewDTO.setPetId(review.getPetId());
+                reviewDTO.setCreatedDate(review.getCreatedDate());
+                reviewDTO.setModifiedDate(review.getModifiedDate());
+                reviewDTO.setReviewContent(review.getReviewContent());
+                reviewDTO.setReviewLike(review.getReviewLike());
+                reviewDTO.setStoreId(review.getStore().getStoreId());
+                reviewDTO.setUserId(review.getUser().getId());
 
-            List<ImageDTO> imageDTOList = new ArrayList<>();
-            for (Image image : images) {
-                ImageDTO imageDTO = new ImageDTO();
-                imageDTO.setImageId(image.getImageId());
-                imageDTO.setImgName(image.getImgName());
-                imageDTO.setImgOriName(image.getImgOriName());
-                imageDTO.setImgPath(image.getImgPath());
-                imageDTOList.add(imageDTO);
+                List<ImageDTO> imageDTOList = new ArrayList<>();
+                for (Image image : images) {
+                    ImageDTO imageDTO = new ImageDTO();
+                    imageDTO.setImageId(image.getImageId());
+                    imageDTO.setImgName(image.getImgName());
+                    imageDTO.setImgOriName(image.getImgOriName());
+                    imageDTO.setImgPath(image.getImgPath());
+                    imageDTOList.add(imageDTO);
+                }
+                reviewDTO.setImages(imageDTOList);
+
+                reviewDTOList.add(reviewDTO);
             }
-            reviewDTO.setImages(imageDTOList);
 
-            return new BaseResponse<>(reviewDTO);
+            return new BaseResponse<>(reviewDTOList);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
