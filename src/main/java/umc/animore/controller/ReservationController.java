@@ -16,6 +16,7 @@ import umc.animore.model.reservation.ReservationRequest;
 import umc.animore.repository.StoreRepository;
 import umc.animore.service.ReservationService;
 import umc.animore.service.StoreService;
+import umc.animore.service.UserService;
 
 
 import java.time.LocalDateTime;
@@ -35,6 +36,8 @@ public class ReservationController {
     private StoreService storeService;
     @Autowired
     private StoreRepository storeRepository;
+    @Autowired
+    private UserService userService;
 
 
     // 향후 한달간 예약 가능한 시간 조회
@@ -49,7 +52,8 @@ public class ReservationController {
         if (store == null) {
             System.out.println("해당 store가 없습니다.");
         }
-
+        store.setDayoff1(store.getDayoff1().toUpperCase());
+        store.setDayoff2(store.getDayoff2().toUpperCase());
         List<LocalDateTime> availableTimes = reservationService.getAvailableTimesForNextMonth(storeId, LocalTime.of(store.getOpen(), 0), LocalTime.of(store.getClose() - 1, 0));
         return ResponseEntity.ok(availableTimes);
     }
@@ -58,37 +62,61 @@ public class ReservationController {
     // 예약 생성
     @ResponseBody
     @PostMapping("/booking/{userId}")
-    public ResponseEntity<String> createReservation(@PathVariable("userId") Long userId,
-                                                    @RequestBody ReservationRequest reservationRequest,
-                                                    @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
+    public ResponseEntity<?> createReservation(@PathVariable("userId") Long userId,
+                                               @RequestBody ReservationRequest reservationRequest) {
 
         System.out.println("userId: " + userId);
-        System.out.println("startTime from request: " + reservationRequest.getStartTime());
-        System.out.println("request: " + reservationRequest.getRequest());
         System.out.println("storeId : " + reservationRequest.getStoreId());
 
         try {
-            Reservation reservation = reservationService.createReservation(userId, startTime, reservationRequest.getRequest(), reservationRequest.getStoreId(), imageFile);
+            Reservation reservation = reservationService.createReservation(userId,reservationRequest.getStoreId(), reservationRequest.getDogSize(), reservationRequest.getCutStyle(), reservationRequest.getBathStyle());
             return ResponseEntity.ok("Reservation created with ID: " + reservation.getReservationId());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create reservation: " + e.getMessage());
         }
     }
+    // 예약상세 3
+    @ResponseBody
+    @PostMapping("/booking/time/{reservationId}")
+    public ResponseEntity<?> insertBookTime(@PathVariable("reservationId") Long reservationId, @RequestBody ReservationRequest reservationRequest) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
+        System.out.println(startTime.toString());
+
+        try {
+            Reservation inserTIme = reservationService.insertBookingtime(reservationId, startTime);
+            return new ResponseEntity<>(inserTIme.getStartTime(), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            // 예약이 존재하지 않거나 겹치는 경우 오류메시지 반환, 상태 코드 400
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // 예약상세 저장내용 불러오기
+    @ResponseBody
+    @GetMapping("/userInfo/{userId}")
+    public ResponseEntity<Map<String, Object>> getUserInfo(@PathVariable("userId") Long userId) {
+        try {
+            Map<String, Object> userinfoMap = userService.getUserInfo(userId);
+            return ResponseEntity.ok(userinfoMap);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
 
     // 예약 수정
     @PutMapping("/booking/update/{reservationId}")
-    public ResponseEntity<Reservation> updateReservation(@PathVariable Long reservationId, @RequestBody ReservationRequest reservationRequest) {
+    public ResponseEntity<?> updateReservation(@PathVariable Long reservationId, @RequestBody ReservationRequest reservationRequest) {
         System.out.println("처음 print : " + reservationRequest.getStartTime());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
         System.out.println(startTime.toString());
 
         try {
-            Reservation updatedReservation = reservationService.updateReservation(reservationId, startTime, reservationRequest.getRequest());
+            Reservation updatedReservation = reservationService.updateReservation(reservationId, startTime);
             // 예약 수정 성공 시 상태 코드 200
-            return new ResponseEntity<>(updatedReservation, HttpStatus.OK);
+            return new ResponseEntity<>(updatedReservation.getStartTime(), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             // 예약이 존재하지 않거나 겹치는 경우 오류메시지 반환, 상태 코드 400
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -193,13 +221,15 @@ public class ReservationController {
         reservationMap.put("userName", reservation.getUsername());
         reservationMap.put("userPhone", reservation.getUser_phone());
         reservationMap.put("userAddress", reservation.getAddress());
-        reservationMap.put("requestMessage", reservation.getRequest());
+        reservationMap.put("dogSize", reservation.getDogSize());
+        reservationMap.put("cutStyle", reservation.getCutStyle());
+        reservationMap.put("bathStyle", reservation.getBathStyle());
         return new ResponseEntity<>(reservationMap, HttpStatus.OK);
     }
 
     // 업체 - 예약승인
     @ResponseBody
-    @GetMapping("/booking/confirm")
+    @GetMapping("/booking/confirm/{reservatonId}")
     public ResponseEntity<?> confirmedReservation(@PathVariable Long reservatonId) {
         Reservation reservation = reservationService.confirmReservation(reservatonId);
         return ResponseEntity.status(HttpStatus.OK).body("예약 승인이 완료되었습니다.");

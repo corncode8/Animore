@@ -10,9 +10,7 @@ import umc.animore.repository.ReservationRepository;
 import umc.animore.repository.UserRepository;
 
 import java.time.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ReservationService {
@@ -35,6 +33,9 @@ public class ReservationService {
     /** 향후 한달간 예약이 가능한 시간 조회 **/
     public List<LocalDateTime> getAvailableTimesForNextMonth(Long storeId, LocalTime startBookingTime, LocalTime endBookingTime) {
         Store store = storeService.getStoreId(storeId);
+        if (store == null) {
+            throw new IllegalArgumentException("StoreId is null");
+        }
 
         try {
             dayOff1 = DayOfWeek.valueOf(store.getDayoff1());
@@ -103,63 +104,71 @@ public class ReservationService {
     }
 
     /** 예약 생성 **/
-    public Reservation createReservation(Long user_id, LocalDateTime startTime,String request,Long storeId, MultipartFile imageFile) {
+    public Reservation createReservation(Long user_id, Long storeId, Reservation.DogSize dogSize, Reservation.CutStyle cutStyle, Reservation.BathStyle bathStyle) {
         User user = userService.getUserId(user_id);
         if(user == null) {
             // 예외처리
-            throw new IllegalArgumentException("userService.getUserId not found");
+            throw new IllegalArgumentException("해당 유저를 찾을 수 없습니다.");
         }
 
         Pet petInfo = petService.findByUserId(user_id);
         if (petInfo == null) {
-            throw new IllegalStateException("Pet information not found for the user.");
+            throw new IllegalStateException("유저의 해당 반려동물 정보를 찾을 수 없습니다.");
         }
 
         Store store = storeService.getStoreId(storeId);
         if (store == null) {
-            throw new IllegalArgumentException("storeId not found");
-        }
-
-        // 예약 기간 계산 (1시간) 수정할 수 있게 해줘야 함.
-        LocalDateTime endTime = startTime.plusHours(1);
-
-        // 겹치는 예약 확인 로직: 등록된 예약 중 겹치는 예약 반환
-        List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(startTime, endTime);
-
-        // 겹치는 예약 수 확인 후 2개 이상이면 예약 불가 (수정 가능하게)
-        if (overlappingReservations.size() >= 2) {
-            throw new IllegalArgumentException("해당 시간은 예약이 풀입니다.");
+            throw new IllegalArgumentException("해당 매장을 찾을 수 없습니다.");
         }
 
         Reservation reservation = new Reservation();
         reservation.setUser(user);
-        reservation.setStartTime(startTime);
         reservation.setUsername(user.getUsername());
         reservation.setUser_phone(user.getPhone());
         reservation.setAddress(user.getAddress());
         reservation.setPet_name(petInfo.getPetName());
         reservation.setPet_type(petInfo.getPetType());
         reservation.setPet_gender(petInfo.getPetGender());
-        reservation.setRequest(request);
+        reservation.setDogSize(dogSize);
+        reservation.setBathStyle(bathStyle);
+        reservation.setCutStyle(cutStyle);
         reservation.setStore(store);
-        reservation.setEndTime(endTime);
-//        reservation.setCreate_at();
 
-        if (imageFile != null && !imageFile.isEmpty()) {
-            Image image = new Image();
-            // 이미지 처리  (저장, 경로 설정)
-            reservation.getImages().add(image);
-            image.setReservation(reservation);
+        return reservationRepository.save(reservation);
+    }
+
+    /** 예약상세 3 **/
+    public Reservation insertBookingtime(Long reservationId, LocalDateTime startTime) {
+        Reservation reservation = reservationRepository.findByReservationId(reservationId);
+        if (reservation == null) {
+            throw new IllegalArgumentException("reservationId is null");
         }
-        System.out.println("=====예약 생성 완료=====");
+
+        // 예약 기간 계산 (1시간) 수정할 수 있게 해줘야 함.
+        LocalDateTime endTime = startTime.plusHours(1);
+//
+//        // 겹치는 예약 확인 로직: 등록된 예약 중 겹치는 예약 반환
+        List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(startTime, endTime);
+//
+//        // 겹치는 예약 수 확인 후 2개 이상이면 예약 불가 (수정 가능하게)
+        if (overlappingReservations.size() >= 2) {
+            throw new IllegalArgumentException("해당 시간은 예약이 풀입니다.");
+        }
+        reservation.setStartTime(startTime);
+        reservation.setEndTime(endTime);
+
+        if (reservation.getStartTime() == null) {
+            throw new IllegalArgumentException("reservation time 설정 오류");
+        }
+
+        System.out.println("== 날짜 시간 insert 완료");
 
         return reservationRepository.save(reservation);
     }
 
 
-
     /** 예약 수정 **/
-    public Reservation updateReservation(Long reservationId, LocalDateTime startTime, String request) {
+    public Reservation updateReservation(Long reservationId, LocalDateTime startTime) {
         Reservation reservation = reservationRepository.findByReservationId(reservationId);
 
         if (reservation == null) {
@@ -182,7 +191,6 @@ public class ReservationService {
 
         reservation.setStartTime(startTime);
         reservation.setEndTime(startTime.plusHours(1));
-        reservation.setRequest(request);
 
         System.out.println("=====예약 수정 완료=====");
 

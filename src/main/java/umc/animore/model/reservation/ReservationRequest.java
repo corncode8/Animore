@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import umc.animore.model.Reservation;
 
 
 @Getter
@@ -12,8 +13,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ReservationRequest {
     private String reqTime;
-    private String request;
     private Long storeId;
     private String startTime;
+    private Reservation.DogSize dogSize;
+    private Reservation.CutStyle cutStyle;
+    private Reservation.BathStyle bathStyle;
 
 }
