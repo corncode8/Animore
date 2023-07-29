@@ -15,6 +15,7 @@ import umc.animore.config.jwt.JwtUsernamePasswordAuthenticationFilter;
 import umc.animore.config.jwt.JwtAuthorizationFilter;
 import umc.animore.config.oauth.OAuth2AuthenticationSuccessHandler;
 import umc.animore.config.oauth.PrincipalOauth2UserService;
+import umc.animore.filter.ExceptionHandlerFilter;
 import umc.animore.repository.UserRepository;
 
 
@@ -48,7 +49,8 @@ public class SecurityConfig  {
             http
                     .addFilter(corsConfig.corsFilter())
                     .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager))
-                    .addFilter(new JwtAuthorizationFilter(authenticationManager,userRepository));
+                    .addFilter(new JwtAuthorizationFilter(authenticationManager,userRepository))
+                    .addFilterBefore(new ExceptionHandlerFilter(), JwtAuthorizationFilter.class);;
         }
     }
 

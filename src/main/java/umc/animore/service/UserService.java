@@ -2,12 +2,18 @@ package umc.animore.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import umc.animore.config.exception.BaseException;
+import umc.animore.controller.DTO.MypageMemberUpdate;
 import umc.animore.model.Pet;
 import umc.animore.model.User;
 import umc.animore.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static umc.animore.config.exception.BaseResponseStatus.GET_USER_EMPTY_NICKNAME_NAME;
+import static umc.animore.config.exception.BaseResponseStatus.RESPONSE_ERROR;
 
 @Service
 public class UserService {
@@ -39,6 +45,34 @@ public class UserService {
         userinfoMap.put("전화번호", user.getPhone());
         userinfoMap.put("주소", user.getAddress());
         return userinfoMap;
+    }
+
+
+    /**
+     * mypageMemberUpdate를 이용하여 user 업데이트
+     **/
+    @Transactional
+    public MypageMemberUpdate saveMypageMemberUpdate(MypageMemberUpdate mypageMemberUpdate, Long userId) throws BaseException {
+
+        try {
+            if (mypageMemberUpdate.getNickname() == null) {
+                throw new BaseException(GET_USER_EMPTY_NICKNAME_NAME);
+            }
+
+
+            User user = userRepository.findById(userId);
+
+            user.setEmail(mypageMemberUpdate.getEmail());
+            user.setPassword(mypageMemberUpdate.getPassword());
+            user.setNickname(mypageMemberUpdate.getNickname());
+            user.setPhone(mypageMemberUpdate.getPhone());
+            user.setGender(mypageMemberUpdate.getGender());
+
+            return mypageMemberUpdate;
+        }
+        catch(Exception e){
+            throw new BaseException(RESPONSE_ERROR);
+        }
     }
 
 }

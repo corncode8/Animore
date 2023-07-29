@@ -10,7 +10,7 @@ import javax.persistence.Column;
 @NoArgsConstructor
 public class MypagePetUpdate {
 
-
+    private Long petId;
 
     private String petName;
 
@@ -26,8 +26,9 @@ public class MypagePetUpdate {
 
 
     @Builder
-    public MypagePetUpdate(String petName, String petType,String petGender, double petWeight,int petAge,String petSpecials) {
+    public MypagePetUpdate(Long petId,String petName, String petType,String petGender, double petWeight,int petAge,String petSpecials) {
 
+        this.petId = petId;
         this.petName = petName;
         this.petGender = petGender;
         this.petType = petType;
