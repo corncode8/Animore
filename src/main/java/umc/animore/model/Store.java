@@ -23,6 +23,11 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "store_id")
     private Long storeId; //업체 id
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
     @Column(name = "store_name")
     private String storeName; //업체 이름
     @Column(name = "store_location")
@@ -73,6 +78,4 @@ public class Store {
     public void setTown(Town town) {
         this.town = town;
     }
-
-
 }

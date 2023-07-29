@@ -26,6 +26,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
+    @OneToOne
+    @JoinColumn(name= "store_id")
+    private Store store;            // 업체_idx
+
     private String username;
     private String password;
     private String email;
