@@ -1,24 +1,19 @@
 package umc.animore.controller;
 
-import com.nimbusds.jose.Header;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.model.Reservation;
 import umc.animore.model.Store;
 import umc.animore.model.User;
-import umc.animore.model.reservation.PaginationDto;
 import umc.animore.model.reservation.ReservationRequest;
-import umc.animore.repository.StoreRepository;
 import umc.animore.service.ReservationService;
 import umc.animore.service.StoreService;
 import umc.animore.service.UserService;
@@ -27,10 +22,7 @@ import umc.animore.service.UserService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class ReservationController {
@@ -46,124 +38,260 @@ public class ReservationController {
     // 향후 한달간 예약 가능한 시간 조회
     @ResponseBody
     @GetMapping("/booking/Calendar")
-    public ResponseEntity<List<LocalDateTime>> getAvailableTimesForNextMonth(Long storeId) {
-        Store store = storeService.getStoreId(storeId);
+    public ResponseEntity<Map<String, Object>> getAvailableTimesForNextMonth() {
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = principalDetails.getUser();
+
+        Store store = storeService.findStoreId(user.getStore().getStoreId());
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
         if (store == null) {
-            System.out.println("해당 store가 없습니다.");
+            response.put("isSuccess", false);
+            response.put("code", 2001); // Store ID를 찾을 수 없는 경우
+            response.put("message", "Store ID를 찾을 수 없습니다.");
+            status = HttpStatus.NOT_FOUND;
+        } else {
+            store.setDayoff1(store.getDayoff1().toUpperCase());
+            store.setDayoff2(store.getDayoff2().toUpperCase());
+
+            List<LocalDateTime> availableTimes = reservationService.getAvailableTimesForNextMonth(user.getStore().getStoreId(), LocalTime.of(store.getOpen(), 0), LocalTime.of(store.getClose() - 1, 0));
+
+            if (availableTimes.isEmpty()) {
+                response.put("isSuccess", false);
+                response.put("code", 2002);
+                response.put("message", "예약 가능한 시간이 없습니다.");
+                status = HttpStatus.NO_CONTENT;
+            } else {
+                response.put("isSuccess", true);
+                response.put("code", 1000);
+                response.put("message", "요청에 성공하였습니다.");
+                response.put("result", availableTimes);
+                status = HttpStatus.OK;
+            }
         }
-        store.setDayoff1(store.getDayoff1().toUpperCase());
-        store.setDayoff2(store.getDayoff2().toUpperCase());
-        List<LocalDateTime> availableTimes = reservationService.getAvailableTimesForNextMonth(storeId, LocalTime.of(store.getOpen(), 0), LocalTime.of(store.getClose() - 1, 0));
-        return ResponseEntity.ok(availableTimes);
+
+        return new ResponseEntity<>(response, status);
     }
 
 
     // 예약 생성
     @ResponseBody
     @PostMapping("/create/booking")
-    public ResponseEntity<?> createReservation(@RequestBody ReservationRequest reservationRequest) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser;
+    public ResponseEntity<Map<String, Object>> createReservation(@RequestBody ReservationRequest reservationRequest) {
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = principalDetails.getUser();
 
-        if (principal instanceof PrincipalDetails) {
-            PrincipalDetails principalDetails = (PrincipalDetails) principal;
-            currentUser = principalDetails.getUser();
-        } else {
-            throw new IllegalArgumentException("not found user");
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
+        if(user == null) {
+            response.put("isSuccess", false);
+            response.put("code", 2000);
+            response.put("message", "not found user");
+            status = HttpStatus.UNAUTHORIZED;
+            return new ResponseEntity<>(response, status);
         }
 
         try {
-            Reservation reservation = reservationService.createReservation(currentUser.getId(),reservationRequest.getStoreId(), reservationRequest.getDogSize(), reservationRequest.getCutStyle(), reservationRequest.getBathStyle());
-            return ResponseEntity.ok("Reservation created with ID: " + reservation.getReservationId());
+            Reservation reservation = reservationService.createReservation(user.getId(), reservationRequest.getStoreId(), reservationRequest.getDogSize(), reservationRequest.getCutStyle(), reservationRequest.getBathStyle());
+
+            Map<String, Object> reservationResult = new LinkedHashMap<>();
+            reservationResult.put("reservationId", reservation.getReservationId());
+            reservationResult.put("username", reservation.getUsername());
+            reservationResult.put("address", reservation.getAddress());
+            reservationResult.put("phone", reservation.getUser_phone());
+            reservationResult.put("pet_gender", reservation.getPet_gender());
+            reservationResult.put("pet_type", reservation.getPet_type());
+            reservationResult.put("dogSize", reservation.getDogSize());
+            reservationResult.put("cutStyle", reservation.getCutStyle());
+            reservationResult.put("bathStyle", reservation.getBathStyle());
+
+            response.put("isSuccess", true);
+            response.put("code", 1000);
+            response.put("message", "요청에 성공하였습니다.");
+            response.put("result", reservationResult);
+            status = HttpStatus.CREATED;
+
+        } catch (NoSuchElementException e) {
+            response.put("isSuccess", false);
+            response.put("code", 2001);
+            response.put("message", "예약에 실패하였습니다. 상점 또는 사용자를 찾을 수 없습니다.");
+            status = HttpStatus.NOT_FOUND;
+
+        } catch (IllegalStateException e) {
+            response.put("isSuccess", false);
+            response.put("code", 2002);
+            response.put("message", "예약에 실패하였습니다. 원인: " + e.getMessage());
+            status = HttpStatus.CONFLICT;
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create reservation: " + e.getMessage());
+            response.put("isSuccess", false);
+            response.put("code", 2003);
+            response.put("message", "예약에 실패하였습니다. 원인: " + e.getMessage());
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
+
+        return new ResponseEntity<>(response, status);
     }
+
     // 예약상세 3
     @ResponseBody
     @PostMapping("/booking/time/{reservationId}")
-    public ResponseEntity<?> insertBookTime(@PathVariable("reservationId") Long reservationId, @RequestBody ReservationRequest reservationRequest) {
+    public ResponseEntity<Map<String, Object>> insertBookTime(@PathVariable("reservationId") Long reservationId, @RequestBody ReservationRequest reservationRequest) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
 
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
         try {
             Reservation inserTIme = reservationService.insertBookingtime(reservationId, startTime);
-            return new ResponseEntity<>(inserTIme.getStartTime(), HttpStatus.OK);
+
+            response.put("isSuccess", true);
+            response.put("code", 1000);
+            response.put("message", "요청에 성공하였습니다.");
+            response.put("result", inserTIme);
+            status = HttpStatus.CREATED;
+
         } catch (IllegalArgumentException e) {
-            // 예약이 존재하지 않거나 겹치는 경우 오류메시지 반환, 상태 코드 400
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            response.put("isSuccess", false);
+            response.put("code", 2001);
+            response.put("message", "예약 시간을 지정하지 못했습니다. 원인: " + e.getMessage());
+            status = HttpStatus.BAD_REQUEST;
+
+        } catch (NoSuchElementException e) {
+            response.put("isSuccess", false);
+            response.put("code", 2002);
+            response.put("message", "예약이 존재하지 않습니다.");
+            status = HttpStatus.NOT_FOUND;
+
+        } catch (Exception e) {
+            response.put("isSuccess", false);
+            response.put("code", 2003);
+            response.put("message", "예약 시간을 지정하는데 실패하였습니다.");
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
+
+        return new ResponseEntity<>(response, status);
     }
 
     // 예약상세 저장내용 불러오기
     @ResponseBody
     @GetMapping("/userInfo")
     public ResponseEntity<Map<String, Object>> getUserInfo() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser;
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = principalDetails.getUser();
 
-        if (principal instanceof PrincipalDetails) {
-            PrincipalDetails principalDetails = (PrincipalDetails) principal;
-            currentUser = principalDetails.getUser();
-        } else {
-            throw new IllegalArgumentException("not found user");
-        }
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
         try {
-            Map<String, Object> userinfoMap = userService.getUserInfo(currentUser.getId());
-            return ResponseEntity.ok(userinfoMap);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            Map<String, Object> userinfoMap = userService.getUserInfo(user.getId());
+            response.put("isSuccess", true);
+            response.put("code", 1000);
+            response.put("message", "요청에 성공하였습니다.");
+            response.put("result", userinfoMap);
+            status = HttpStatus.OK;
+
+        } catch (NoSuchElementException e) {
+            response.put("isSuccess", false);
+            response.put("code", 2001);
+            response.put("message", "요청하신 사용자 정보를 찾을 수 없습니다.");
+            status = HttpStatus.NOT_FOUND;
+
+        } catch (Exception e) {
+            response.put("isSuccess", false);
+            response.put("code", 2002);
+            response.put("message", "사용자 정보를 불러오는데 실패했습니다.");
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
+
+        return new ResponseEntity<>(response, status);
     }
 
 
     // 예약 수정
     @PutMapping("/manage/booking/update/{reservationId}")
-    public ResponseEntity<?> updateReservation(@PathVariable Long reservationId, @RequestBody ReservationRequest reservationRequest) {
+    public ResponseEntity<Map<String, Object>> updateReservation(@PathVariable Long reservationId, @RequestBody ReservationRequest reservationRequest) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
 
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
 
         try {
             Reservation updatedReservation = reservationService.updateReservation(reservationId, startTime);
-            // 예약 수정 성공 시 상태 코드 200
-            return new ResponseEntity<>(updatedReservation.getStartTime(), HttpStatus.OK);
+            response.put("isSuccess", true);
+            response.put("code", 1000);
+            response.put("message", "요청에 성공하였습니다.");
+            response.put("result", updatedReservation.getStartTime());
+            status = HttpStatus.OK;
+
         } catch (IllegalArgumentException e) {
-            // 예약이 존재하지 않거나 겹치는 경우 오류메시지 반환, 상태 코드 400
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            response.put("isSuccess", false);
+            response.put("code", 2001);
+            response.put("message", "예약 수정에 실패했습니다. 원인: " + e.getMessage());
+            status = HttpStatus.BAD_REQUEST;
+
+        } catch (NoSuchElementException e) {
+            response.put("isSuccess", false);
+            response.put("code", 2002);
+            response.put("message", "해당하는 예약이 존재하지 않습니다.");
+            status = HttpStatus.NOT_FOUND;
+
+        } catch (Exception e) {
+            response.put("isSuccess", false);
+            response.put("code", 2003);
+            response.put("message", "예약 수정 과정에서 문제가 발생했습니다.");
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
+
+        return new ResponseEntity<>(response, status);
     }
 
     // 예약 삭제
     @DeleteMapping("/manage/booking/delete/{reservationId}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
+    public ResponseEntity<?> deleteReservation(@PathVariable Long reservationId) {
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
         try {
             reservationService.deleteReservation(reservationId);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add("Message","예약이 취소되었습니다.");
-            // 삭제 성공시 204로 설정
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            response.put("isSuccess", true);
+            response.put("code", 1000);
+            response.put("message", "요청에 성공하였습니다.");
+            response.put("result", "예약이 취소되었습니다.");
+            status = HttpStatus.OK;
         } catch (IllegalArgumentException e) {
-            // 예약을 찾을 수 없는 경우 404
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            response.put("isSuccess", false);
+            response.put("code", 2001);
+            response.put("message", "예약을 찾을 수 없습니다. 원인: " + e.getMessage());
+            status = HttpStatus.BAD_REQUEST;
         }
+        return new ResponseEntity<>(response, status);
     }
 
     // 업체 - 예약관리1
     @ResponseBody
     @GetMapping("/manage/bookings")
-    public List<Map<String, Object>> ReservationStoreMonth(@RequestParam int year, @RequestParam int month) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser;
+    public ResponseEntity<?> ReservationStoreMonth(@RequestParam int year, @RequestParam int month) {
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
 
-        if (principal instanceof PrincipalDetails) {
-            PrincipalDetails principalDetails = (PrincipalDetails) principal;
-            currentUser = principalDetails.getUser();
-        } else {
-            throw new IllegalArgumentException("not found user");
+        if (principalDetails == null) {
+            response.put("isSuccess", false);
+            response.put("code", 2000);
+            response.put("message", "not found user");
+            status = HttpStatus.UNAUTHORIZED;
+            return new ResponseEntity<>(response, status);
         }
 
-        Store store = currentUser.getStore();
+        User user = principalDetails.getUser();
+        Store store = user.getStore();
 
         List<Reservation> reservations = reservationService.getMonthlyReservationsByStore(store, year, month);
 
@@ -171,37 +299,48 @@ public class ReservationController {
 
         List<Map<String, Object>> responseData = new ArrayList<>();
         for (Reservation reservation : reservations) {
-            Map<String, Object> reservationData = new HashMap<>();
+            Map<String, Object> reservationData = new LinkedHashMap<>();
             reservationData.put("time", timeFormatter.format(reservation.getStartTime()));
             reservationData.put("petName", reservation.getPet_name());
             reservationData.put("confirmed", reservation.getConfirmed());
 
             responseData.add(reservationData);
         }
-        return responseData;
+
+
+        response.put("isSuccess", true);
+        response.put("code", 1000);
+        response.put("message", "요청에 성공하였습니다.");
+        response.put("result", responseData);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 업체 - 예약관리2 예약요청
     @ResponseBody
     @GetMapping("/manage/bookings/requests")
-    public ResponseEntity<?> reservationRequestsList
+    public ResponseEntity<Map<String, Object>> reservationRequestsList
     (@PageableDefault(size = 6, page = 0, sort = "reservationId") Pageable pageable) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser;
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
 
-        if (principal instanceof PrincipalDetails) {
-            PrincipalDetails principalDetails = (PrincipalDetails) principal;
-            currentUser = principalDetails.getUser();
-        } else {
-            throw new IllegalArgumentException("not found user");
+        if (principalDetails == null) {
+            response.put("isSuccess", false);
+            response.put("code", 2000);
+            response.put("message", "not found user");
+            status = HttpStatus.UNAUTHORIZED;
+            return new ResponseEntity<>(response, status);
         }
 
-        Page<Reservation> reservationPage = reservationService.getRequest(0, pageable);
+        User user = principalDetails.getUser();
+
+        Page<Reservation> reservationPage = reservationService.getRequest(user.getStore().getStoreId(), 0, pageable);
         List<Reservation> reservationList = reservationPage.getContent();
 
         List<Map<String, Object>> resultList = new ArrayList<>();
         for (Reservation r : reservationList) {
-            Map<String, Object> reservationMap = new HashMap<>();
+            Map<String, Object> reservationMap = new LinkedHashMap<>();
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
             String dateString = r.getStartTime().format(formatter);
             LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
@@ -213,30 +352,40 @@ public class ReservationController {
             resultList.add(reservationMap);
         }
 
-        return new ResponseEntity<>(resultList, HttpStatus.OK);
+        response.put("isSuccess", true);
+        response.put("code", 1000);
+        response.put("message", "요청에 성공하였습니다.");
+        response.put("result", resultList);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
     // 업체 - 예약관리4 예약완료
     @ResponseBody
     @GetMapping("/manage/bookings/confirmed")
-    public ResponseEntity<?> reservationConfirmedList
+    public ResponseEntity<Map<String, Object>> reservationConfirmedList
     (@PageableDefault(size = 6, page = 0, sort = "reservationId") Pageable pageable) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser;
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = principalDetails.getUser();
 
-        if (principal instanceof PrincipalDetails) {
-            PrincipalDetails principalDetails = (PrincipalDetails) principal;
-            currentUser = principalDetails.getUser();
-        } else {
-            throw new IllegalArgumentException("not found user");
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
+        if (principalDetails == null) {
+            response.put("isSuccess", false);
+            response.put("code", 2000);
+            response.put("message", "not found user");
+            status = HttpStatus.UNAUTHORIZED;
+            return new ResponseEntity<>(response, status);
         }
 
-        Page<Reservation> reservationPage = reservationService.getRequest(1, pageable);
-
+        Page<Reservation> reservationPage = reservationService.getRequest(user.getStore().getStoreId(), 1, pageable);
         List<Reservation> reservationList = reservationPage.getContent();
 
         List<Map<String, Object>> resultList = new ArrayList<>();
         for (Reservation r : reservationList) {
-            Map<String, Object> reservationMap = new HashMap<>();
+            Map<String, Object> reservationMap = new LinkedHashMap<>();
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
             String dateString = r.getStartTime().format(formatter);
             LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
@@ -248,7 +397,12 @@ public class ReservationController {
             resultList.add(reservationMap);
         }
 
-        return new ResponseEntity<>(resultList, HttpStatus.OK);
+        response.put("isSuccess", true);
+        response.put("code", 1000);
+        response.put("message", "요청에 성공하였습니다.");
+        response.put("result", resultList);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 업체 - 예약관리 3, 5
@@ -256,6 +410,18 @@ public class ReservationController {
     @GetMapping("/manage/bookings/details/{reservationId}")
     public ResponseEntity<?> reservationRequest(@PathVariable Long reservationId) {
         Reservation reservation = reservationService.getRequestById(reservationId);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
+        if (reservation == null) {
+            response.put("isSuccess", false);
+            response.put("code", 2000);
+            response.put("message", "예약을 찾을 수 없습니다");
+            status = HttpStatus.UNAUTHORIZED;
+            return new ResponseEntity<>(response, status);
+        }
+
         Map<String, Object> reservationMap = new HashMap<>();
         reservationMap.put("petName", reservation.getPet_name());
         reservationMap.put("petSpecies", reservation.getPet_type());
@@ -266,7 +432,13 @@ public class ReservationController {
         reservationMap.put("dogSize", reservation.getDogSize());
         reservationMap.put("cutStyle", reservation.getCutStyle());
         reservationMap.put("bathStyle", reservation.getBathStyle());
-        return new ResponseEntity<>(reservationMap, HttpStatus.OK);
+
+        response.put("isSuccess", true);
+        response.put("code", 1000);
+        response.put("message", "요청에 성공하였습니다.");
+        response.put("result", reservationMap);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 업체 - 예약승인
@@ -274,7 +446,24 @@ public class ReservationController {
     @GetMapping("/manage/bookings/confirm/{reservatonId}")
     public ResponseEntity<?> confirmedReservation(@PathVariable Long reservatonId) {
         Reservation reservation = reservationService.confirmReservation(reservatonId);
-        return ResponseEntity.status(HttpStatus.OK).body("예약 승인이 완료되었습니다.");
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
+        if (reservation == null) {
+            response.put("isSuccess", false);
+            response.put("code", 2000);
+            response.put("message", "예약을 찾을 수 없습니다");
+            status = HttpStatus.UNAUTHORIZED;
+            return new ResponseEntity<>(response, status);
+        }
+
+        response.put("isSuccess", true);
+        response.put("code", 1000);
+        response.put("message", "요청에 성공하였습니다.");
+        response.put("result", reservation);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 업체 - 예약반려
@@ -282,35 +471,60 @@ public class ReservationController {
     @GetMapping("/manage/bookings/reject/{reservatonId}")
     public ResponseEntity<?> rejectReservation(@PathVariable Long reservationId, String cause) {
         Reservation reservation = reservationService.rejectReservation(reservationId, cause);
-        return ResponseEntity.status(HttpStatus.OK).body("예약이 반려되었습니다.");
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
+
+        if (reservation == null) {
+            response.put("isSuccess", false);
+            response.put("code", 2000);
+            response.put("message", "예약을 찾을 수 없습니다");
+            status = HttpStatus.UNAUTHORIZED;
+            return new ResponseEntity<>(response, status);
+        }
+
+        response.put("isSuccess", true);
+        response.put("code", 1000);
+        response.put("message", "요청에 성공하였습니다.");
+        response.put("result", reservation);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 유저 - 예약내역
     @ResponseBody
     @GetMapping("/my/visit")
-    public ResponseEntity<?> reservationList(@PageableDefault(size = 6, page = 0, sort = "userId") Pageable pageable) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser;
+    public ResponseEntity<Map<String, Object>> reservationList(@PageableDefault(size = 6, page = 0, sort = "userId") Pageable pageable) {
+        PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Map<String, Object> response = new LinkedHashMap<>();
+        HttpStatus status;
 
-        if (principal instanceof PrincipalDetails) {
-            PrincipalDetails principalDetails = (PrincipalDetails) principal;
-            currentUser = principalDetails.getUser();
-        } else {
-            throw new IllegalArgumentException("not found user");
+        if (principalDetails == null) {
+            response.put("isSuccess", false);
+            response.put("code", 2000);
+            response.put("message", "not found user");
+            status = HttpStatus.UNAUTHORIZED;
+            return new ResponseEntity<>(response, status);
         }
 
-        Page<Reservation> reservationlist = reservationService.getReservationlist(currentUser.getId(), pageable);
+        User user = principalDetails.getUser();
 
+        Page<Reservation> reservationlist = reservationService.getReservationlist(user.getId(), pageable);
         List<Reservation> reservations = reservationlist.getContent();
-
         List<Map<String, Object>> result = new ArrayList<>();
 
         for (Reservation i : reservations) {
             Map<String,Object> reservationMap = new HashMap<>();
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-            String date = i.getStartTime().format(formatter);
-            LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
-            String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("MM.dd.HH:mm"));
+
+            LocalDateTime dateTime = i.getStartTime();
+            String formattedDate;
+            if (dateTime != null) {
+                formattedDate = dateTime.format(DateTimeFormatter.ofPattern("MM.dd.HH:mm"));
+            } else {
+                formattedDate = "N/A";
+            }
+
             reservationMap.put("예약일자", formattedDate);
             reservationMap.put("매장명", i.getStore().getStoreName());
             reservationMap.put("매장 주소", i.getStore().getStoreLocation());
@@ -318,7 +532,13 @@ public class ReservationController {
 
             result.add(reservationMap);
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+
+        response.put("isSuccess", true);
+        response.put("code", 1000);
+        response.put("message", "요청에 성공하였습니다.");
+        response.put("result", result);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

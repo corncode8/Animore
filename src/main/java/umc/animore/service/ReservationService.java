@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import umc.animore.model.*;
 import umc.animore.repository.ReservationRepository;
 import umc.animore.repository.UserRepository;
@@ -32,7 +31,7 @@ public class ReservationService {
 
     /** 향후 한달간 예약이 가능한 시간 조회 **/
     public List<LocalDateTime> getAvailableTimesForNextMonth(Long storeId, LocalTime startBookingTime, LocalTime endBookingTime) {
-        Store store = storeService.getStoreId(storeId);
+        Store store = storeService.findStoreId(storeId);
         if (store == null) {
             throw new IllegalArgumentException("StoreId is null");
         }
@@ -116,7 +115,7 @@ public class ReservationService {
             throw new IllegalStateException("유저의 해당 반려동물 정보를 찾을 수 없습니다.");
         }
 
-        Store store = storeService.getStoreId(storeId);
+        Store store = storeService.findStoreId(storeId);
         if (store == null) {
             throw new IllegalArgumentException("해당 매장을 찾을 수 없습니다.");
         }
@@ -150,19 +149,18 @@ public class ReservationService {
 //
 //        // 겹치는 예약 확인 로직: 등록된 예약 중 겹치는 예약 반환
         List<Reservation> overlappingReservations = reservationRepository.getOverlappingReservations(startTime, endTime);
-//
 //        // 겹치는 예약 수 확인 후 2개 이상이면 예약 불가 (수정 가능하게)
-        if (overlappingReservations.size() >= 2) {
-            throw new IllegalArgumentException("해당 시간은 예약이 풀입니다.");
+        if (overlappingReservations.size() >= reservation.getStore().getAmount()) {
+            throw new IllegalArgumentException("예약 가능한 시간이 아닙니다.");
         }
         reservation.setStartTime(startTime);
         reservation.setEndTime(endTime);
 
         if (reservation.getStartTime() == null) {
-            throw new IllegalArgumentException("reservation time 설정 오류");
+            throw new IllegalArgumentException("예약 시간 설정 오류");
         }
 
-        System.out.println("== 날짜 시간 insert 완료");
+        System.out.println("날짜 시간 insert 완료");
 
         return reservationRepository.save(reservation);
     }
@@ -235,13 +233,17 @@ public class ReservationService {
     }
 
     /** 업체-예약관리2 **/
-    public Page<Reservation> getRequest(int confirmed, Pageable pageable) {
+    public Page<Reservation> getRequest(Long storeId, int confirmed, Pageable pageable) {
+        Store store = storeService.findStoreId(storeId);
+        if (store == null) {
+            throw new IllegalArgumentException("해당 업체를 찾을 수 없습니다.");
+        }
 
         if (confirmed != 0 && confirmed != 1) {
             throw new IllegalArgumentException("confirmed값이 0또는 1이 아닙니다.");
         }
 
-        return reservationRepository.findByConfirmed(confirmed, pageable);
+        return reservationRepository.findByConfirmedAndStore(confirmed, store, pageable);
 
     }
 
@@ -292,4 +294,6 @@ public class ReservationService {
         return reservationRepository.findByUserId(user_id, pageable);
 
     }
+
+
 }
