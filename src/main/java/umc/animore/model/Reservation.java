@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -47,6 +48,7 @@ public class Reservation {
     private LocalDateTime startTime;        // 예약 시간
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
+    @ColumnDefault("0")
     private Integer confirmed;      // 예약 확정 여부
 
     private String cause;           // 예약 반려 사유

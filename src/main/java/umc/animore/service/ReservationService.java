@@ -133,6 +133,7 @@ public class ReservationService {
         reservation.setBathStyle(bathStyle);
         reservation.setCutStyle(cutStyle);
         reservation.setStore(store);
+        reservation.setConfirmed(0);
 
         return reservationRepository.save(reservation);
     }
@@ -173,6 +174,16 @@ public class ReservationService {
 
         if (reservation == null) {
             throw new IllegalArgumentException("해당 예약이 존재하지 않습니다.");
+        }
+
+        Store store = reservation.getStore();
+        if (store == null) {
+            throw new IllegalArgumentException("예약과 관련된 스토어를 찾을 수 없습니다.");
+        }
+
+        int reservationHour = startTime.getHour();
+        if (reservationHour < store.getOpen() || reservationHour >= store.getClose()) {
+            throw new IllegalArgumentException("해당 시간은 스토어 영업 시간 외입니다.");
         }
 
         LocalDateTime endTime = startTime.plusHours(1);

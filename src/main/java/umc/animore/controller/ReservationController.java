@@ -1,16 +1,21 @@
 package umc.animore.controller;
 
+import com.nimbusds.jose.Header;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.model.Reservation;
 import umc.animore.model.Store;
+import umc.animore.model.User;
 import umc.animore.model.reservation.PaginationDto;
 import umc.animore.model.reservation.ReservationRequest;
 import umc.animore.repository.StoreRepository;
@@ -35,8 +40,6 @@ public class ReservationController {
     @Autowired
     private StoreService storeService;
     @Autowired
-    private StoreRepository storeRepository;
-    @Autowired
     private UserService userService;
 
 
@@ -44,10 +47,6 @@ public class ReservationController {
     @ResponseBody
     @GetMapping("/booking/Calendar")
     public ResponseEntity<List<LocalDateTime>> getAvailableTimesForNextMonth(Long storeId) {
-        if (storeId == null) {
-            System.out.println("storeId = " + storeId);
-        }
-        System.out.println(storeId);
         Store store = storeService.getStoreId(storeId);
         if (store == null) {
             System.out.println("해당 store가 없습니다.");
@@ -61,15 +60,20 @@ public class ReservationController {
 
     // 예약 생성
     @ResponseBody
-    @PostMapping("/booking/{userId}")
-    public ResponseEntity<?> createReservation(@PathVariable("userId") Long userId,
-                                               @RequestBody ReservationRequest reservationRequest) {
+    @PostMapping("/create/booking")
+    public ResponseEntity<?> createReservation(@RequestBody ReservationRequest reservationRequest) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser;
 
-        System.out.println("userId: " + userId);
-        System.out.println("storeId : " + reservationRequest.getStoreId());
+        if (principal instanceof PrincipalDetails) {
+            PrincipalDetails principalDetails = (PrincipalDetails) principal;
+            currentUser = principalDetails.getUser();
+        } else {
+            throw new IllegalArgumentException("not found user");
+        }
 
         try {
-            Reservation reservation = reservationService.createReservation(userId,reservationRequest.getStoreId(), reservationRequest.getDogSize(), reservationRequest.getCutStyle(), reservationRequest.getBathStyle());
+            Reservation reservation = reservationService.createReservation(currentUser.getId(),reservationRequest.getStoreId(), reservationRequest.getDogSize(), reservationRequest.getCutStyle(), reservationRequest.getBathStyle());
             return ResponseEntity.ok("Reservation created with ID: " + reservation.getReservationId());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create reservation: " + e.getMessage());
@@ -81,7 +85,6 @@ public class ReservationController {
     public ResponseEntity<?> insertBookTime(@PathVariable("reservationId") Long reservationId, @RequestBody ReservationRequest reservationRequest) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
-        System.out.println(startTime.toString());
 
         try {
             Reservation inserTIme = reservationService.insertBookingtime(reservationId, startTime);
@@ -94,10 +97,19 @@ public class ReservationController {
 
     // 예약상세 저장내용 불러오기
     @ResponseBody
-    @GetMapping("/userInfo/{userId}")
-    public ResponseEntity<Map<String, Object>> getUserInfo(@PathVariable("userId") Long userId) {
+    @GetMapping("/userInfo")
+    public ResponseEntity<Map<String, Object>> getUserInfo() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser;
+
+        if (principal instanceof PrincipalDetails) {
+            PrincipalDetails principalDetails = (PrincipalDetails) principal;
+            currentUser = principalDetails.getUser();
+        } else {
+            throw new IllegalArgumentException("not found user");
+        }
         try {
-            Map<String, Object> userinfoMap = userService.getUserInfo(userId);
+            Map<String, Object> userinfoMap = userService.getUserInfo(currentUser.getId());
             return ResponseEntity.ok(userinfoMap);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -106,12 +118,11 @@ public class ReservationController {
 
 
     // 예약 수정
-    @PutMapping("/booking/update/{reservationId}")
+    @PutMapping("/manage/booking/update/{reservationId}")
     public ResponseEntity<?> updateReservation(@PathVariable Long reservationId, @RequestBody ReservationRequest reservationRequest) {
-        System.out.println("처음 print : " + reservationRequest.getStartTime());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
-        System.out.println(startTime.toString());
+
 
         try {
             Reservation updatedReservation = reservationService.updateReservation(reservationId, startTime);
@@ -124,10 +135,12 @@ public class ReservationController {
     }
 
     // 예약 삭제
-    @DeleteMapping("/booking/delete/{reservationId}")
+    @DeleteMapping("/manage/booking/delete/{reservationId}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
         try {
             reservationService.deleteReservation(reservationId);
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Message","예약이 취소되었습니다.");
             // 삭제 성공시 204로 설정
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (IllegalArgumentException e) {
@@ -138,9 +151,20 @@ public class ReservationController {
 
     // 업체 - 예약관리1
     @ResponseBody
-    @GetMapping("/manage/{storeId}")
-    public List<Map<String, Object>> ReservationStoreMonth(@PathVariable Long storeId, @RequestParam int year, @RequestParam int month) {
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new RuntimeException("StoreId not found"));
+    @GetMapping("/manage/bookings")
+    public List<Map<String, Object>> ReservationStoreMonth(@RequestParam int year, @RequestParam int month) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser;
+
+        if (principal instanceof PrincipalDetails) {
+            PrincipalDetails principalDetails = (PrincipalDetails) principal;
+            currentUser = principalDetails.getUser();
+        } else {
+            throw new IllegalArgumentException("not found user");
+        }
+
+        Store store = currentUser.getStore();
+
         List<Reservation> reservations = reservationService.getMonthlyReservationsByStore(store, year, month);
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -157,14 +181,22 @@ public class ReservationController {
         return responseData;
     }
 
-    // 업체 - 예약관리2
+    // 업체 - 예약관리2 예약요청
     @ResponseBody
-    @GetMapping("/requests")
+    @GetMapping("/manage/bookings/requests")
     public ResponseEntity<?> reservationRequestsList
     (@PageableDefault(size = 6, page = 0, sort = "reservationId") Pageable pageable) {
-        Page<Reservation> reservationPage = reservationService.getRequest(0, pageable);
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser;
 
-        PaginationDto paginationDto = new PaginationDto(reservationPage);
+        if (principal instanceof PrincipalDetails) {
+            PrincipalDetails principalDetails = (PrincipalDetails) principal;
+            currentUser = principalDetails.getUser();
+        } else {
+            throw new IllegalArgumentException("not found user");
+        }
+
+        Page<Reservation> reservationPage = reservationService.getRequest(0, pageable);
         List<Reservation> reservationList = reservationPage.getContent();
 
         List<Map<String, Object>> resultList = new ArrayList<>();
@@ -183,11 +215,21 @@ public class ReservationController {
 
         return new ResponseEntity<>(resultList, HttpStatus.OK);
     }
-    // 업체 - 예약관리4
+    // 업체 - 예약관리4 예약완료
     @ResponseBody
-    @GetMapping("/confirmed")
+    @GetMapping("/manage/bookings/confirmed")
     public ResponseEntity<?> reservationConfirmedList
     (@PageableDefault(size = 6, page = 0, sort = "reservationId") Pageable pageable) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser;
+
+        if (principal instanceof PrincipalDetails) {
+            PrincipalDetails principalDetails = (PrincipalDetails) principal;
+            currentUser = principalDetails.getUser();
+        } else {
+            throw new IllegalArgumentException("not found user");
+        }
+
         Page<Reservation> reservationPage = reservationService.getRequest(1, pageable);
 
         List<Reservation> reservationList = reservationPage.getContent();
@@ -211,7 +253,7 @@ public class ReservationController {
 
     // 업체 - 예약관리 3, 5
     @ResponseBody
-    @GetMapping("/details/booking/{reservationId}")
+    @GetMapping("/manage/bookings/details/{reservationId}")
     public ResponseEntity<?> reservationRequest(@PathVariable Long reservationId) {
         Reservation reservation = reservationService.getRequestById(reservationId);
         Map<String, Object> reservationMap = new HashMap<>();
@@ -229,7 +271,7 @@ public class ReservationController {
 
     // 업체 - 예약승인
     @ResponseBody
-    @GetMapping("/booking/confirm/{reservatonId}")
+    @GetMapping("/manage/bookings/confirm/{reservatonId}")
     public ResponseEntity<?> confirmedReservation(@PathVariable Long reservatonId) {
         Reservation reservation = reservationService.confirmReservation(reservatonId);
         return ResponseEntity.status(HttpStatus.OK).body("예약 승인이 완료되었습니다.");
@@ -237,7 +279,7 @@ public class ReservationController {
 
     // 업체 - 예약반려
     @ResponseBody
-    @GetMapping("/booking/reject")
+    @GetMapping("/manage/bookings/reject/{reservatonId}")
     public ResponseEntity<?> rejectReservation(@PathVariable Long reservationId, String cause) {
         Reservation reservation = reservationService.rejectReservation(reservationId, cause);
         return ResponseEntity.status(HttpStatus.OK).body("예약이 반려되었습니다.");
@@ -245,9 +287,19 @@ public class ReservationController {
 
     // 유저 - 예약내역
     @ResponseBody
-    @GetMapping("/my/visit/{userId}")
-    public ResponseEntity<?> reservationList(@PathVariable Long userId, @PageableDefault(size = 6, page = 0, sort = "userId") Pageable pageable) {
-        Page<Reservation> reservationlist = reservationService.getReservationlist(userId, pageable);
+    @GetMapping("/my/visit")
+    public ResponseEntity<?> reservationList(@PageableDefault(size = 6, page = 0, sort = "userId") Pageable pageable) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser;
+
+        if (principal instanceof PrincipalDetails) {
+            PrincipalDetails principalDetails = (PrincipalDetails) principal;
+            currentUser = principalDetails.getUser();
+        } else {
+            throw new IllegalArgumentException("not found user");
+        }
+
+        Page<Reservation> reservationlist = reservationService.getReservationlist(currentUser.getId(), pageable);
 
         List<Reservation> reservations = reservationlist.getContent();
 
@@ -268,6 +320,5 @@ public class ReservationController {
         }
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
 
 }
