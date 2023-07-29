@@ -41,11 +41,6 @@ public class Image {
     private Review review;
 
     @ManyToOne
-    @JoinColumn(name = "reservation_id")
-    @JsonIgnore
-    private Reservation reservation;
-
-    @ManyToOne
     @JoinColumn(name="store_id")
     @JsonIgnore
     private Store store;

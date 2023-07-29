@@ -32,6 +32,10 @@ public class ReviewService {
 
         review.setStore(store);
         review.setUser(user);
+        // 리뷰 작성 일자 설정
+        Timestamp createdDate = new Timestamp(System.currentTimeMillis());
+        review.setCreatedDate(createdDate);
+        review.setModifiedDate(createdDate);
         return reviewRepository.save(review);
     }
 
@@ -83,22 +87,22 @@ public class ReviewService {
                 existingReview.setPetId(updatedReview.getPetId());
                 existingReview.setReviewLike(updatedReview.getReviewLike());
             }
-            // 이미지를 업데이트합니다.
-            List<Image> imageList = updatedReview.getImages();
-            if (imageList != null && !imageList.isEmpty()) {
-                // 리뷰에 속한 모든 이미지를 삭제합니다.
-                imageService.deleteImagesByReview(existingReview);
-
-                // 새로운 이미지들을 추가합니다.
-                for (Image image : imageList) {
-                    Image newImage = new Image();
-                    newImage.setImgName(image.getImgName());
-                    newImage.setImgOriName(image.getImgOriName());
-                    newImage.setImgPath(image.getImgPath());
-                    newImage.setReview(existingReview);
-                    existingReview.getImages().add(newImage);
-                }
-            }
+//            // 이미지를 업데이트합니다.
+//            List<Image> imageList = updatedReview.getImages();
+//            if (imageList != null && !imageList.isEmpty()) {
+//                // 리뷰에 속한 모든 이미지를 삭제합니다.
+//                imageService.deleteImagesByReview(existingReview);
+//
+//                // 새로운 이미지들을 추가합니다.
+//                for (Image image : imageList) {
+//                    Image newImage = new Image();
+//                    newImage.setImgName(image.getImgName());
+//                    newImage.setImgOriName(image.getImgOriName());
+//                    newImage.setImgPath(image.getImgPath());
+//                    newImage.setReview(existingReview);
+//                    existingReview.getImages();
+//                }
+//            }
 
             // 변경사항을 저장합니다.
             return reviewRepository.save(existingReview);
@@ -124,24 +128,24 @@ public class ReviewService {
                     existingReview.setPetId(updatedReview.getPetId());
                 }
 
-            // 이미지 업데이트
-            List<Image> existingImages = existingReview.getImages();
-            List<Image> updatedImages = updatedReview.getImages();
-            if (existingImages != null && updatedImages != null) {
-                for (int i = 0; i < Math.min(existingImages.size(), updatedImages.size()); i++) {
-                    Image existingImage = existingImages.get(i);
-                    Image updatedImage = updatedImages.get(i);
-                    if (updatedImage.getImgName() != null) {
-                        existingImage.setImgName(updatedImage.getImgName());
-                    }
-                    if (updatedImage.getImgOriName() != null) {
-                        existingImage.setImgOriName(updatedImage.getImgOriName());
-                    }
-                    if (updatedImage.getImgPath() != null) {
-                        existingImage.setImgPath(updatedImage.getImgPath());
-                    }
-                }
-            }
+//            // 이미지 업데이트
+//            List<Image> existingImages = existingReview.getImages();
+//            List<Image> updatedImages = updatedReview.getImages();
+//            if (existingImages != null && updatedImages != null) {
+//                for (int i = 0; i < Math.min(existingImages.size(), updatedImages.size()); i++) {
+//                    Image existingImage = existingImages.get(i);
+//                    Image updatedImage = updatedImages.get(i);
+//                    if (updatedImage.getImgName() != null) {
+//                        existingImage.setImgName(updatedImage.getImgName());
+//                    }
+//                    if (updatedImage.getImgOriName() != null) {
+//                        existingImage.setImgOriName(updatedImage.getImgOriName());
+//                    }
+//                    if (updatedImage.getImgPath() != null) {
+//                        existingImage.setImgPath(updatedImage.getImgPath());
+//                    }
+//                }
+//            }
 
             existingReview.setModifiedDate(new Timestamp(System.currentTimeMillis())); // 수정 날짜 업데이트
         }

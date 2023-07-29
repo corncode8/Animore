@@ -26,7 +26,6 @@ public class ReviewDTO {
     private Long storeId;
     private Long userId;
     private List<ImageDTO> images;
-    private List<ImageDTO> newImages;
 
     // 추가: 이미지 정보를 삭제된 리뷰의 ID로 설정하는 메소드
     public void setDeletedReviewId(Long reviewId) {

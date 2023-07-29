@@ -6,16 +6,14 @@ import org.springframework.web.multipart.MultipartFile;
 import umc.animore.config.exception.BaseException;
 import umc.animore.config.exception.BaseResponse;
 import umc.animore.config.exception.BaseResponseStatus;
-import umc.animore.model.Image;
-import umc.animore.model.Review;
-import umc.animore.model.Store;
-import umc.animore.model.User;
+import umc.animore.model.*;
 import umc.animore.model.review.ImageDTO;
 import umc.animore.model.review.ReviewDTO;
 import umc.animore.service.ImageService;
 import umc.animore.service.ReviewService;
 import umc.animore.service.StoreService;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +41,8 @@ public class ReviewController {
     //http://localhost:8000/reviews/create?storeId=4&userId=1
     @ResponseBody
     @PostMapping("/reviews/create")
-    public BaseResponse<Review> createReview(@RequestBody Review review, @RequestParam Long storeId, @RequestParam Long userId, @RequestParam(value = "images", required = false) List<MultipartFile> images){
+    public BaseResponse<Review> createReview(@RequestParam Long storeId, @RequestParam Long userId,@RequestParam Long petId, @RequestParam String reviewContent,
+                                             @RequestParam Double reviewLike,@RequestPart(value = "images", required = false) List<MultipartFile> images){
         // 이미지 개수 체크
         if (images != null && images.size() > 3) {
             return new BaseResponse<>(false, "이미지는 최대 3개까지만 등록할 수 있습니다.", 6000, null);
@@ -51,19 +50,32 @@ public class ReviewController {
 
         try {
 
-            // 이미지 저장 로직 (images 컬렉션에 이미지 추가)
-            if (images != null) {
-                for (MultipartFile imageFile : images) {
-                    // 이미지를 저장하고 Review와의 관계를 설정한 후 images 컬렉션에 추가
-                    Image image = imageService.saveImage(imageFile, review);
-                    review.getImages().add(image);
-                }
-            }
+            // 리뷰 객체 생성
+            Review review = new Review();
+            Long reviewId = review.getReviewId();
+            review.setReviewId(reviewId);
+
+            review.setPetId(petId);
+            review.setReviewContent(reviewContent);
+            review.setReviewLike(reviewLike);
 
             Store store = new Store();
             store.setStoreId(storeId);
             User user = new User();
             user.setUserId(userId);
+
+            // 이미지 저장 로직 (images 컬렉션에 이미지 추가)
+            if (images != null) {
+                for (MultipartFile imageFile : images) {
+                    // 이미지를 저장하고 Review와의 관계를 설정한 후 images 컬렉션에 추가
+                    Image image = imageService.saveImage(imageFile, reviewId,storeId,userId);
+                    review.getImages().add(image);
+                }
+            }
+//
+//            Image image = imageService.saveImage(images,reviewId,userId,storeId);
+//            review.getImages().add(image);
+
             Review createdReview = reviewService.createReview(review,store,user);
             return new BaseResponse<>(true, "리뷰 작성 성공", 1000, createdReview);
         } catch (BaseException exception) {
@@ -92,7 +104,7 @@ public class ReviewController {
         }
     }
 */
-
+    //전체수정
     @PutMapping("/reviews/update/{reviewId}")
     public BaseResponse<ReviewDTO> updateReview(@PathVariable Long reviewId,@RequestBody ReviewDTO reviewDTO) {
         try {
@@ -162,6 +174,7 @@ public class ReviewController {
     }
     *
     * */
+    //부분 수정
     @PatchMapping("/reviews/update/{reviewId}")
     public BaseResponse<ReviewDTO> updatePartialReview(@PathVariable Long reviewId, @RequestBody ReviewDTO reviewDTO) {
         try {
@@ -260,19 +273,6 @@ public class ReviewController {
                     if (imageDTO.getImgPath() != null) {
                         image.setImgPath(imageDTO.getImgPath());
                     }
-                }
-            }
-
-            // 새로운 이미지 추가
-            List<ImageDTO> newImageDTOList = reviewDTO.getNewImages();
-            if (newImageDTOList != null && !newImageDTOList.isEmpty()) {
-                for (ImageDTO newImageDTO : newImageDTOList) {
-                    Image newImage = new Image();
-                    newImage.setImgName(newImageDTO.getImgName());
-                    newImage.setImgOriName(newImageDTO.getImgOriName());
-                    newImage.setImgPath(newImageDTO.getImgPath());
-                    // 새로운 이미지를 리뷰에 연결
-                    review.addImage(newImage);
                 }
             }
 
