@@ -30,17 +30,17 @@ public class Image {
     @Column(name = "img_path")
     private String imgPath;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     @JsonIgnore
     private Review review;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="store_id")
     @JsonIgnore
     private Store store;

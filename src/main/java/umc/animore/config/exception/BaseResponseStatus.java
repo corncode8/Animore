@@ -14,6 +14,18 @@ public enum BaseResponseStatus { //열거 상수를 통해 응답상태를 나�
     GET_SEARCH_INVALID_QUERY1(false, 2002, "검색어는 20자 내로 입력해야함."),
     GET_SEARCH_INVALID_QUERY2(false, 2003, "검색어는 100자 내로 입력해야함."),
 
+    GET_JWT_Expired(false, 2004, "jwt 만료기한이 지났습니다."),
+    GET_JWT_InValid(false, 2005, "유효하지 않은 jwt 입니다."),
+    GET_JWT_Decode_ERROR(false, 2006, "jwt 형식이 잘못되었습니다"),
+
+    GET_PET_EMPTY_ERROR(false, 2007, "user가 등록한 Pet이 존재하지 않습니다."),
+    GET_PET_EMPTY_NAME(false, 2008, "PET의 이름이 존재하지 않습니다."),
+
+    GET_USER_EMPTY_NICKNAME_NAME(false, 2009, "user의 별명을 입력하지 않았습니다."),
+
+    GET_USER_PASSWORD_ERROR(false, 2009, "비밀번호가 일치하지 않습니다"),
+
+
     //3000 : 응답 오류
     RESPONSE_ERROR(false,3000,"값을 불러오는데 실패"),
 
