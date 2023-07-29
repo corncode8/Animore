@@ -12,7 +12,6 @@ import umc.animore.model.Reservation;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservationRequest {
-    private String reqTime;
     private Long storeId;
     private String startTime;
     private Reservation.DogSize dogSize;

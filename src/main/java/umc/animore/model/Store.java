@@ -24,7 +24,7 @@ public class Store {
     @Column(name = "store_id")
     private Long storeId; //업체 id
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
