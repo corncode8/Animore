@@ -14,6 +14,7 @@ import umc.animore.model.Reservation;
 public class ReservationRequest {
     private Long storeId;
     private String startTime;
+    private String cause;
     private Reservation.DogSize dogSize;
     private Reservation.CutStyle cutStyle;
     private Reservation.BathStyle bathStyle;

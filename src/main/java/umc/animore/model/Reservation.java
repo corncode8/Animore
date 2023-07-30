@@ -48,8 +48,18 @@ public class Reservation {
     private LocalDateTime startTime;        // 예약 시간
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
-    @ColumnDefault("0")
-    private Integer confirmed;      // 예약 확정 여부
+
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    public boolean getConfirmed() {
+        return this.confirmed;
+    }
+    @ColumnDefault("false")
+    private boolean confirmed;      // 예약 확정 여부
+
+
 
     private String cause;           // 예약 반려 사유
 

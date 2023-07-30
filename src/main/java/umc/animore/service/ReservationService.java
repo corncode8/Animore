@@ -132,7 +132,7 @@ public class ReservationService {
         reservation.setBathStyle(bathStyle);
         reservation.setCutStyle(cutStyle);
         reservation.setStore(store);
-        reservation.setConfirmed(0);
+        reservation.setConfirmed(false);
 
         return reservationRepository.save(reservation);
     }
@@ -233,13 +233,13 @@ public class ReservationService {
     }
 
     /** 업체-예약관리2 **/
-    public Page<Reservation> getRequest(Long storeId, int confirmed, Pageable pageable) {
+    public Page<Reservation> getRequest(Long storeId, boolean confirmed, Pageable pageable) {
         Store store = storeService.findStoreId(storeId);
         if (store == null) {
             throw new IllegalArgumentException("해당 업체를 찾을 수 없습니다.");
         }
 
-        if (confirmed != 0 && confirmed != 1) {
+        if (confirmed != false && confirmed != true) {
             throw new IllegalArgumentException("confirmed값이 0또는 1이 아닙니다.");
         }
 
@@ -265,7 +265,7 @@ public class ReservationService {
             throw new IllegalArgumentException("해당 예약이 존재하지 않습니다.");
         }
 
-        reservation.setConfirmed(1);
+        reservation.setConfirmed(true);
 
         return reservationRepository.save(reservation);
     }
@@ -277,7 +277,7 @@ public class ReservationService {
         if (reservation == null) {
             throw new IllegalArgumentException("해당 예약이 존재하지 않습니다.");
         }
-        reservation.setConfirmed(0);
+        reservation.setConfirmed(false);
         reservation.setCause(causeReject);
 
         return reservationRepository.save(reservation);

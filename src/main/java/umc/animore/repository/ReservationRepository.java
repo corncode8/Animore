@@ -28,7 +28,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Reservation findByReservationId(Long reservation_id);
     Page<Reservation> findByUserId(Long user_id, Pageable pageable);
 
-    Page<Reservation> findByConfirmedAndStore(int confirmed, Store store, Pageable pageable);
+    Page<Reservation> findByConfirmedAndStore(boolean confirmed, Store store, Pageable pageable);
     List<Reservation> findByStartTimeIsNull();
 
 
