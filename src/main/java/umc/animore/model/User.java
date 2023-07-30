@@ -2,6 +2,8 @@ package umc.animore.model;
 
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -26,6 +28,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
+    @OneToOne
+    @JoinColumn(name= "store_id")
+    private Store store;            // 업체_idx
+
     private String username;
     private String password;
     private String email;
@@ -36,6 +43,12 @@ public class User {
     private String nickname;
     private String aboutMe;
     private String nationality;
+
+    @OneToOne(mappedBy = "user",cascade=CascadeType.ALL)
+    private Image image;
+
+    @OneToMany(mappedBy ="user", cascade=CascadeType.ALL)
+    private List<Pet> pets = new ArrayList<Pet>();
 
     // OAuth를 위해 구성한 추가 필드 2개
     private String provider;

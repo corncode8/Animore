@@ -23,6 +23,11 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "store_id")
     private Long storeId; //업체 id
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
     @Column(name = "store_name")
     private String storeName; //업체 이름
     @Column(name = "store_location")
@@ -51,6 +56,7 @@ public class Store {
     private int open;
 
     private int close;
+    private int amount;                 // 최대 예약 건수
 
     private String dayoff1;
     private String dayoff2;
@@ -73,6 +79,4 @@ public class Store {
     public void setTown(Town town) {
         this.town = town;
     }
-
-
 }

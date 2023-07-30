@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static umc.animore.config.exception.BaseResponseStatus.NOT_FOUND_REVIEW;
+import static umc.animore.config.exception.BaseResponseStatus.RESPONSE_ERROR;
 
 //import static umc.animore.config.exception.BaseResponseStatus.IMAGE_UPLOAD_ERROR;
 
@@ -55,16 +56,30 @@ public class ImageService {
     }
 
     @Transactional
-    public void save(Image image,Long userId){
+    public void save(Image image,Long userId,String nickname, String aboutMe) throws BaseException{
+        try {
+            User user = userRepository.findById(userId);
+            user.setNickname(nickname);
+            user.setAboutMe(aboutMe);
 
-        User user = userRepository.findById(userId);
-        Image img = new Image();
-        img.setImgName(image.getImgName());
-        img.setImgOriName(image.getImgOriName());
-        img.setImgPath(image.getImgPath());
-        img.setUser(user);
+            Image img = user.getImage();
 
-        imageRepository.save(img);
+            if (img == null) {
+                img = new Image();
+                img.setUser(user);
+            }
+
+            img.setImgName(image.getImgName());
+            img.setImgOriName(image.getImgOriName());
+            img.setImgPath(image.getImgPath());
+
+            imageRepository.save(img);
+
+        }catch(Exception e){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+
+
     }
 
 

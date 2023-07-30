@@ -4,15 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Entity
 @Getter
@@ -35,9 +36,6 @@ public class Reservation {
     @JoinColumn(name= "store_id")
     private Store store;            // 업체_idx
 
-    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> images = new ArrayList<>();
-
     private String pet_name;        // 반려동물 이름
     private String username;        // 보호자 이름
     private String pet_type;        // 반려동물 종류
@@ -45,18 +43,49 @@ public class Reservation {
     private String user_phone;      // 보호자 전화번호
     private String pet_gender;      // 반려동물 성별
     private String address;         // 회원 주소
-    private String request;         // 요청사항
+
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;        // 예약 시간
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
-    private Integer confirmed;       // 예약 확정 여부
+
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    public boolean getConfirmed() {
+        return this.confirmed;
+    }
+    @ColumnDefault("false")
+    private boolean confirmed;      // 예약 확정 여부
+
+
 
     private String cause;           // 예약 반려 사유
+
+    @Enumerated(EnumType.STRING)
+    private DogSize dogSize;
+
+    @Enumerated(EnumType.STRING)
+    private CutStyle cutStyle;
+
+    @Enumerated(EnumType.STRING)
+    private BathStyle bathStyle;
 
     @CreationTimestamp
     private Timestamp create_at;    // 예약 생성 시간
     @UpdateTimestamp
     private Timestamp update_at;    // 예약 수정 시간
 
+    public enum DogSize {
+        MEDIUM, LARGE
+    }
+
+    public enum CutStyle {
+        SCISSORS_CUT, MACHINE_CUT, SPOTTING_CUT, CLIPPING_CUT, PARTICAL_CUT
+    }
+
+    public enum BathStyle {
+        BATH, HEALING, CARBONATED
+    }
 }

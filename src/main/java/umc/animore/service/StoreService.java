@@ -14,7 +14,7 @@ public class StoreService {
 
     }
 
-    public Store getStoreId(Long storeId) {
+    public Store findStoreId(Long storeId) {
         return storeRepository.findByStoreId(storeId);
     }
 
