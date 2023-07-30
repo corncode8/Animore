@@ -41,7 +41,11 @@ public enum BaseResponseStatus { //열거 상수를 통해 응답상태를 나�
     EMPTY_REVIEW_CONTENT(false,5000,"후기 내용 입력안함"),
     EMPTY_REVIEW_LIKE(false,5001,"후기 별점 입력안함"),
     IMAGE_UPLOAD_ERROR(false,5002,"이미지 저장에 실패했습니다."),
-    NOT_FOUND_REVIEW(false,5003,"해당 리뷰가 없습니다.");
+    NOT_FOUND_REVIEW(false,5003,"해당 리뷰가 없습니다."),
+    NOT_FOUND_RESERVATION(false,5004,"해당 예약 내역이 없습니다."),
+    NOT_REVIEWER_USER(false,5005,"해당 사용자가 아닙니다."),
+    EMPTY_REVIEW_DTO(false,5006,"해당 리뷰 내용을 작성하지 않았습니다."),
+    EMPTY_PET_ID(false,5007,"후기 펫아이디 입력안함");
 
     private final boolean isSuccess;
     private final int code;

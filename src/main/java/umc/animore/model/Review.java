@@ -53,7 +53,6 @@ public class Review {
     private User user;
 
     @OneToMany(mappedBy = "review",cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "img_id")
     @JsonIgnore
     private List<Image> images = new ArrayList<>();
 

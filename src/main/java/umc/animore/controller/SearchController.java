@@ -1,12 +1,15 @@
 package umc.animore.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.config.exception.BaseException;
 import umc.animore.config.exception.BaseResponse;
+import umc.animore.model.SearchHistory;
 import umc.animore.model.Store;
 import umc.animore.service.SearchService;
 
@@ -21,8 +24,6 @@ public class SearchController {
 
     private final SearchService searchService;
 
-    //@Autowired
-    //private final JwtService jwtService;
 
     @Autowired
     public SearchController(SearchService searchService){
@@ -32,6 +33,7 @@ public class SearchController {
 
 
     //가게이름 검색 API - 검색화면
+    //특정 사용자의 모든 리뷰 조회
     @ResponseBody
     @GetMapping("/search/name")
     public BaseResponse<List<Store>> searchName(@RequestParam(value = "query") String storeName) {
@@ -44,10 +46,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchNameList(storeName);
-            searchService.postSearchHistory(userIdx, storeName);
+            searchService.postSearchHistory(userId, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -77,10 +79,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchNameBestList(storeName);
-            searchService.postSearchHistory(userIdx, storeName);
+            searchService.postSearchHistory(userId, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -111,10 +113,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchNameMostReviewsList(storeName);
-            searchService.postSearchHistory(userIdx, storeName);
+            searchService.postSearchHistory(userId, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -144,10 +146,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchNameReviewsAvgList(storeName);
-            searchService.postSearchHistory(userIdx, storeName);
+            searchService.postSearchHistory(userId, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -177,10 +179,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.recommendNearestStore(storeName);
-            searchService.postSearchHistory(userIdx, storeName);
+            searchService.postSearchHistory(userId, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -209,10 +211,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchLocationList(storeLocation);
-            searchService.postSearchHistory(userIdx, storeLocation);
+            searchService.postSearchHistory(userId, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -242,10 +244,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchLocationBestList(storeLocation);
-            searchService.postSearchHistory(userIdx, storeLocation);
+            searchService.postSearchHistory(userId, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -276,10 +278,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchLocationMostReviewsList(storeLocation);
-            searchService.postSearchHistory(userIdx, storeLocation);
+            searchService.postSearchHistory(userId, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -309,10 +311,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchLocationReviewsAvgList(storeLocation);
-            searchService.postSearchHistory(userIdx, storeLocation);
+            searchService.postSearchHistory(userId, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -343,10 +345,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.recommendNearestStoreLocation(storeLocation);
-            searchService.postSearchHistory(userIdx, storeLocation);
+            searchService.postSearchHistory(userId, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -375,9 +377,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchCityList(city,district);
-            searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userId, city + " " + district);
 
             System.out.println("query: " + city + " " + district);
             System.out.println("가게정보: " + store);
@@ -404,9 +407,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchCityListBest(city, district);
-            searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userId, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
@@ -430,9 +434,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchCityListMostReviews(city, district);
-            searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userId, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
@@ -456,9 +461,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.searchCityListReviewsAvg(city, district);
-            searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userId, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
@@ -483,9 +489,10 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY1);
             }
 
-            Long userIdx = 1L; //임시지정
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
             List<Store> store = searchService.recommendNearestStoreTown(city,district);
-            searchService.postSearchHistory(userIdx, city + " " + district);
+            searchService.postSearchHistory(userId, city + " " + district);
 
             System.out.println("query: " + city + " " + district);
             System.out.println("가게정보: " + store);
@@ -506,8 +513,6 @@ public class SearchController {
     @GetMapping("/search/top_reviews")
     public BaseResponse<List<Store>> searchTopreview() {
         try {
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.getStoresWithMostReviews();
             return new BaseResponse<>(store);
 
@@ -523,8 +528,6 @@ public class SearchController {
     @GetMapping("/search/top_reservation")
     public BaseResponse<List<Store>> searchTopreservation() {
         try {
-            //int userIdx = jwtService.getUserIdx();
-            Long userIdx = 1L; //임시지정
             List<Store> store = searchService.searchReservationMost();
             return new BaseResponse<>(store);
 
@@ -535,20 +538,20 @@ public class SearchController {
     }
 
 
-//    //최근 검색어 API (3개씩) - 메인화면
-//    //GET /search/recent?page=1
-//    @ResponseBody
-//    @GetMapping("/search/recent")
-//    public BaseResponse<Page<SearchHistory>> searchHistory(@RequestParam(defaultValue = "0") int page) {
-//        try {
-//            //int userIdx = jwtService.getUserIdx();
-//            int userIdx = 1; //임시지정
-//            Page<SearchHistory> searchHistory = searchService.searchHistory(userIdx,page);
-//            return new BaseResponse<>(searchHistory);
-//        } catch (BaseException exception){
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
+    //최근 검색어 API (3개씩) - 메인화면
+    //GET /search/recent
+    @ResponseBody
+    @GetMapping("/search/recent")
+    public BaseResponse<List<SearchHistory>> searchHistory() {
+        try {
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+            List<SearchHistory> searchHistory = searchService.searchHistory(userId);
+            return new BaseResponse<>(searchHistory);
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 
 }
 
