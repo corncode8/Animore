@@ -488,7 +488,7 @@ public class ReviewController {
                 return new BaseResponse<>(BaseResponseStatus.NOT_REVIEWER_USER);
             }
 
-            imageService.deleteImagesByReviewId(reviewId); // 기존 이미지들 삭제
+            imageService.deleteImagesByReviewId(reviewId); // 기존 이미지들 삭제하기
 
             // 리뷰 업데이트
             Review updatedReview = reviewService.updatePartialReview(reviewId, review);
