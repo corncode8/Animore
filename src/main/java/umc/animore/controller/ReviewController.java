@@ -298,6 +298,7 @@ public class ReviewController {
             // 이미지 수정 로직 (기존 이미지들 삭제 후 새로운 이미지 추가)
             if (images != null && !images.isEmpty()) {
 
+
                 List<Image> newImages = new ArrayList<>();
                 for (MultipartFile imageFile : images) {
                     Image image = saveImage(imageFile, reviewId);
@@ -488,7 +489,7 @@ public class ReviewController {
                 return new BaseResponse<>(BaseResponseStatus.NOT_REVIEWER_USER);
             }
 
-            imageService.deleteImagesByReviewId(reviewId); // 기존 이미지들 삭제하기
+            imageService.deleteImagesByReviewId(reviewId); // 기존 이미지들 삭제
 
             // 리뷰 업데이트
             Review updatedReview = reviewService.updatePartialReview(reviewId, review);
@@ -543,11 +544,10 @@ public class ReviewController {
             }
 
 
-
-            Review deletedReview = reviewService.deleteReview(reviewId);
-
             // 이미지 삭제 로직 (리뷰에 속한 이미지들 모두 삭제)
             imageService.deleteImagesByReviewId(reviewId);
+
+            Review deletedReview = reviewService.deleteReview(reviewId);
 
             // 삭제된 리뷰의 ID를 ReviewDTO에 설정하여 반환
             ReviewDTO deletedReviewDTO = new ReviewDTO();

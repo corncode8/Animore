@@ -1,5 +1,6 @@
 package umc.animore.controller;
 
+
 import umc.animore.config.exception.BaseResponse;
 import umc.animore.model.Location;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,12 @@ public class LocationController {
 
 
     @GetMapping("/{locationId}")
-    public BaseResponse<Location> getLocation(@PathVariable Long locationId) {
+    public BaseResponse<Location> getLocation(@PathVariable Long locationId){
 
-        Location nowLocation=locationRepository.findByLocationId(locationId);
+            Location nowLocation = locationRepository.findByLocationId(locationId);
 
-        return new BaseResponse<>(true,"현재 위치 조회 성공",1000,nowLocation);
-
+            return new BaseResponse<>(true, "현재 위치 조회 성공", 1000, nowLocation);
     }
+
+
 }
