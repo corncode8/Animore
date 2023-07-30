@@ -25,9 +25,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     // store의 예약 목록
     List<Reservation> findByStoreAndStartTimeBetweenOrderByStartTime(Store store, LocalDateTime startOfMonth, LocalDateTime endOfMonth);
 
-    // 예약 필터링
-    Page<Reservation> findByConfirmed(Integer confirmed, Pageable pageable);
-
     Reservation findByReservationId(Long reservation_id);
     Page<Reservation> findByUserId(Long user_id, Pageable pageable);
 

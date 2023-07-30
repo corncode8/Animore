@@ -532,7 +532,7 @@ public class ReservationController {
             LocalDateTime dateTime = i.getStartTime();
             String formattedDate;
             if (dateTime != null) {
-                formattedDate = dateTime.format(DateTimeFormatter.ofPattern("MM.dd.HH:mm"));
+                formattedDate = dateTime.format(formatter.ofPattern("MM.dd.HH:mm"));
             } else {
                 formattedDate = "N/A";
             }

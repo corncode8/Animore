@@ -291,7 +291,7 @@ public class ReservationService {
             throw new IllegalArgumentException("user_id is null");
         }
 
-        return reservationRepository.findByUserId(user_id, pageable);
+        return reservationRepository.findByUserId(user.getId(), pageable);
 
     }
 
