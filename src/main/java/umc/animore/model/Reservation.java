@@ -69,7 +69,7 @@ public class Reservation {
     private Timestamp update_at;    // 예약 수정 시간
 
     public enum DogSize {
-        SMALLorMEDIUM, LARGE
+        MEDIUM, LARGE
     }
 
     public enum CutStyle {

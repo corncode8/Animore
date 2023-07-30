@@ -295,5 +295,9 @@ public class ReservationService {
 
     }
 
+    public List<Reservation> findUnfinishedReservations() {
+        return reservationRepository.findByStartTimeIsNull();
+    }
+
 
 }

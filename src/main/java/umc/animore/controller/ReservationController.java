@@ -149,10 +149,22 @@ public class ReservationController {
         try {
             Reservation inserTIme = reservationService.insertBookingtime(reservationId, startTime);
 
+            Map<String, Object> reservationResult = new LinkedHashMap<>();
+            reservationResult.put("reservationId", inserTIme.getReservationId());
+            reservationResult.put("username", inserTIme.getUsername());
+            reservationResult.put("address", inserTIme.getAddress());
+            reservationResult.put("phone", inserTIme.getUser_phone());
+            reservationResult.put("pet_gender", inserTIme.getPet_gender());
+            reservationResult.put("pet_type", inserTIme.getPet_type());
+            reservationResult.put("dogSize", inserTIme.getDogSize());
+            reservationResult.put("cutStyle", inserTIme.getCutStyle());
+            reservationResult.put("bathStyle", inserTIme.getBathStyle());
+            reservationResult.put("startTime", inserTIme.getStartTime());
+
             response.put("isSuccess", true);
             response.put("code", 1000);
             response.put("message", "요청에 성공하였습니다.");
-            response.put("result", inserTIme);
+            response.put("result", reservationResult);
             status = HttpStatus.CREATED;
 
         } catch (IllegalArgumentException e) {
@@ -213,7 +225,7 @@ public class ReservationController {
 
 
     // 예약 수정
-    @PutMapping("/manage/booking/update/{reservationId}")
+    @PutMapping("/my/booking/update/{reservationId}")
     public ResponseEntity<Map<String, Object>> updateReservation(@PathVariable Long reservationId, @RequestBody ReservationRequest reservationRequest) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
@@ -252,7 +264,7 @@ public class ReservationController {
     }
 
     // 예약 삭제
-    @DeleteMapping("/manage/booking/delete/{reservationId}")
+    @DeleteMapping("/my/booking/delete/{reservationId}")
     public ResponseEntity<?> deleteReservation(@PathVariable Long reservationId) {
 
         Map<String, Object> response = new LinkedHashMap<>();
