@@ -78,7 +78,7 @@ public class ReservationController {
 
     // 예약 생성
     @ResponseBody
-    @PostMapping("/create/booking")
+    @PostMapping("/booking/create")
     public ResponseEntity<Map<String, Object>> createReservation(@RequestBody ReservationRequest reservationRequest) {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
@@ -528,7 +528,7 @@ public class ReservationController {
 
     // 유저 - 예약내역
     @ResponseBody
-    @GetMapping("/my/visit")
+    @GetMapping("/my/booking/visit")
     public ResponseEntity<Map<String, Object>> reservationList(@PageableDefault(size = 6, page = 0, sort = "userId") Pageable pageable) {
         PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Map<String, Object> response = new LinkedHashMap<>();
