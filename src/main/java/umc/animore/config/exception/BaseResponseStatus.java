@@ -45,7 +45,13 @@ public enum BaseResponseStatus { //열거 상수를 통해 응답상태를 나�
     NOT_FOUND_RESERVATION(false,5004,"해당 예약 내역이 없습니다."),
     NOT_REVIEWER_USER(false,5005,"해당 사용자가 아닙니다."),
     EMPTY_REVIEW_DTO(false,5006,"해당 리뷰 내용을 작성하지 않았습니다."),
-    EMPTY_PET_ID(false,5007,"후기 펫아이디 입력안함");
+    EMPTY_PET_ID(false,5007,"후기 펫아이디 입력안함"),
+
+    //6000 : 예약 오류
+    NO_TIME_AVAILABLE(false, 6000, "예약 가능한 시간이 없습니다."),
+    RESERVAION_MODIFY_ERROR(false, 6001, "예약 수정에 실패했습니다."),
+    INVALID_REQUEST_INFO(false, 6002, "잘못된 업체 정보 요청입니다."),
+    NOT_MATCHED_USER(false, 6003, "일치하지 않은 유저입니다.");
 
     private final boolean isSuccess;
     private final int code;

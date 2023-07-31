@@ -33,6 +33,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByStartTimeIsNull();
 
     Reservation findByUserAndStore(User user, Store store);
+    Reservation findByUserIdAndStartTimeIsNull(Long userId);
+    Reservation findByReservationIdAndUserId(Long reservation_id, Long user_id);
+
 
 
 //    List<Reservation> findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(LocalDateTime start, LocalDateTime end);

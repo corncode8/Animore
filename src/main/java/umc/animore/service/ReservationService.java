@@ -170,11 +170,8 @@ public class ReservationService {
     public Reservation updateReservation(Long reservationId, LocalDateTime startTime) {
         Reservation reservation = reservationRepository.findByReservationId(reservationId);
 
-        if (reservation == null) {
-            throw new IllegalArgumentException("해당 예약이 존재하지 않습니다.");
-        }
-
         Store store = reservation.getStore();
+
         if (store == null) {
             throw new IllegalArgumentException("예약과 관련된 스토어를 찾을 수 없습니다.");
         }
@@ -195,7 +192,7 @@ public class ReservationService {
         }
 
         if (!overlappingReservations.isEmpty()) {
-            throw new IllegalArgumentException("해당 시간은 예약이 풀입니다.");
+            throw new IllegalArgumentException("해당 시간에 가능한 예약이 없습니다.");
         }
 
         reservation.setStartTime(startTime);
@@ -299,5 +296,17 @@ public class ReservationService {
         return reservationRepository.findByStartTimeIsNull();
     }
 
+    public Store findByStore(Long reservationId) {
+        Reservation reservation = reservationRepository.findByReservationId(reservationId);
+        return reservation.getStore();
+    }
+
+    public Reservation findReservationWithNullStartTime(Long userId) {
+        return reservationRepository.findByUserIdAndStartTimeIsNull(userId);
+    }
+
+    public Reservation findbyUserId(Long reservationId, Long userId) {
+        return reservationRepository.findByReservationIdAndUserId(reservationId, userId);
+    }
 
 }
