@@ -51,7 +51,8 @@ public enum BaseResponseStatus { //열거 상수를 통해 응답상태를 나�
     NO_TIME_AVAILABLE(false, 6000, "예약 가능한 시간이 없습니다."),
     RESERVAION_MODIFY_ERROR(false, 6001, "예약 수정에 실패했습니다."),
     INVALID_REQUEST_INFO(false, 6002, "잘못된 업체 정보 요청입니다."),
-    NOT_MATCHED_USER(false, 6003, "일치하지 않은 유저입니다.");
+    NOT_MATCHED_USER(false, 6003, "일치하지 않은 유저입니다."),
+    FALSE_RESERVATION(false, 6004, "예약에 실패하였습니다.");
 
     private final boolean isSuccess;
     private final int code;

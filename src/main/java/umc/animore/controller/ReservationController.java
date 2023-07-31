@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.config.exception.BaseResponse;
+import umc.animore.config.exception.BaseResponseStatus;
 import umc.animore.model.Reservation;
 import umc.animore.model.Store;
 import umc.animore.model.User;
@@ -46,7 +47,7 @@ public class ReservationController {
         Map<String, Object> response = new LinkedHashMap<>();
 
         if (store == null) {
-            return new BaseResponse<>(DATABASE_ERROR);
+            return new BaseResponse<>(NO_MATCHING_STORE);
 
         } else {
             store.setDayoff1(store.getDayoff1().toUpperCase());
@@ -75,22 +76,25 @@ public class ReservationController {
         if (reservationRequest.getStoreId() == null) {
             return new BaseResponse<>(DATABASE_ERROR);
         }
+        try {
+            Reservation reservation = reservationService.createReservation(user.getId(), reservationRequest.getStoreId(), reservationRequest.getDogSize(), reservationRequest.getCutStyle(), reservationRequest.getBathStyle());
 
-        Reservation reservation = reservationService.createReservation(user.getId(), reservationRequest.getStoreId(), reservationRequest.getDogSize(), reservationRequest.getCutStyle(), reservationRequest.getBathStyle());
+            Map<String, Object> reservationResult = new LinkedHashMap<>();
+            reservationResult.put("reservationId", reservation.getReservationId());
+            reservationResult.put("username", reservation.getUsername());
+            reservationResult.put("address", reservation.getAddress());
+            reservationResult.put("phone", reservation.getUser_phone());
+            reservationResult.put("pet_name", reservation.getPet_name());
+            reservationResult.put("pet_gender", reservation.getPet_gender());
+            reservationResult.put("pet_type", reservation.getPet_type());
+            reservationResult.put("dogSize", reservation.getDogSize());
+            reservationResult.put("cutStyle", reservation.getCutStyle());
+            reservationResult.put("bathStyle", reservation.getBathStyle());
 
-        Map<String, Object> reservationResult = new LinkedHashMap<>();
-        reservationResult.put("reservationId", reservation.getReservationId());
-        reservationResult.put("username", reservation.getUsername());
-        reservationResult.put("address", reservation.getAddress());
-        reservationResult.put("phone", reservation.getUser_phone());
-        reservationResult.put("pet_name", reservation.getPet_name());
-        reservationResult.put("pet_gender", reservation.getPet_gender());
-        reservationResult.put("pet_type", reservation.getPet_type());
-        reservationResult.put("dogSize", reservation.getDogSize());
-        reservationResult.put("cutStyle", reservation.getCutStyle());
-        reservationResult.put("bathStyle", reservation.getBathStyle());
-
-        return new BaseResponse<>(reservationResult);
+            return new BaseResponse<>(reservationResult);
+        } catch (Exception e) {
+            return new BaseResponse<>(RESPONSE_ERROR);
+        }
 
     }
 
@@ -230,7 +234,7 @@ public class ReservationController {
         Store store = user.getStore();
 
         if (store == null) {
-            return new BaseResponse<>(DATABASE_ERROR);
+            return new BaseResponse<>(NO_MATCHING_STORE);
         }
 
         try {
@@ -264,26 +268,29 @@ public class ReservationController {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
 
+        try {
+            Page<Reservation> reservationPage = reservationService.getRequest(user.getStore().getStoreId(), false, pageable);
+            List<Reservation> reservationList = reservationPage.getContent();
 
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Reservation r : reservationList) {
+                Map<String, Object> reservationMap = new LinkedHashMap<>();
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+                String dateString = r.getStartTime().format(formatter);
+                LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
+                String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("MM.dd.HH:mm"));
+                reservationMap.put("startTime", formattedDate);
+                reservationMap.put("petName", r.getPet_name());
+                reservationMap.put("username", r.getUsername());
+                reservationMap.put("phone", r.getUser_phone());
+                result.add(reservationMap);
+            }
 
-        Page<Reservation> reservationPage = reservationService.getRequest(user.getStore().getStoreId(), false, pageable);
-        List<Reservation> reservationList = reservationPage.getContent();
-
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (Reservation r : reservationList) {
-            Map<String, Object> reservationMap = new LinkedHashMap<>();
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-            String dateString = r.getStartTime().format(formatter);
-            LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
-            String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("MM.dd.HH:mm"));
-            reservationMap.put("startTime", formattedDate);
-            reservationMap.put("petName", r.getPet_name());
-            reservationMap.put("username", r.getUsername());
-            reservationMap.put("phone", r.getUser_phone());
-            result.add(reservationMap);
+            return new BaseResponse<>(result);
+        } catch (Exception e) {
+            return new BaseResponse<>(SERVER_ERROR);
         }
 
-        return new BaseResponse<>(result);
     }
 
 
@@ -295,24 +302,29 @@ public class ReservationController {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
 
-        Page<Reservation> reservationPage = reservationService.getRequest(user.getStore().getStoreId(), true, pageable);
-        List<Reservation> reservationList = reservationPage.getContent();
+        try {
+            Page<Reservation> reservationPage = reservationService.getRequest(user.getStore().getStoreId(), true, pageable);
+            List<Reservation> reservationList = reservationPage.getContent();
 
-        List<Map<String, Object>> resultList = new ArrayList<>();
-        for (Reservation r : reservationList) {
-            Map<String, Object> reservationMap = new LinkedHashMap<>();
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-            String dateString = r.getStartTime().format(formatter);
-            LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
-            String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("MM.dd.HH:mm"));
-            reservationMap.put("startTime", formattedDate);
-            reservationMap.put("petName", r.getPet_name());
-            reservationMap.put("username", r.getUsername());
-            reservationMap.put("phone", r.getUser_phone());
-            resultList.add(reservationMap);
+            List<Map<String, Object>> resultList = new ArrayList<>();
+            for (Reservation r : reservationList) {
+                Map<String, Object> reservationMap = new LinkedHashMap<>();
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+                String dateString = r.getStartTime().format(formatter);
+                LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
+                String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("MM.dd.HH:mm"));
+                reservationMap.put("startTime", formattedDate);
+                reservationMap.put("petName", r.getPet_name());
+                reservationMap.put("username", r.getUsername());
+                reservationMap.put("phone", r.getUser_phone());
+                resultList.add(reservationMap);
+            }
+
+            return new BaseResponse<>(resultList);
+        } catch (Exception e) {
+            return new BaseResponse<>(SERVER_ERROR);
         }
 
-        return new BaseResponse<>(resultList);
     }
 
     // 예약 상세보기
@@ -352,6 +364,10 @@ public class ReservationController {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
 
+        if (reservationId == null) {
+            return new BaseResponse<>(NOT_FOUND_RESERVATION);
+        }
+
         Store store = reservationService.findByStore(reservationId);
 
         if (user.getStore().getStoreId() != store.getStoreId()) {
@@ -372,6 +388,10 @@ public class ReservationController {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
 
+        if (reservationId == null) {
+            return new BaseResponse<>(NOT_FOUND_RESERVATION);
+        }
+
         Store store = reservationService.findByStore(reservationId);
 
         if (user.getStore().getStoreId() != store.getStoreId()) {
@@ -390,33 +410,38 @@ public class ReservationController {
         PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
 
-        Page<Reservation> reservationlist = reservationService.getReservationlist(user.getId(), pageable);
-        List<Reservation> reservations = reservationlist.getContent();
-        List<Map<String, Object>> result = new ArrayList<>();
+        try {
+            Page<Reservation> reservationlist = reservationService.getReservationlist(user.getId(), pageable);
+            List<Reservation> reservations = reservationlist.getContent();
+            List<Map<String, Object>> result = new ArrayList<>();
 
-        for (Reservation i : reservations) {
-            Map<String,Object> reservationMap = new HashMap<>();
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            for (Reservation i : reservations) {
+                Map<String,Object> reservationMap = new HashMap<>();
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-            LocalDateTime dateTime = i.getStartTime();
-            String formattedDate;
-            if (dateTime != null) {
-                formattedDate = dateTime.format(formatter.ofPattern("MM.dd.HH:mm"));
-            } else {
-                formattedDate = "N/A";
+                LocalDateTime dateTime = i.getStartTime();
+                String formattedDate;
+                if (dateTime != null) {
+                    formattedDate = dateTime.format(formatter.ofPattern("MM.dd.HH:mm"));
+                } else {
+                    formattedDate = "N/A";
+                }
+
+                reservationMap.put("startTime", formattedDate);
+                reservationMap.put("storeName", i.getStore().getStoreName());
+                reservationMap.put("storeLocation", i.getStore().getStoreLocation());
+                reservationMap.put("storeNumber", i.getStore().getStoreNumber());
+
+                result.add(reservationMap);
             }
 
-            reservationMap.put("startTime", formattedDate);
-            reservationMap.put("storeName", i.getStore().getStoreName());
-            reservationMap.put("storeLocation", i.getStore().getStoreLocation());
-            reservationMap.put("storeNumber", i.getStore().getStoreNumber());
 
-            result.add(reservationMap);
+
+            return new BaseResponse<>(result);
+        } catch (Exception e) {
+            return new BaseResponse<>(SERVER_ERROR);
         }
 
-
-
-        return new BaseResponse<>(result);
     }
 
 }
