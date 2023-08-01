@@ -2,16 +2,16 @@ package umc.animore.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.config.exception.BaseException;
 import umc.animore.config.exception.BaseResponse;
+import umc.animore.config.exception.BaseResponseStatus;
 import umc.animore.model.*;
 import umc.animore.model.review.ImageDTO;
+import umc.animore.model.review.RecordDTO;
 import umc.animore.model.review.StoreDTO;
+import umc.animore.repository.StoreRepository;
 import umc.animore.repository.UserRepository;
 import umc.animore.service.SearchService;
 
@@ -29,6 +29,9 @@ public class SearchController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    StoreRepository storeRepository;
 
 
     @Autowired
@@ -634,6 +637,97 @@ public class SearchController {
             List<SearchHistory> searchHistory = searchService.searchHistory(user);
             return new BaseResponse<>(searchHistory);
         } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
+    //가게 조회 - 이렇게 해야 가게를 검색한 것을 저장할 수 있음
+    @ResponseBody
+    @GetMapping("/search/{storeId}")
+    public BaseResponse<StoreDTO> searchStore(@PathVariable Long storeId) {
+        try {
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
+            Store store = storeRepository.findByStoreId(storeId);
+
+            searchService.postSearchStoreHistory(user, store);
+
+            StoreDTO storeDTO = new StoreDTO();
+            storeDTO.setStoreId(store.getStoreId());
+            storeDTO.setStoreName(store.getStoreName());
+            storeDTO.setStoreExplain(store.getStoreExplain());
+            storeDTO.setStoreLocation(store.getStoreLocation());
+            storeDTO.setStoreImageUrl(store.getStoreImageUrl());
+            storeDTO.setStoreNumber(store.getStoreNumber());
+            storeDTO.setStoreRecent(store.getStoreRecent());
+            storeDTO.setStoreLike(store.getStoreLike());
+            storeDTO.setCreateAt(store.getCreateAt());
+            storeDTO.setModifyAt(store.getModifyAt());
+            storeDTO.setLatitude(store.getLatitude());
+            storeDTO.setLongitude(store.getLongitude());
+            storeDTO.setDiscounted(store.isDiscounted());
+            storeDTO.setOpen(store.getOpen());
+            storeDTO.setClose(store.getClose());
+            storeDTO.setAmount(store.getAmount());
+            storeDTO.setDayoff1(store.getDayoff1());
+            storeDTO.setDayoff2(store.getDayoff2());
+
+            return new BaseResponse<>(storeDTO);
+        } catch (Exception exception) {
+            return new BaseResponse<>(BaseResponseStatus.SERVER_ERROR);
+        }
+    }
+
+
+    //최근 가게 검색기록
+    @ResponseBody
+    @GetMapping("/search/recordstore")
+    public BaseResponse<List<RecordDTO>> searchHistoryStore() {
+        try {
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
+
+            // 사용자의 검색 기록을 가져옴
+            List<SearchStore> searchStore = searchService.searchStore(user);
+            List<RecordDTO> recordDTOList = new ArrayList<>();
+
+            // 검색 기록 목록을 순회하며 RecordDTO 객체들을 생성하고 리스트에 추가
+            for (SearchStore searchStoreItem : searchStore) {
+                RecordDTO recordDTO = new RecordDTO();
+                recordDTO.setRecordId(searchStoreItem.getRecordId());
+                recordDTO.setSearchCreateAt(searchStoreItem.getSearchCreateAt());
+                recordDTO.setUserId(user.getId());
+
+                StoreDTO storeDTO = new StoreDTO();
+                Store store = searchStoreItem.getStore(); // SearchStore에서 Store를 가져오는 메서드가 있다고 가정합니다.
+                storeDTO.setStoreId(store.getStoreId());
+                storeDTO.setStoreName(store.getStoreName());
+                storeDTO.setStoreExplain(store.getStoreExplain());
+                storeDTO.setStoreLocation(store.getStoreLocation());
+                storeDTO.setStoreImageUrl(store.getStoreImageUrl());
+                storeDTO.setStoreNumber(store.getStoreNumber());
+                storeDTO.setStoreRecent(store.getStoreRecent());
+                storeDTO.setStoreLike(store.getStoreLike());
+                storeDTO.setCreateAt(store.getCreateAt());
+                storeDTO.setModifyAt(store.getModifyAt());
+                storeDTO.setLatitude(store.getLatitude());
+                storeDTO.setLongitude(store.getLongitude());
+                storeDTO.setDiscounted(store.isDiscounted());
+                storeDTO.setOpen(store.getOpen());
+                storeDTO.setClose(store.getClose());
+                storeDTO.setAmount(store.getAmount());
+                storeDTO.setDayoff1(store.getDayoff1());
+                storeDTO.setDayoff2(store.getDayoff2());
+
+                recordDTO.setStoreDTO(storeDTO);
+                recordDTOList.add(recordDTO);
+            }
+
+            return new BaseResponse<>(recordDTOList);
+        } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
     }

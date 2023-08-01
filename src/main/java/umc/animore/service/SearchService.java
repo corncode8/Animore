@@ -43,6 +43,9 @@ public class SearchService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    SearchStoreRepository searchStoreRepository;
+
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -360,6 +363,8 @@ public class SearchService {
         }
     }
 
+
+
     private void saveQuery(User user, String searchQuery) {
         SearchHistory searchHistory = new SearchHistory();
 
@@ -369,7 +374,7 @@ public class SearchService {
         searchHistory.setUser(user);
         searchHistory.setSearchQuery(searchQuery);
 
-//      //SearchHistory 객체에 Timestamp 할당
+        //SearchHistory 객체에 Timestamp 할당
         searchHistory.setSearchCreateAt(timestamp);
         searchHistoryRepository.save(searchHistory);
     }
@@ -383,6 +388,43 @@ public class SearchService {
         }catch (Exception exception){
             throw new BaseException(RESPONSE_ERROR);
         }
+    }
+
+    //가게 검색 기록(3개씩)
+    public List<SearchStore> searchStore(User user) throws BaseException{
+        try{
+            List<SearchStore> searchStoreRes = searchStoreRepository.findByUserOrderBySearchCreateAtDesc(user);
+            return searchStoreRes;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
+
+    public void postSearchStoreHistory(User user, Store store){
+        List<SearchStore> searchStores = searchStoreRepository.findByUserOrderBySearchCreateAtDesc(user);
+
+        if(searchStores.size()<3){
+            saveStoreRecord(user,store);
+        }else{
+            SearchStore oldestSearchStore = searchStores.get(searchStores.size()-1);
+            searchStoreRepository.delete(oldestSearchStore);
+            saveStoreRecord(user,store);
+        }
+    }
+
+
+    private void saveStoreRecord(User user, Store store){
+        SearchStore searchStore = new SearchStore();
+
+        // 현재 시간을 기준으로 Timestamp 객체 생성
+        Timestamp timestamp = Timestamp.from(Instant.now());
+
+        searchStore.setSearchCreateAt(timestamp);
+        searchStore.setUser(user);
+        searchStore.setStore(store);
+        searchStoreRepository.save(searchStore);
+
     }
 
 }
