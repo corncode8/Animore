@@ -10,7 +10,9 @@ import umc.animore.config.exception.BaseResponse;
 import umc.animore.config.exception.BaseResponseStatus;
 import umc.animore.model.*;
 import umc.animore.model.review.ImageDTO;
+import umc.animore.model.review.ReservationResultDTO;
 import umc.animore.model.review.ReviewDTO;
+import umc.animore.model.review.StoreDTO;
 import umc.animore.repository.*;
 import umc.animore.service.ImageService;
 import umc.animore.service.ReviewService;
@@ -626,6 +628,64 @@ public class ReviewController {
             return new BaseResponse<>(reviewDTOList);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    //리뷰할 가게 및 예약 정보
+    @ResponseBody
+    @GetMapping("/reviews/researvationinfo/{storeId}")
+    public BaseResponse<ReservationResultDTO> getReservationInfoByUser(@PathVariable Long storeId) {
+        try {
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+
+            User user = userRepository.findById(userId);
+            Store store = storeRepository.findByStoreId(storeId);
+
+            // 해당 가게와 사용자에 대한 예약 정보 가져오기
+            Reservation reservation = reservationRepository.findByUserAndStore(user, store);
+
+            if (reservation == null) {
+                return new BaseResponse<>(BaseResponseStatus.NOT_FOUND_RESERVATION);
+            }
+
+            ReservationResultDTO reservationResultDTO = new ReservationResultDTO();
+
+            reservationResultDTO.setReservationId(reservation.getReservationId());
+            reservationResultDTO.setPet_name(reservation.getPet_name());
+            reservationResultDTO.setPet_gender(reservation.getPet_gender());
+            reservationResultDTO.setDogSize(reservation.getDogSize());
+            reservationResultDTO.setCutStyle(reservation.getCutStyle());
+            reservationResultDTO.setBathStyle(reservation.getBathStyle());
+            reservationResultDTO.setStartTime(reservation.getStartTime());
+            reservationResultDTO.setUsername(reservation.getUsername());
+            reservationResultDTO.setPet_type(reservation.getPet_type());
+
+            StoreDTO storeDTO = new StoreDTO();
+            storeDTO.setStoreId(store.getStoreId());
+            storeDTO.setStoreName(store.getStoreName());
+            storeDTO.setStoreExplain(store.getStoreExplain());
+            storeDTO.setStoreLocation(store.getStoreLocation());
+            storeDTO.setStoreImageUrl(store.getStoreImageUrl());
+            storeDTO.setStoreNumber(store.getStoreNumber());
+            storeDTO.setStoreRecent(store.getStoreRecent());
+            storeDTO.setStoreLike(store.getStoreLike());
+            storeDTO.setCreateAt(store.getCreateAt());
+            storeDTO.setModifyAt(store.getModifyAt());
+            storeDTO.setLatitude(store.getLatitude());
+            storeDTO.setLongitude(store.getLongitude());
+            storeDTO.setDiscounted(store.isDiscounted());
+            storeDTO.setOpen(store.getOpen());
+            storeDTO.setClose(store.getClose());
+            storeDTO.setAmount(store.getAmount());
+            storeDTO.setDayoff1(store.getDayoff1());
+            storeDTO.setDayoff2(store.getDayoff2());
+
+            reservationResultDTO.setStoreDTO(storeDTO);
+
+            return new BaseResponse<>(reservationResultDTO);
+        } catch (Exception exception) {
+            return new BaseResponse<>(BaseResponseStatus.DATABASE_ERROR); // Or handle the exception accordingly
         }
     }
 

@@ -89,6 +89,7 @@ public class SearchController {
             storeDTO.setStoreRecent(store.getStoreRecent());
             storeDTO.setStoreLike(store.getStoreLike());
             storeDTO.setCreateAt(store.getCreateAt());
+            storeDTO.setModifyAt(store.getModifyAt());
             storeDTO.setLatitude(store.getLatitude());
             storeDTO.setLongitude(store.getLongitude());
             storeDTO.setDiscounted(store.isDiscounted());

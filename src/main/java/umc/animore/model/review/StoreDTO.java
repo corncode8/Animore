@@ -23,6 +23,7 @@ public class StoreDTO {
     private Integer storeRecent;
     private Integer storeLike; //찜 기능
     private Timestamp createAt;
+    private Timestamp modifyAt;
     private double latitude; //위도
     private double longitude; //경도
     private boolean isDiscounted;       // 할인 여부
