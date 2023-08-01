@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.config.exception.BaseException;
 import umc.animore.config.exception.BaseResponse;
-import umc.animore.model.SearchHistory;
-import umc.animore.model.Store;
+import umc.animore.model.*;
+import umc.animore.model.review.ImageDTO;
+import umc.animore.model.review.StoreDTO;
+import umc.animore.repository.UserRepository;
 import umc.animore.service.SearchService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static umc.animore.config.exception.BaseResponseStatus.*;
@@ -23,6 +26,9 @@ public class SearchController {
 
 
     private final SearchService searchService;
+
+    @Autowired
+    UserRepository userRepository;
 
 
     @Autowired
@@ -36,7 +42,7 @@ public class SearchController {
     //특정 사용자의 모든 리뷰 조회
     @ResponseBody
     @GetMapping("/search/name")
-    public BaseResponse<List<Store>> searchName(@RequestParam(value = "query") String storeName) {
+    public BaseResponse<List<StoreDTO>> searchName(@RequestParam(value = "query") String storeName) {
         try {
 
             if (storeName == null || storeName.equals("")) {
@@ -48,8 +54,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchNameList(storeName);
-            searchService.postSearchHistory(userId, storeName);
+            searchService.postSearchHistory(user, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -59,17 +66,49 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
     }
 
+    private List<StoreDTO> convertStoreToDTO(List<Store> storeList) {
+        List<StoreDTO> storeDTOList = new ArrayList<>();
+
+        for (Store store : storeList) {
+            StoreDTO storeDTO = new StoreDTO();
+            storeDTO.setStoreId(store.getStoreId());
+            storeDTO.setStoreName(store.getStoreName());
+            storeDTO.setStoreExplain(store.getStoreExplain());
+            storeDTO.setStoreLocation(store.getStoreLocation());
+            storeDTO.setStoreImageUrl(store.getStoreImageUrl());
+            storeDTO.setStoreNumber(store.getStoreNumber());
+            storeDTO.setStoreRecent(store.getStoreRecent());
+            storeDTO.setStoreLike(store.getStoreLike());
+            storeDTO.setCreateAt(store.getCreateAt());
+            storeDTO.setLatitude(store.getLatitude());
+            storeDTO.setLongitude(store.getLongitude());
+            storeDTO.setDiscounted(store.isDiscounted());
+            storeDTO.setOpen(store.getOpen());
+            storeDTO.setClose(store.getClose());
+            storeDTO.setAmount(store.getAmount());
+            storeDTO.setDayoff1(store.getDayoff1());
+            storeDTO.setDayoff2(store.getDayoff2());
+
+            storeDTOList.add(storeDTO);
+        }
+
+        return storeDTOList;
+    }
+
+
     //가게이름 검색 인기순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/name/best")
-    public BaseResponse<List<Store>> searchNameBest(@RequestParam(value = "query") String storeName) {
+    public BaseResponse<List<StoreDTO>> searchNameBest(@RequestParam(value = "query") String storeName) {
         try {
 
             if (storeName == null || storeName.equals("")) {
@@ -81,8 +120,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchNameBestList(storeName);
-            searchService.postSearchHistory(userId, storeName);
+            searchService.postSearchHistory(user, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -91,8 +131,9 @@ public class SearchController {
                 // 반환값이 없다
                 return new BaseResponse<>(DATABASE_ERROR);
             }
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
 
-            return new BaseResponse<>(store);
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -103,7 +144,7 @@ public class SearchController {
     //가게이름 검색 후기많은순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/name/top_reviews")
-    public BaseResponse<List<Store>> searchNameMostReviews(@RequestParam(value = "query") String storeName) {
+    public BaseResponse<List<StoreDTO>> searchNameMostReviews(@RequestParam(value = "query") String storeName) {
         try {
 
             if (storeName == null || storeName.equals("")) {
@@ -115,8 +156,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchNameMostReviewsList(storeName);
-            searchService.postSearchHistory(userId, storeName);
+            searchService.postSearchHistory(user, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -126,7 +168,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
@@ -136,7 +180,7 @@ public class SearchController {
     //가게이름 검색 후기 평점 평균 높은 순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/name/avg")
-    public BaseResponse<List<Store>> searchNameReviewsAVG(@RequestParam(value = "query") String storeName) {
+    public BaseResponse<List<StoreDTO>> searchNameReviewsAVG(@RequestParam(value = "query") String storeName) {
         try {
 
             if (storeName == null || storeName.equals("")) {
@@ -148,8 +192,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchNameReviewsAvgList(storeName);
-            searchService.postSearchHistory(userId, storeName);
+            searchService.postSearchHistory(user, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -159,7 +204,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
@@ -169,7 +216,7 @@ public class SearchController {
     //가게이름 검색 거리순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/name/recommend")
-    public BaseResponse<List<Store>> searchNameRecommend(@RequestParam(value = "query") String storeName) {
+    public BaseResponse<List<StoreDTO>> searchNameRecommend(@RequestParam(value = "query") String storeName) {
         try {
 
             if (storeName == null || storeName.equals("")) {
@@ -181,8 +228,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.recommendNearestStore(storeName);
-            searchService.postSearchHistory(userId, storeName);
+            searchService.postSearchHistory(user, storeName);
 
             System.out.println("query: " + storeName);
             System.out.println("가게정보: " + store);
@@ -192,7 +240,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -202,7 +252,7 @@ public class SearchController {
     //주소 검색 API - 검색화면
     @ResponseBody
     @GetMapping("/search/location")
-    public BaseResponse<List<Store>> searchLocation (@RequestParam(value = "query") String storeLocation) {
+    public BaseResponse<List<StoreDTO>> searchLocation (@RequestParam(value = "query") String storeLocation) {
         try {
             if (storeLocation == null || storeLocation.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -213,8 +263,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchLocationList(storeLocation);
-            searchService.postSearchHistory(userId, storeLocation);
+            searchService.postSearchHistory(user, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -224,7 +275,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -235,7 +288,7 @@ public class SearchController {
     //주소 검색 인기순 API -검색화면
     @ResponseBody
     @GetMapping("/search/location/best")
-    public BaseResponse<List<Store>> searchBestLocation (@RequestParam(value = "query") String storeLocation) {
+    public BaseResponse<List<StoreDTO>> searchBestLocation (@RequestParam(value = "query") String storeLocation) {
         try {
             if (storeLocation == null || storeLocation.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -246,8 +299,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchLocationBestList(storeLocation);
-            searchService.postSearchHistory(userId, storeLocation);
+            searchService.postSearchHistory(user, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -257,7 +311,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -269,7 +325,7 @@ public class SearchController {
     //주소 검색 후기 많은 순 API -검색화면
     @ResponseBody
     @GetMapping("/search/location/top_reviews")
-    public BaseResponse<List<Store>> searchMostReviewsLocation (@RequestParam(value = "query") String storeLocation) {
+    public BaseResponse<List<StoreDTO>> searchMostReviewsLocation (@RequestParam(value = "query") String storeLocation) {
         try {
             if (storeLocation == null || storeLocation.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -280,8 +336,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchLocationMostReviewsList(storeLocation);
-            searchService.postSearchHistory(userId, storeLocation);
+            searchService.postSearchHistory(user, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -291,8 +348,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
 
+            return new BaseResponse<>(resultStore);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
@@ -302,7 +360,7 @@ public class SearchController {
     //주소 검색 후기 평점 평균 높은 순 API -검색화면
     @ResponseBody
     @GetMapping("/search/location/avg")
-    public BaseResponse<List<Store>> searchReviewsAvgLocation (@RequestParam(value = "query") String storeLocation) {
+    public BaseResponse<List<StoreDTO>> searchReviewsAvgLocation (@RequestParam(value = "query") String storeLocation) {
         try {
             if (storeLocation == null || storeLocation.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -313,8 +371,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchLocationReviewsAvgList(storeLocation);
-            searchService.postSearchHistory(userId, storeLocation);
+            searchService.postSearchHistory(user, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -324,7 +383,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -335,7 +396,7 @@ public class SearchController {
     //가게주소 검색 거리순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/location/recommend")
-    public BaseResponse<List<Store>> searchLocationRecommend(@RequestParam(value = "query") String storeLocation) {
+    public BaseResponse<List<StoreDTO>> searchLocationRecommend(@RequestParam(value = "query") String storeLocation) {
         try {
 
             if (storeLocation == null || storeLocation.equals("")) {
@@ -347,8 +408,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.recommendNearestStoreLocation(storeLocation);
-            searchService.postSearchHistory(userId, storeLocation);
+            searchService.postSearchHistory(user, storeLocation);
 
             System.out.println("query: " + storeLocation);
             System.out.println("가게정보: " + store);
@@ -358,7 +420,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -368,7 +432,7 @@ public class SearchController {
     //시도 검색 API - 검색화면
     @ResponseBody
     @GetMapping("/search/town")
-    public BaseResponse<List<Store>> searchByTown(@RequestParam("city") String city, @RequestParam("district") String district) {
+    public BaseResponse<List<StoreDTO>> searchByTown(@RequestParam("city") String city, @RequestParam("district") String district) {
         try {
             if (district == null || district.equals("") || city == null || city.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -379,8 +443,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchCityList(city,district);
-            searchService.postSearchHistory(userId, city + " " + district);
+            searchService.postSearchHistory(user, city + " " + district);
 
             System.out.println("query: " + city + " " + district);
             System.out.println("가게정보: " + store);
@@ -389,7 +454,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
@@ -398,7 +465,7 @@ public class SearchController {
     //시도 인기순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/town/best")
-    public BaseResponse<List<Store>> searchBestByTown (@RequestParam("city") String city, @RequestParam("district") String district){
+    public BaseResponse<List<StoreDTO>> searchBestByTown (@RequestParam("city") String city, @RequestParam("district") String district){
         try {
             if (district == null || district.equals("") || city == null || city.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -409,14 +476,17 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchCityListBest(city, district);
-            searchService.postSearchHistory(userId, city + " " + district);
+            searchService.postSearchHistory(user, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
@@ -425,7 +495,7 @@ public class SearchController {
     //시도 후기 많은 순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/town/top_reviews")
-    public BaseResponse<List<Store>> searchMostReviewsByTown (@RequestParam("city") String city, @RequestParam("district") String district){
+    public BaseResponse<List<StoreDTO>> searchMostReviewsByTown (@RequestParam("city") String city, @RequestParam("district") String district){
         try {
             if (district == null || district.equals("") || city == null || city.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -436,14 +506,17 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchCityListMostReviews(city, district);
-            searchService.postSearchHistory(userId, city + " " + district);
+            searchService.postSearchHistory(user, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
@@ -452,7 +525,7 @@ public class SearchController {
     //시도 후기 평점 평균 높은순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/town/avg")
-    public BaseResponse<List<Store>> searchReviewsAvgByTown (@RequestParam("city") String city, @RequestParam("district") String district){
+    public BaseResponse<List<StoreDTO>> searchReviewsAvgByTown (@RequestParam("city") String city, @RequestParam("district") String district){
         try {
             if (district == null || district.equals("") || city == null || city.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -463,14 +536,17 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.searchCityListReviewsAvg(city, district);
-            searchService.postSearchHistory(userId, city + " " + district);
+            searchService.postSearchHistory(user, city + " " + district);
 
             if (store.isEmpty()) {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
@@ -480,7 +556,7 @@ public class SearchController {
     //시도 검색 거리순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/town/recommend")
-    public BaseResponse<List<Store>> searchByTownRecommend(@RequestParam("city") String city, @RequestParam("district") String district) {
+    public BaseResponse<List<StoreDTO>> searchByTownRecommend(@RequestParam("city") String city, @RequestParam("district") String district) {
         try {
             if (district == null || district.equals("") || city == null || city.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -491,8 +567,9 @@ public class SearchController {
 
             PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
             List<Store> store = searchService.recommendNearestStoreTown(city,district);
-            searchService.postSearchHistory(userId, city + " " + district);
+            searchService.postSearchHistory(user, city + " " + district);
 
             System.out.println("query: " + city + " " + district);
             System.out.println("가게정보: " + store);
@@ -501,7 +578,9 @@ public class SearchController {
                 return new BaseResponse<>(DATABASE_ERROR);
             }
 
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
@@ -511,10 +590,12 @@ public class SearchController {
     //GET /search/top_reviews
     @ResponseBody
     @GetMapping("/search/top_reviews")
-    public BaseResponse<List<Store>> searchTopreview() {
+    public BaseResponse<List<StoreDTO>> searchTopreview() {
         try {
             List<Store> store = searchService.getStoresWithMostReviews();
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
@@ -526,10 +607,12 @@ public class SearchController {
     //GET /search/top_reservation
     @ResponseBody
     @GetMapping("/search/top_reservation")
-    public BaseResponse<List<Store>> searchTopreservation() {
+    public BaseResponse<List<StoreDTO>> searchTopreservation() {
         try {
             List<Store> store = searchService.searchReservationMost();
-            return new BaseResponse<>(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+
+            return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -546,7 +629,8 @@ public class SearchController {
         try {
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
-            List<SearchHistory> searchHistory = searchService.searchHistory(userId);
+            User user = userRepository.findById(userId);
+            List<SearchHistory> searchHistory = searchService.searchHistory(user);
             return new BaseResponse<>(searchHistory);
         } catch (BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
