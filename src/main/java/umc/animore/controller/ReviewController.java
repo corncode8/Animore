@@ -641,6 +641,8 @@ public class ReviewController {
 
             User user = userRepository.findById(userId);
             Store store = storeRepository.findByStoreId(storeId);
+            //해당 가게의 예약횟수 조회
+            store.setStoreRecent(reservationRepository.findStoreWithHighestReservationCount());
 
             // 해당 가게와 사용자에 대한 예약 정보 가져오기
             Reservation reservation = reservationRepository.findByUserAndStore(user, store);
