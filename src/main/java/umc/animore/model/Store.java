@@ -24,10 +24,11 @@ public class Store {
     @Column(name = "store_id")
     private Long storeId; //업체 id
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
+
     @Column(name = "store_name")
     private String storeName; //업체 이름
     @Column(name = "store_location")
@@ -60,7 +61,6 @@ public class Store {
 
     private String dayoff1;
     private String dayoff2;
-
 
 
     //다대일 관계

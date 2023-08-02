@@ -5,12 +5,11 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.config.exception.BaseException;
-import umc.animore.model.Location;
-import umc.animore.model.SearchHistory;
-import umc.animore.model.Store;
-import umc.animore.model.Town;
+import umc.animore.model.*;
 import umc.animore.repository.*;
 
 import java.sql.Timestamp;
@@ -40,6 +39,12 @@ public class SearchService {
 
     @Autowired
     private LocationRepository locationRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    SearchStoreRepository searchStoreRepository;
 
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -336,9 +341,9 @@ public class SearchService {
     }
 
     //최근 검색기록 (3개씩)
-    public List<SearchHistory> searchHistory(Long userIdx) throws BaseException {
+    public List<SearchHistory> searchHistory(User user) throws BaseException {
         try {
-            List<SearchHistory> searchHistoryRes = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
+            List<SearchHistory> searchHistoryRes = searchHistoryRepository.findByUserOrderBySearchCreateAtDesc(user);
             return searchHistoryRes;
         }catch (Exception exception){
             throw  new BaseException(RESPONSE_ERROR);
@@ -346,27 +351,30 @@ public class SearchService {
     }
 
 
-    public void postSearchHistory(Long userIdx, String searchQuery) {
-        List<SearchHistory> searchHistoryList = searchHistoryRepository.findByUserIdxOrderBySearchCreateAtDesc(userIdx);
+    public void postSearchHistory(User user, String searchQuery) {
+        List<SearchHistory> searchHistoryList = searchHistoryRepository.findByUserOrderBySearchCreateAtDesc(user);
 
         if (searchHistoryList.size() < 3) {
-            saveQuery(userIdx, searchQuery);
+            saveQuery(user, searchQuery);
         } else {
             SearchHistory oldestSearchHistory = searchHistoryList.get(searchHistoryList.size() - 1);
             searchHistoryRepository.delete(oldestSearchHistory);
-            saveQuery(userIdx, searchQuery);
+            saveQuery(user, searchQuery);
         }
     }
 
-    private void saveQuery(Long userIdx, String searchQuery) {
+
+
+    private void saveQuery(User user, String searchQuery) {
         SearchHistory searchHistory = new SearchHistory();
 
         // 현재 시간을 기준으로 Timestamp 객체 생성
         Timestamp timestamp = Timestamp.from(Instant.now());
-        searchHistory.setUserIdx(userIdx);
+
+        searchHistory.setUser(user);
         searchHistory.setSearchQuery(searchQuery);
 
-//      //SearchHistory 객체에 Timestamp 할당
+        //SearchHistory 객체에 Timestamp 할당
         searchHistory.setSearchCreateAt(timestamp);
         searchHistoryRepository.save(searchHistory);
     }
@@ -380,6 +388,43 @@ public class SearchService {
         }catch (Exception exception){
             throw new BaseException(RESPONSE_ERROR);
         }
+    }
+
+    //가게 검색 기록(3개씩)
+    public List<SearchStore> searchStore(User user) throws BaseException{
+        try{
+            List<SearchStore> searchStoreRes = searchStoreRepository.findByUserOrderBySearchCreateAtDesc(user);
+            return searchStoreRes;
+        }catch (Exception exception){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+    }
+
+
+    public void postSearchStoreHistory(User user, Store store){
+        List<SearchStore> searchStores = searchStoreRepository.findByUserOrderBySearchCreateAtDesc(user);
+
+        if(searchStores.size()<3){
+            saveStoreRecord(user,store);
+        }else{
+            SearchStore oldestSearchStore = searchStores.get(searchStores.size()-1);
+            searchStoreRepository.delete(oldestSearchStore);
+            saveStoreRecord(user,store);
+        }
+    }
+
+
+    private void saveStoreRecord(User user, Store store){
+        SearchStore searchStore = new SearchStore();
+
+        // 현재 시간을 기준으로 Timestamp 객체 생성
+        Timestamp timestamp = Timestamp.from(Instant.now());
+
+        searchStore.setSearchCreateAt(timestamp);
+        searchStore.setUser(user);
+        searchStore.setStore(store);
+        searchStoreRepository.save(searchStore);
+
     }
 
 }

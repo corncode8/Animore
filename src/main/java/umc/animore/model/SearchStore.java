@@ -14,14 +14,12 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "search_history")
-public class SearchHistory {
+@Table(name = "search_store")
+public class SearchStore{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "search_id")
-    private Long searchId;
-    @Column(name = "search_query")
-    private String searchQuery;
+    @Column(name = "record_id")
+    private Long recordId;
     @Column(name = "search_create_at")
     private Timestamp searchCreateAt;
 
@@ -29,5 +27,10 @@ public class SearchHistory {
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    @JsonIgnore
+    private Store store;
 
 }

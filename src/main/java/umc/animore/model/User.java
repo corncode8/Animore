@@ -29,7 +29,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "store_id")
     private Store store;            // 업체_idx
 
