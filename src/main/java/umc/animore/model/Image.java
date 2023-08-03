@@ -30,7 +30,7 @@ public class Image {
     @Column(name = "img_path")
     private String imgPath;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
