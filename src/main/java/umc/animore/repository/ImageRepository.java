@@ -14,7 +14,4 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     Optional<Image> findByImageId(Long Id);
     Page<Image> findByStoreIsDiscounted(boolean isDiscounted, Pageable pageable);
 
-    List<Image> findByReview(Review review);
-
-
 }

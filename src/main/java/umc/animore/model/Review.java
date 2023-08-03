@@ -54,7 +54,7 @@ public class Review {
 
     @OneToMany(mappedBy = "review",cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Image> images = new ArrayList<>();
+    private List<ReviewImage> images = new ArrayList<>();
 
     // store 필드의 Getter
     public Store getStore() {
@@ -69,23 +69,23 @@ public class Review {
 
     // 이미지 리스트 필드의 getter
     @JsonIgnore
-    public List<Image> getImages() {
+    public List<ReviewImage> getImages() {
         return images;
     }
 
     // 이미지 리스트 필드의 setter
-    public void setImages(List<Image> images) {
+    public void setImages(List<ReviewImage> images) {
         this.images = images;
     }
 
     // 이미지 추가 메서드
-    public void addImage(Image image) {
+    public void addImage(ReviewImage image) {
         images.add(image);
         image.setReview(this);
     }
 
     // 이미지 삭제 메서드
-    public void removeImage(Image image) {
+    public void removeImage(ReviewImage image) {
         images.remove(image);
         image.setReview(null);
     }

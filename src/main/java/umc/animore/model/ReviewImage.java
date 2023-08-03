@@ -13,8 +13,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "image")
-public class Image {
+@Table(name = "review_image")
+public class ReviewImage {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -30,14 +30,14 @@ public class Image {
     @Column(name = "img_path")
     private String imgPath;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="store_id")
+    @JoinColumn(name = "review_id")
     @JsonIgnore
-    private Store store;
+    private Review review;
+
+    // 이미지와 Review를 연결하는 메서드
+    public void setReview(Review review) {
+        this.review = review;
+    }
 
 }
