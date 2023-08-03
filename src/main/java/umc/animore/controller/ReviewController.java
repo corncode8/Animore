@@ -242,28 +242,6 @@ public class ReviewController {
     }
 
 
-
-    /*
-
-    //리뷰 작성2 - storeId 직접입력
-    //http://localhost:8000/reviews/create2?storeId=4
-    @ResponseBody
-    @PostMapping("/reviews/create2")
-    public BaseResponse<Review> createReview2(@RequestBody Review review, @RequestParam Long storeId){
-        try {
-            Store store = new Store();
-            store.setStoreId(storeId);
-            // 리뷰 작성자 ID는 클라이언트에서 로그인 정보 등을 통해 얻어올 수 있을 것으로 가정하고, 이를 리뷰 객체에 설정
-            Long userId = getCurrentUserId(); // 현재 로그인한 사용자의 ID를 얻어오는 메서드 (예시)
-            User user = userService.getUserById(userId);
-            review.setUser(user);
-            Review createdReview = reviewService.createReview(review,store,user);
-            return new BaseResponse<>(true, "리뷰 작성 성공", 1000, createdReview);
-        } catch (BaseException exception) {
-            return new BaseResponse<>(false, exception.getStatus().getMessage(), exception.getStatus().getCode(), null);
-        }
-    }
-*/
     //전체수정 - 리뷰내용만 수정됨, 이미지 전체 삭제
     @PutMapping("/reviews/update/{reviewId}")
     public BaseResponse<ReviewDTO> updateReview(@PathVariable Long reviewId,@RequestBody ReviewDTO reviewDTO, @RequestPart(value = "images", required = false) List<MultipartFile> images) {
@@ -433,7 +411,7 @@ public class ReviewController {
     }
 
     //이미지만 삭제하고 싶을때
-    @DeleteMapping("/reviews/update/{reviewId}/image")
+    @DeleteMapping("/reviews/update/{reviewId}/images")
     public BaseResponse<ReviewDTO> updatePartialReviewandDelete(@PathVariable Long reviewId) {
         try {
             // 현재 인증된 사용자 정보 가져오기
