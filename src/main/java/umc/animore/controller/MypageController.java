@@ -65,6 +65,7 @@ public class MypageController {
                 throw new BaseException(GET_PET_EMPTY_ERROR);
             }
 
+            
             List<ReservationInfoMapping> reservationInfoMappings = reservationService.findByUserIdOrderByStartTimeDesc(userId);
             List<Map<Long, Object>> storeId_ImageUrl = imageService.findImageByReservationId(reservationInfoMappings);
 
