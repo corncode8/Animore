@@ -422,7 +422,7 @@ public class ReviewController {
     }
 
     //이미지만 삭제하고 싶을때
-    @DeleteMapping("/reviews/update/{reviewId}/image")
+    @DeleteMapping("/reviews/update/{reviewId}/images")
     public BaseResponse<ReviewDTO> updatePartialReviewandDelete(@PathVariable Long reviewId) {
         try {
             // 현재 인증된 사용자 정보 가져오기
