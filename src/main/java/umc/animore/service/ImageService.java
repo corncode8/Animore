@@ -16,15 +16,14 @@ import umc.animore.config.exception.BaseResponseStatus;
 import umc.animore.model.*;
 import umc.animore.model.review.ImageDTO;
 import umc.animore.repository.*;
+import umc.animore.repository.DTO.ReservationInfoMapping;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static umc.animore.config.exception.BaseResponseStatus.NOT_FOUND_REVIEW;
 import static umc.animore.config.exception.BaseResponseStatus.RESPONSE_ERROR;
@@ -161,6 +160,21 @@ public class ImageService {
             // 이미지 삭제
             imageRepository.delete(image);
         }
+    }
+
+    public List<Map<Long,Object>> findImageByReservationId(List<ReservationInfoMapping> reservationInfoMappings) throws BaseException{
+
+        List<Map<Long,Object>> records = new ArrayList<Map<Long,Object>>();
+
+        for(ReservationInfoMapping reservationInfomapping : reservationInfoMappings){
+            Map<Long, Object> record = new HashMap<Long,Object>();
+            System.out.println(reservationInfomapping.getStore_StoreId());
+            record.put(reservationInfomapping.getStore_StoreId(),(imageRepository.findByStoreId(reservationInfomapping.getStore_StoreId())).getImgPath());
+            records.add(record);
+        }
+
+        return records;
+
     }
 
 

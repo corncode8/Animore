@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import umc.animore.model.*;
+import umc.animore.repository.DTO.ReservationInfoMapping;
 import umc.animore.repository.ReservationRepository;
 import umc.animore.repository.UserRepository;
 
@@ -307,6 +308,10 @@ public class ReservationService {
 
     public Reservation findbyUserId(Long reservationId, Long userId) {
         return reservationRepository.findByReservationIdAndUserId(reservationId, userId);
+    }
+
+    public List<ReservationInfoMapping> findByUserIdOrderByStartTimeDesc(Long userId){
+        return reservationRepository.findByUser_IdOrderByStartTimeDesc(userId);
     }
 
 }

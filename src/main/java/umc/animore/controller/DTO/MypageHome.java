@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Map;
+
 @Getter
 @NoArgsConstructor
 public class MypageHome {
@@ -22,16 +25,20 @@ public class MypageHome {
      * 중성화 0는 뭐 받아야함?
      */
 
+
+
     /**
      * 최근 이용 기록은 ?
      */
+    private List<Map<Long, Object>> storeId_ImageUrl;
 
     @Builder
-    public MypageHome(String nickname, String petName, String petType, int petAge) {
+    public MypageHome(String nickname, String petName, String petType, int petAge, List<Map<Long, Object>> storeId_ImageUrl) {
         this.nickname = nickname;
         this.petName = petName;
         this.petType = petType;
         this.petAge = petAge;
+        this.storeId_ImageUrl = storeId_ImageUrl;
     }
 
 

@@ -18,18 +18,19 @@ import umc.animore.controller.DTO.MypagePetUpdate;
 import umc.animore.controller.DTO.MypageProfile;
 import umc.animore.model.Image;
 import umc.animore.model.Pet;
+import umc.animore.model.Reservation;
 import umc.animore.model.User;
+import umc.animore.repository.DTO.ReservationInfoMapping;
 import umc.animore.service.ImageService;
 import umc.animore.service.PetService;
+import umc.animore.service.ReservationService;
 import umc.animore.service.UserService;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Principal;
 import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static umc.animore.config.exception.BaseResponseStatus.*;
 
@@ -45,6 +46,9 @@ public class MypageController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ReservationService reservationService;
+
 
 
     /**
@@ -54,17 +58,22 @@ public class MypageController {
     public BaseResponse<MypageHome> mypagehome(){
         try {
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Pet pet = petService.findTop1ByUser_idOrderByPetId(principalDetails.getUser().getId());
+            Long userId = principalDetails.getUser().getId();
+            Pet pet = petService.findTop1ByUser_idOrderByPetId(userId);
 
             if(pet == null){
                 throw new BaseException(GET_PET_EMPTY_ERROR);
             }
+
+            List<ReservationInfoMapping> reservationInfoMappings = reservationService.findByUserIdOrderByStartTimeDesc(userId);
+            List<Map<Long, Object>> storeId_ImageUrl = imageService.findImageByReservationId(reservationInfoMappings);
 
             MypageHome mypageHome = MypageHome.builder()
                     .nickname(pet.getUser().getNickname())
                     .petName(pet.getPetName())
                     .petAge(pet.getPetAge())
                     .petType(pet.getPetType())
+                    .storeId_ImageUrl(storeId_ImageUrl)
                     .build();
 
 
@@ -75,6 +84,8 @@ public class MypageController {
 
         }
     }
+
+
 
 
 
@@ -183,6 +194,7 @@ public class MypageController {
                 .nickname(user.getNickname())
                 .phone(user.getPhone())
                 .gender(user.getGender())
+                .birthday(user.getBirthday())
                 .build();
 
         return new BaseResponse<>(mypageMemberUpdate);
@@ -245,6 +257,22 @@ public class MypageController {
         }catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
+    }
+
+    @PostMapping("/mypage/member/remove")
+    public BaseResponse<String> memberCancel(){
+        try{
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+
+            userService.memberCancel(userId);
+
+            return new BaseResponse<>(SUCCESS);
+
+        }catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+
     }
 
 
