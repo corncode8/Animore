@@ -152,6 +152,8 @@ public class ReviewController {
                 imageDTO.setImgName(image.getImgName());
                 imageDTO.setImgOriName(image.getImgOriName());
                 imageDTO.setImgPath(image.getImgPath());
+                imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
+
                 updatedImageDTOList.add(imageDTO);
             }
             createdReviewDTO.setImages(updatedImageDTOList);
@@ -170,6 +172,8 @@ public class ReviewController {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = principalDetails.getUser().getId();
 
+
+
         // 이미지 파일 저장 경로
         String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
         UUID uuid = UUID.randomUUID();
@@ -178,6 +182,9 @@ public class ReviewController {
 
         Review review = reviewRepository.findByReviewId(reviewId);
         Long reviewUserId = review.getUser().getId();
+
+        // 이미지 URL 정보를 리스트에 추가
+        String imageUrl = "http://www.animore.co.kr/image/" + originalFileName;
 
 
         if (userId != reviewUserId){
@@ -230,6 +237,7 @@ public class ReviewController {
                 imageDTO.setImgName(img.getImgName());
                 imageDTO.setImgOriName(img.getImgOriName());
                 imageDTO.setImgPath(img.getImgPath());
+                imageDTO.setImageUrls(imageUrl);
                 imageDTOList.add(imageDTO);
             }
 
@@ -240,6 +248,8 @@ public class ReviewController {
             throw new RuntimeException("이미지 저장에 실패하였습니다.", e);
         }
     }
+
+
 
 
     //전체수정 - 리뷰내용만 수정됨, 이미지 전체 삭제
@@ -342,6 +352,7 @@ public class ReviewController {
             imageDTO.setImgName(image.getImgName());
             imageDTO.setImgOriName(image.getImgOriName());
             imageDTO.setImgPath(image.getImgPath());
+            imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
             updatedImageDTOList.add(imageDTO);
         }
         reviewDTO.setImages(updatedImageDTOList);
@@ -411,7 +422,7 @@ public class ReviewController {
     }
 
     //이미지만 삭제하고 싶을때
-    @DeleteMapping("/reviews/update/{reviewId}/images")
+    @DeleteMapping("/reviews/update/{reviewId}/image")
     public BaseResponse<ReviewDTO> updatePartialReviewandDelete(@PathVariable Long reviewId) {
         try {
             // 현재 인증된 사용자 정보 가져오기
@@ -542,6 +553,7 @@ public class ReviewController {
                     imageDTO.setImgName(image.getImgName());
                     imageDTO.setImgOriName(image.getImgOriName());
                     imageDTO.setImgPath(image.getImgPath());
+                    imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
                     imageDTOList.add(imageDTO);
                 }
                 reviewDTO.setImages(imageDTOList);
@@ -593,6 +605,7 @@ public class ReviewController {
                     imageDTO.setImgName(image.getImgName());
                     imageDTO.setImgOriName(image.getImgOriName());
                     imageDTO.setImgPath(image.getImgPath());
+                    imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
                     imageDTOList.add(imageDTO);
                 }
                 reviewDTO.setImages(imageDTOList);

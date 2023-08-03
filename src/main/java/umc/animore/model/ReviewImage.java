@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.*;
 
@@ -29,6 +32,7 @@ public class ReviewImage {
 
     @Column(name = "img_path")
     private String imgPath;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")

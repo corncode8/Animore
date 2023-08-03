@@ -85,11 +85,12 @@ public class ImageService {
 
     }
 
-    //리뷰 이미지 저장
+
     public List<ReviewImage> saveImages(List<MultipartFile> imageFiles, Long reviewId) {
         List<ReviewImage> images = new ArrayList<>();
 
         String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
+
 
         for (MultipartFile imageFile : imageFiles) {
             UUID uuid = UUID.randomUUID();
@@ -108,7 +109,6 @@ public class ImageService {
                 image.setReview(reviewRepository.findByReviewId(reviewId));
 
                 images.add(image); // 이미지 객체를 리스트에 추가
-
 
             } catch (IOException e) {
                 throw new RuntimeException("이미지 저장에 실패하였습니다.", e);
@@ -155,5 +155,7 @@ public class ImageService {
             reviewImageRepository.delete(image);
         }
     }
-    
+
+
+
 }
