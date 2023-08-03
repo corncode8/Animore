@@ -16,12 +16,9 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     Optional<Image> findByImageId(Long Id);
     Page<Image> findByStoreIsDiscounted(boolean isDiscounted, Pageable pageable);
 
-    List<Image> findByReview(Review review);
 
-
-    @Query("SELECT r.store, AVG(r.reviewLike) as avgScore FROM Review r WHERE r.store.storeLocation = :storeLocation GROUP BY r.store ORDER BY avgScore DESC")
-    List<Store> findStoresWithHighestAverageScoreByStoreLocationContaining(String storeLocation);
 
     @Query("SELECT i FROM Image i WHERE i.store.storeId = :storeId")
     Image findByStoreId(Long storeId);
+
 }
