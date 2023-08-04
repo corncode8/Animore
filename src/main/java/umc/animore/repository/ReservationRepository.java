@@ -33,7 +33,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Page<Reservation> findByConfirmedAndStore(boolean confirmed, Store store, Pageable pageable);
     List<Reservation> findByStartTimeIsNull();
 
-    Reservation findByUserAndStore(User user, Store store);
+    Reservation findByUserAndStoreAndConfirmed (User user, Store store, Boolean Confirmed);
     List<Reservation> findByUserIdAndStartTimeIsNull(Long userId);
     Reservation findByReservationIdAndUserId(Long reservation_id, Long user_id);
 
