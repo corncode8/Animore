@@ -51,9 +51,12 @@ public class ReviewController {
     @Autowired
     private final ImageRepository imageRepository;
 
+    @Autowired
+    private final ReviewImageRepository reviewImageRepository;
+
     public ReviewController(ReviewService reviewService, ImageService imageService, StoreService storeService,
                             ReviewRepository reviewRepository, StoreRepository storeRepository, UserRepository userRepository,
-                            ReservationRepository reservationRepository, ImageRepository imageRepository) {
+                            ReservationRepository reservationRepository, ImageRepository imageRepository, ReviewImageRepository reviewImageRepository) {
         this.reviewService = reviewService;
         this.imageService = imageService;
         this.storeService = storeService;
@@ -62,6 +65,7 @@ public class ReviewController {
         this.userRepository = userRepository;
         this.reservationRepository = reservationRepository;
         this.imageRepository = imageRepository;
+        this.reviewImageRepository=reviewImageRepository;
     }
 
     //리뷰 작성 - storeId, userId 직접입력
@@ -121,16 +125,13 @@ public class ReviewController {
             if (images != null) {
                 for (MultipartFile imageFile : images) {
                     // 이미지를 저장하고 Review와의 관계를 설정한 후 images 컬렉션에 추가
-                    Image image = new Image();
+                    ReviewImage image = new ReviewImage();
                     image.setReview(createdReview); // 리뷰와 연결
-                    image.setStore(createdReview.getStore()); // 가게와 연결
-                    image.setUser(createdReview.getUser()); // 사용자와 연결
 
-                    List<Image> savedImages = imageService.saveImages(images, createdReview.getReviewId(), storeId, userId);
+                    List<ReviewImage> savedImages = imageService.saveImages(images, createdReview.getReviewId());
                     createdReview.getImages().addAll(savedImages);
                 }
             }
-
 
             // 업데이트된 리뷰 정보와 이미지 정보를 리턴
             ReviewDTO createdReviewDTO = new ReviewDTO();
@@ -143,14 +144,16 @@ public class ReviewController {
             createdReviewDTO.setStoreId(createdReview.getStore().getStoreId());
             createdReviewDTO.setUserId(createdReview.getUser().getId());
 
-            List<Image> updatedImages = imageService.getImagesByReview(createdReview);
+            List<ReviewImage> updatedImages = imageService.getImagesByReview(createdReview);
             List<ImageDTO> updatedImageDTOList = new ArrayList<>();
-            for (Image image : updatedImages) {
+            for (ReviewImage image : updatedImages) {
                 ImageDTO imageDTO = new ImageDTO();
                 imageDTO.setImageId(image.getImageId());
                 imageDTO.setImgName(image.getImgName());
                 imageDTO.setImgOriName(image.getImgOriName());
                 imageDTO.setImgPath(image.getImgPath());
+                imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
+
                 updatedImageDTOList.add(imageDTO);
             }
             createdReviewDTO.setImages(updatedImageDTOList);
@@ -169,6 +172,8 @@ public class ReviewController {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = principalDetails.getUser().getId();
 
+
+
         // 이미지 파일 저장 경로
         String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
         UUID uuid = UUID.randomUUID();
@@ -177,6 +182,9 @@ public class ReviewController {
 
         Review review = reviewRepository.findByReviewId(reviewId);
         Long reviewUserId = review.getUser().getId();
+
+        // 이미지 URL 정보를 리스트에 추가
+        String imageUrl = "http://www.animore.co.kr/image/" + originalFileName;
 
 
         if (userId != reviewUserId){
@@ -202,16 +210,14 @@ public class ReviewController {
             imageFile.transferTo(saveFile);
 
             // 이미지 메타데이터 DB에 저장
-            Image image = new Image();
+            ReviewImage image = new ReviewImage();
             image.setImgName(originalFileName);
             image.setImgOriName(imageFile.getOriginalFilename());
             image.setImgPath(saveFile.getAbsolutePath());
-            image.setUser(userRepository.findById(userId));
             image.setReview(reviewRepository.findByReviewId(reviewId));
-            image.setStore(storeRepository.findByStoreId(storeId));
-            imageRepository.save(image);
+            reviewImageRepository.save(image);
 
-            List<Image> images = imageRepository.findByReview(review);
+            List<ReviewImage> images = reviewImageRepository.findByReview(review);
 
             // 리뷰 정보와 이미지 정보를 리턴
             ReviewDTO reviewDTO = new ReviewDTO();
@@ -225,12 +231,13 @@ public class ReviewController {
             reviewDTO.setUserId(review.getUser().getId());
 
             List<ImageDTO> imageDTOList = new ArrayList<>();
-            for (Image img : images) {
+            for (ReviewImage img : images) {
                 ImageDTO imageDTO = new ImageDTO();
                 imageDTO.setImageId(img.getImageId());
                 imageDTO.setImgName(img.getImgName());
                 imageDTO.setImgOriName(img.getImgOriName());
                 imageDTO.setImgPath(img.getImgPath());
+                imageDTO.setImageUrls(imageUrl);
                 imageDTOList.add(imageDTO);
             }
 
@@ -244,27 +251,7 @@ public class ReviewController {
 
 
 
-    /*
 
-    //리뷰 작성2 - storeId 직접입력
-    //http://localhost:8000/reviews/create2?storeId=4
-    @ResponseBody
-    @PostMapping("/reviews/create2")
-    public BaseResponse<Review> createReview2(@RequestBody Review review, @RequestParam Long storeId){
-        try {
-            Store store = new Store();
-            store.setStoreId(storeId);
-            // 리뷰 작성자 ID는 클라이언트에서 로그인 정보 등을 통해 얻어올 수 있을 것으로 가정하고, 이를 리뷰 객체에 설정
-            Long userId = getCurrentUserId(); // 현재 로그인한 사용자의 ID를 얻어오는 메서드 (예시)
-            User user = userService.getUserById(userId);
-            review.setUser(user);
-            Review createdReview = reviewService.createReview(review,store,user);
-            return new BaseResponse<>(true, "리뷰 작성 성공", 1000, createdReview);
-        } catch (BaseException exception) {
-            return new BaseResponse<>(false, exception.getStatus().getMessage(), exception.getStatus().getCode(), null);
-        }
-    }
-*/
     //전체수정 - 리뷰내용만 수정됨, 이미지 전체 삭제
     @PutMapping("/reviews/update/{reviewId}")
     public BaseResponse<ReviewDTO> updateReview(@PathVariable Long reviewId,@RequestBody ReviewDTO reviewDTO, @RequestPart(value = "images", required = false) List<MultipartFile> images) {
@@ -297,9 +284,9 @@ public class ReviewController {
 
             // 새로운 이미지 추가 (images가 null이 아니고 비어있지 않을 때)
             if (images != null && !images.isEmpty()) {
-                List<Image> newImages = new ArrayList<>();
+                List<ReviewImage> newImages = new ArrayList<>();
                 for (MultipartFile imageFile : images) {
-                    Image image = saveImage(imageFile, reviewId);
+                    ReviewImage image = saveImage(imageFile, reviewId);
                     newImages.add(image);
                 }
                 review.setImages(newImages); // 새로운 이미지로 업데이트
@@ -316,7 +303,7 @@ public class ReviewController {
         }
     }
 
-    private Image saveImage(MultipartFile imageFile, Long reviewId) {
+    private ReviewImage saveImage(MultipartFile imageFile, Long reviewId) {
         String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
         UUID uuid = UUID.randomUUID();
         String originalFileName = uuid + "_" + imageFile.getOriginalFilename();
@@ -332,17 +319,15 @@ public class ReviewController {
         // 예약 정보 조회
         Reservation reservation = reservationRepository.findByUserAndStore(user, store);
 
-        Image image = new Image();
+        ReviewImage image = new ReviewImage();
         image.setImgName(originalFileName);
         image.setImgOriName(imageFile.getOriginalFilename());
         image.setImgPath(saveFile.getAbsolutePath());
-        image.setUser(user);
         image.setReview(review);
-        image.setStore(store);
 
         try {
             imageFile.transferTo(saveFile);
-            return imageRepository.save(image);
+            return reviewImageRepository.save(image);
         } catch (IOException e) {
             throw new RuntimeException("이미지 저장에 실패하였습니다.", e);
         }
@@ -359,14 +344,15 @@ public class ReviewController {
         reviewDTO.setStoreId(review.getStore().getStoreId());
         reviewDTO.setUserId(review.getUser().getId());
 
-        List<Image> updatedImages = imageService.getImagesByReview(review);
+        List<ReviewImage> updatedImages = imageService.getImagesByReview(review);
         List<ImageDTO> updatedImageDTOList = new ArrayList<>();
-        for (Image image : updatedImages) {
+        for (ReviewImage image : updatedImages) {
             ImageDTO imageDTO = new ImageDTO();
             imageDTO.setImageId(image.getImageId());
             imageDTO.setImgName(image.getImgName());
             imageDTO.setImgOriName(image.getImgOriName());
             imageDTO.setImgPath(image.getImgPath());
+            imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
             updatedImageDTOList.add(imageDTO);
         }
         reviewDTO.setImages(updatedImageDTOList);
@@ -408,10 +394,10 @@ public class ReviewController {
             // 이미지를 부분적으로 수정
             List<ImageDTO> imageDTOList = reviewDTO.getImages();
             if (imageDTOList != null && !imageDTOList.isEmpty()) {
-                List<Image> images = imageService.getImagesByReview(review);
+                List<ReviewImage> images = imageService.getImagesByReview(review);
                 for (int i = 0; i < Math.min(images.size(), imageDTOList.size()); i++) {
                     ImageDTO imageDTO = imageDTOList.get(i);
-                    Image image = images.get(i);
+                    ReviewImage image = images.get(i);
                     if (imageDTO.getImgName() != null) {
                         image.setImgName(imageDTO.getImgName());
                     }
@@ -436,7 +422,7 @@ public class ReviewController {
     }
 
     //이미지만 삭제하고 싶을때
-    @DeleteMapping("/reviews/update/{reviewId}/image")
+    @DeleteMapping("/reviews/update/{reviewId}/images")
     public BaseResponse<ReviewDTO> updatePartialReviewandDelete(@PathVariable Long reviewId) {
         try {
             // 현재 인증된 사용자 정보 가져오기
@@ -548,7 +534,7 @@ public class ReviewController {
 
             List<ReviewDTO> reviewDTOList = new ArrayList<>();
             for (Review review : reviews) {
-                List<Image> images = imageService.getImagesByReview(review);
+                List<ReviewImage> images = imageService.getImagesByReview(review);
 
                 ReviewDTO reviewDTO = new ReviewDTO();
                 reviewDTO.setReviewId(review.getReviewId());
@@ -561,12 +547,13 @@ public class ReviewController {
                 reviewDTO.setUserId(review.getUser().getId());
 
                 List<ImageDTO> imageDTOList = new ArrayList<>();
-                for (Image image : images) {
+                for (ReviewImage image : images) {
                     ImageDTO imageDTO = new ImageDTO();
                     imageDTO.setImageId(image.getImageId());
                     imageDTO.setImgName(image.getImgName());
                     imageDTO.setImgOriName(image.getImgOriName());
                     imageDTO.setImgPath(image.getImgPath());
+                    imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
                     imageDTOList.add(imageDTO);
                 }
                 reviewDTO.setImages(imageDTOList);
@@ -599,7 +586,7 @@ public class ReviewController {
 
             List<ReviewDTO> reviewDTOList = new ArrayList<>();
             for (Review review : reviews) {
-                List<Image> images = imageService.getImagesByReview(review);
+                List<ReviewImage> images = imageService.getImagesByReview(review);
 
                 ReviewDTO reviewDTO = new ReviewDTO();
                 reviewDTO.setReviewId(review.getReviewId());
@@ -612,12 +599,13 @@ public class ReviewController {
                 reviewDTO.setUserId(review.getUser().getId());
 
                 List<ImageDTO> imageDTOList = new ArrayList<>();
-                for (Image image : images) {
+                for (ReviewImage image : images) {
                     ImageDTO imageDTO = new ImageDTO();
                     imageDTO.setImageId(image.getImageId());
                     imageDTO.setImgName(image.getImgName());
                     imageDTO.setImgOriName(image.getImgOriName());
                     imageDTO.setImgPath(image.getImgPath());
+                    imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
                     imageDTOList.add(imageDTO);
                 }
                 reviewDTO.setImages(imageDTOList);

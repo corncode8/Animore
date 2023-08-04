@@ -76,6 +76,7 @@ public class SecurityConfig  {
                 .antMatchers("/user/**").authenticated()
                 .antMatchers("/manager/**").access("hasRole('MANAGER') or hasRole('ADMIN')")
                 .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/manger/**").hasRole("MANAGER")
                 .anyRequest().permitAll()
                 .and()					//추가
                 .oauth2Login()				// OAuth2기반의 로그인인 경우

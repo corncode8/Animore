@@ -14,19 +14,22 @@ public class MypageMemberUpdate {
 
     private String nickname;
 
-    // private String 생년월일 ?? 받은적 없음.
+    private String birthday;
 
     private String phone;
 
     private String gender;
 
+
+
     @Builder
-    public MypageMemberUpdate(String email, String password,String nickname,String phone,String gender) {
+    public MypageMemberUpdate(String email, String password,String nickname,String phone,String gender,String birthday) {
 
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.phone = phone;
         this.gender = gender;
+        this.birthday = birthday;
     }
 }

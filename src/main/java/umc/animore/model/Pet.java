@@ -39,6 +39,9 @@ public class Pet {
     @Column(name = "pet_specials")
     private String petSpecials;
 
+    //@Column(name = "pet_birthday")
+    //private String petBirthday;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore

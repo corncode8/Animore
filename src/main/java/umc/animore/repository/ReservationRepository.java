@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import umc.animore.model.Reservation;
 import umc.animore.model.Store;
 import umc.animore.model.User;
+import umc.animore.repository.DTO.ReservationInfoMapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +36,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Reservation findByUserAndStore(User user, Store store);
     Reservation findByUserIdAndStartTimeIsNull(Long userId);
     Reservation findByReservationIdAndUserId(Long reservation_id, Long user_id);
+
+
+    List<ReservationInfoMapping> findByUser_IdOrderByStartTimeDesc(Long userId);
+
+
 
 
 

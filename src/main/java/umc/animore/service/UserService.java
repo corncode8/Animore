@@ -28,6 +28,7 @@ public class UserService {
 
     // 예약상세 저장내용 불러오기
     // 유저정보 + 펫정보 불러오기
+    @Transactional
     public Map<String, Object> getUserInfo(Long userId) {
         User user = userRepository.findById(userId);
         if (user == null) {
@@ -67,6 +68,7 @@ public class UserService {
             user.setNickname(mypageMemberUpdate.getNickname());
             user.setPhone(mypageMemberUpdate.getPhone());
             user.setGender(mypageMemberUpdate.getGender());
+            user.setBirthday(mypageMemberUpdate.getBirthday());
 
             return mypageMemberUpdate;
         }
@@ -74,5 +76,36 @@ public class UserService {
             throw new BaseException(RESPONSE_ERROR);
         }
     }
+
+    @Transactional
+    public void memberCancel(Long userId)  throws BaseException{
+        try{
+            User user = userRepository.findById(userId);
+
+
+            /*
+            String provider = user.getProvider();
+            String providerId = user.getProviderId();
+
+            if(provider.equals("kakao")){
+
+            }else if(provider.equals("google")){
+
+            }else if(provider.equals("naver")){
+
+            }else if(provider.equals("facebook")){
+
+            }
+            */
+
+            userRepository.delete(user);
+        } catch(Exception e){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+
+
+    }
+
+
 
 }

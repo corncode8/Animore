@@ -33,6 +33,9 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         System.out.println("userRequest clientRegistration : " + userRequest.getClientRegistration());
         // token을 통해 응답받은 회원정보
         System.out.println("oAuth2User : " + oAuth2User);
+        System.out.println("Tokenvalue" + userRequest.getAccessToken().getTokenValue());
+        System.out.println("Scopes" + userRequest.getAccessToken().getScopes());
+
 
         return processOAuth2User(userRequest, oAuth2User);
     }
