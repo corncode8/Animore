@@ -148,8 +148,6 @@ public class ReservationController {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
 
-        Map<String, Object> response = new LinkedHashMap<>();
-
 
         try {
             Map<String, Object> userinfoMap = userService.getUserInfo(user.getId());
@@ -157,13 +155,12 @@ public class ReservationController {
                 return new BaseResponse<>(RESPONSE_ERROR);
 
             }
-
+            return new BaseResponse<>(userinfoMap);
         } catch (Exception e) {
             return new BaseResponse<>(DATABASE_ERROR);
 
         }
 
-        return new BaseResponse<>(response);
     }
 
 
