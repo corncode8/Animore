@@ -106,7 +106,7 @@ public class ReviewController {
             user.setId(userId);
 
             // 해당 가게와 사용자에 대한 예약 정보 가져오기
-            Reservation reservation = reservationRepository.findByUserAndStore(user,store);
+            Reservation reservation = reservationRepository.findByUserAndStoreAndConfirmed(user, store, true);
 
             if (reservation==null){
                 return new BaseResponse<>(BaseResponseStatus.NOT_FOUND_RESERVATION);
@@ -198,7 +198,7 @@ public class ReviewController {
         user.setId(userId);
         store.setStoreId(storeId);
 
-        Reservation reservation = reservationRepository.findByUserAndStore(user, store);
+        Reservation reservation = reservationRepository.findByUserAndStoreAndConfirmed(user, store, true);
 
         if(reservation == null){
             return new BaseResponse<>(BaseResponseStatus.NOT_FOUND_RESERVATION);
@@ -317,7 +317,7 @@ public class ReviewController {
         Store store = storeRepository.findByStoreId(storeId);
 
         // 예약 정보 조회
-        Reservation reservation = reservationRepository.findByUserAndStore(user, store);
+        Reservation reservation = reservationRepository.findByUserAndStoreAndConfirmed(user, store, true);
 
         ReviewImage image = new ReviewImage();
         image.setImgName(originalFileName);
@@ -633,7 +633,7 @@ public class ReviewController {
             store.setStoreRecent(reservationRepository.findStoreWithHighestReservationCount());
 
             // 해당 가게와 사용자에 대한 예약 정보 가져오기
-            Reservation reservation = reservationRepository.findByUserAndStore(user, store);
+            Reservation reservation = reservationRepository.findByUserAndStoreAndConfirmed(user, store, true);
 
             if (reservation == null) {
                 return new BaseResponse<>(BaseResponseStatus.NOT_FOUND_RESERVATION);
