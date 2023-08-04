@@ -19,7 +19,7 @@ public class StoreController {
     @Autowired
     private StoreService storeService;
 
-    @PostMapping("/storeManagement")
+    @PostMapping("/manage/store")
     public BaseResponse<MypageStoreUpdate> UpdateStore(@RequestBody MypageStoreUpdate mypageStoreUpdate){
 
         try {
