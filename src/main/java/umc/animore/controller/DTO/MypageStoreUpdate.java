@@ -12,8 +12,6 @@ public class MypageStoreUpdate {
 
     private String storeExplain;
 
-    // TODO: 태그
-
     private String open;
 
     private String close;
@@ -23,8 +21,11 @@ public class MypageStoreUpdate {
 
     private String amount;
 
-    @Builder
-    public MypageStoreUpdate(String storeName, String storeExplain, String open, String close, String dayoff1, String dayoff2, String amount) {
+    private String storeSignificant;
+
+    private String tag;
+
+    public MypageStoreUpdate(String storeName, String storeExplain, String open, String close, String dayoff1, String dayoff2, String amount, String storeSignificant, String tag) {
         this.storeName = storeName;
         this.storeExplain = storeExplain;
         this.open = open;
@@ -32,5 +33,7 @@ public class MypageStoreUpdate {
         this.dayoff1 = dayoff1;
         this.dayoff2 = dayoff2;
         this.amount = amount;
+        this.storeSignificant = storeSignificant;
+        this.tag = tag;
     }
 }

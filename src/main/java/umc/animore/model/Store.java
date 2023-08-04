@@ -60,6 +60,10 @@ public class Store {
     private int close;
     private int amount;                 // 최대 예약 건수
 
+    private String tag;
+
+    private String storeSignificant;
+
     private String dayoff1;
     private String dayoff2;
 
