@@ -302,7 +302,7 @@ public class ReservationService {
         return reservation.getStore();
     }
 
-    public Reservation findReservationWithNullStartTime(Long userId) {
+    public List<Reservation> findReservationWithNullStartTime(Long userId) {
         return reservationRepository.findByUserIdAndStartTimeIsNull(userId);
     }
 

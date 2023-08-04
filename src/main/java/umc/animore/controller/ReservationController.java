@@ -112,10 +112,20 @@ public class ReservationController {
             return new BaseResponse<>(NOT_FOUND_RESERVATION);
         }
 
-        Reservation nullReservation = reservationService.findReservationWithNullStartTime(user.getId());
-        if (nullReservation == null || !nullReservation.getUser().getId().equals(user.getId())) {
+        List<Reservation> nullReservations = reservationService.findReservationWithNullStartTime(user.getId());
+        if (nullReservations.isEmpty()) {
             return new BaseResponse<>(NO_MATCHING_STORE);
         }
+
+        Optional<Reservation> mostRecentNullReservation = nullReservations.stream()
+                .max(Comparator.comparing(Reservation::getCreate_at));
+
+        if (!mostRecentNullReservation.isPresent()) {
+            return new BaseResponse<>(NOT_FOUND_RECENT_BOOKING);
+        }
+
+        Reservation nullReservation = mostRecentNullReservation.get();
+
 
         Map<String, Object> reservationResult = new LinkedHashMap<>();
 

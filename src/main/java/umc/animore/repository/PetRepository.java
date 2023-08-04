@@ -12,6 +12,4 @@ public interface PetRepository extends JpaRepository<Pet, Integer>{
 
     Pet findTop1ByUser_idOrderByPetId(Long userId);
 
-
-
 }
