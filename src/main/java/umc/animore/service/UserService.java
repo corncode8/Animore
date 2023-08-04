@@ -42,7 +42,7 @@ public class UserService {
         userinfoMap.put("petName", pet.getPetName());
         userinfoMap.put("petType", pet.getPetType());
         userinfoMap.put("petGender", pet.getPetGender());
-        userinfoMap.put("username", user.getUsername());
+        userinfoMap.put("nickname", user.getNickname());
         userinfoMap.put("phone", user.getPhone());
         userinfoMap.put("address", user.getAddress());
         return userinfoMap;
