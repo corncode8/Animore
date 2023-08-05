@@ -25,9 +25,7 @@ public class LocationController {
     @PatchMapping("/locations/{locationId}")
     public BaseResponse<Location> saveLocation(@PathVariable Long locationId,@RequestParam Double latitude, @RequestParam Double longitude) {
 
-        Optional<Location> optionalLocation = locationRepository.findById(locationId);
-
-        Location nowLocation = optionalLocation.get();
+        Location nowLocation = locationRepository.findByLocationId(locationId);
         nowLocation.setLatitude(latitude);
         nowLocation.setLongitude(longitude);
         nowLocation = locationRepository.save(nowLocation);
