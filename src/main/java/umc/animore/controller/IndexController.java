@@ -22,7 +22,7 @@ public class IndexController {
     @GetMapping("/")
     @ResponseBody
     public String index(){
-        return "jenkins test 2";
+        return "jenkins test";
     }
 
 
