@@ -36,8 +36,8 @@ public class LocationController {
 
     }
 
-
     @GetMapping("/locations/{locationId}")
+
     public BaseResponse<Location> getLocation(@PathVariable Long locationId){
 
             Location nowLocation = locationRepository.findByLocationId(locationId);

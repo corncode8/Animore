@@ -20,7 +20,6 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ImageService imageService;
-
     @Autowired
     ReviewService(ReviewRepository reviewRepository, ImageService imageService){
         this.reviewRepository = reviewRepository;

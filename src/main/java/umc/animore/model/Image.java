@@ -41,3 +41,4 @@ public class Image {
     private Store store;
 
 }
+

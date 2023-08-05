@@ -10,6 +10,4 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
 
     Location findByLocationId(Long locationId);
 
-
-
 }

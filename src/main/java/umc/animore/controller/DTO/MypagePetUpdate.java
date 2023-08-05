@@ -24,7 +24,6 @@ public class MypagePetUpdate {
 
     private String petSpecials;
 
-
     @Builder
     public MypagePetUpdate(Long petId,String petName, String petType,String petGender, double petWeight,int petAge,String petSpecials) {
 

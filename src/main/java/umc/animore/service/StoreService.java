@@ -25,7 +25,6 @@ public class StoreService {
         this.storeRepository = storeRepository;
 
     }
-
     public Store findStoreId(Long storeId) {
         return storeRepository.findByStoreId(storeId);
     }

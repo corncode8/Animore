@@ -66,3 +66,4 @@ public enum BaseResponseStatus { //열거 상수를 통해 응답상태를 나�
         this.message = message;
     }
 }
+

@@ -37,3 +37,4 @@ public class MypageStoreUpdate {
         this.tag = tag;
     }
 }
+

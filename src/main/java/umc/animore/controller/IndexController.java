@@ -22,7 +22,7 @@ public class IndexController {
     @GetMapping("/")
     @ResponseBody
     public String index(){
-        return "jenkins test ";
+        return "jenkins test finish";
     }
 
 
@@ -81,8 +81,6 @@ public class IndexController {
     public String data(){
         return "데이터";
     }
-
-
 
 
 }

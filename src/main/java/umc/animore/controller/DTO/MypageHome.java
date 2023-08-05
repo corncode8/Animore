@@ -41,9 +41,4 @@ public class MypageHome {
         this.storeId_ImageUrl = storeId_ImageUrl;
     }
 
-
-
-
-
-
 }

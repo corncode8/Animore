@@ -34,3 +34,4 @@ public class SearchStore{
     private Store store;
 
 }
+

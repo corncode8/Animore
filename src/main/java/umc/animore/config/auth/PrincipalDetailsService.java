@@ -18,6 +18,7 @@ import umc.animore.repository.UserRepository;
 public class PrincipalDetailsService implements UserDetailsService {
 
 
+
     @Autowired
     private UserRepository userRepository;
 

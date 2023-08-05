@@ -66,5 +66,4 @@ public interface SearchRespository extends JpaRepository<Store, Long> {
     List<Store> findStoresWithMostReservations();
 
 
-
 }

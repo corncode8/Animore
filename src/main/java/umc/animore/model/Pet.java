@@ -47,3 +47,4 @@ public class Pet {
     @JsonIgnore
     private User user;
 }
+

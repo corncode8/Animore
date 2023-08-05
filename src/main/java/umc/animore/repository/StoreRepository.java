@@ -10,3 +10,4 @@ public interface StoreRepository extends JpaRepository<Store,Long> {
 
     Store findByStoreId(Long storeId);
 }
+

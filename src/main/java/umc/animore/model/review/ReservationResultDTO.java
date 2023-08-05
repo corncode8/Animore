@@ -25,5 +25,4 @@ public class ReservationResultDTO  {
     private Reservation.BathStyle bathStyle;
     private StoreDTO storeDTO;
 
-
 }

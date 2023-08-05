@@ -35,8 +35,6 @@ public class PetService {
     }
 
 
-
-
     @Transactional
     public Pet findTop1ByUser_idOrderByPetId(Long userId){
         return petRepository.findTop1ByUser_idOrderByPetId(userId);

@@ -89,7 +89,6 @@ public class MypageController {
 
 
 
-
     /**
      * 마이페이지 - 프로필수정 click -> 와이어프레임.프로필수정 API
      */
