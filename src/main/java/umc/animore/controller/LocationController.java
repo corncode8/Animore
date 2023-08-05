@@ -27,7 +27,6 @@ public class LocationController {
 
     }
 
-
     @GetMapping("/{locationId}")
     public BaseResponse<Location> getLocation(@PathVariable Long locationId){
 

@@ -15,7 +15,6 @@ public class PaginationDto {
     private int endPage;
     private boolean prev;
     private boolean next;
-
     public PaginationDto(Page<?> page) {
         int currentPage = page.getNumber(); // 현재 페이지
         int totalPages = page.getTotalPages(); // 전체 페이지 수

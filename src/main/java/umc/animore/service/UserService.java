@@ -21,7 +21,6 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private PetService petService;
-
     public User getUserId(Long userId) {
         return userRepository.findById(userId);
     }

@@ -17,7 +17,6 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     Page<Image> findByStoreIsDiscounted(boolean isDiscounted, Pageable pageable);
 
 
-
     @Query("SELECT i FROM Image i WHERE i.store.storeId = :storeId")
     Image findByStoreId(Long storeId);
 

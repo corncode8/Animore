@@ -42,8 +42,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
 
 
-
-
 //    List<Reservation> findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(LocalDateTime start, LocalDateTime end);
 
     //해당 가게의 예약횟수 조회

@@ -34,3 +34,4 @@ public class StoreDTO {
     private String dayoff2;
 
 }
+

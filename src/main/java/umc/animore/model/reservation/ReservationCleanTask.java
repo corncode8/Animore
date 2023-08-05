@@ -28,7 +28,6 @@ public class ReservationCleanTask {
             }
         }
     }
-
     private boolean isInactiveForTooLong(Reservation reservation) {
         LocalDateTime creationTime = reservation.getCreate_at().toLocalDateTime();
         return Duration.between(creationTime, LocalDateTime.now()).toMillis() > MAX_INACTIVE_TIME;

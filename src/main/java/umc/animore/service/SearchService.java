@@ -24,7 +24,6 @@ import static umc.animore.config.exception.BaseResponseStatus.*;
 
 @Service
 public class SearchService {
-
     @Autowired
     private SearchRespository searchRespository;
 

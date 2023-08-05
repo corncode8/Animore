@@ -31,3 +31,4 @@ public class SearchHistory {
     private User user;
 
 }
+

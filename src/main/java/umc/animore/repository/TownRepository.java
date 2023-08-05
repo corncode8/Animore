@@ -11,3 +11,4 @@ public interface TownRepository extends JpaRepository<Town, Long> {
 
     Town getTownIdByCityAndDistrict(String city, String district); //town_id찾기
 }
+

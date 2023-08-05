@@ -9,3 +9,4 @@ import java.util.List;
 public interface SearchStoreRepository extends JpaRepository<SearchStore, Long> {
     List<SearchStore> findByUserOrderBySearchCreateAtDesc(User user);
 }
+

@@ -32,7 +32,6 @@ import static umc.animore.config.exception.BaseResponseStatus.RESPONSE_ERROR;
 
 @Service
 public class ImageService {
-
     @Autowired
     ImageRepository imageRepository;
 

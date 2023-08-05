@@ -32,5 +32,4 @@ public class ReviewDTO {
         // 삭제된 리뷰의 ID만 필요하므로, ID만 설정하면 됩니다.
         this.reviewId = reviewId;
     }
-
 }

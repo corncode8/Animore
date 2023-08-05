@@ -12,3 +12,4 @@ public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Lo
     //최근 검색기록 - 3개
     List<SearchHistory> findByUserOrderBySearchCreateAtDesc(User user);
 }
+

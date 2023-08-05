@@ -18,9 +18,6 @@ public class MypageProfile {
     private String imgPath;
 
 
-
-
-
     @Builder
     public MypageProfile(String nickname, String aboutMe,String imgPath) {
         this.nickname = nickname;

@@ -4,3 +4,4 @@ public interface ReservationInfoMapping {
 
     Long getStore_StoreId();
 }
+

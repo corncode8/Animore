@@ -166,7 +166,6 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-
     /** 예약 수정 **/
     public Reservation updateReservation(Long reservationId, LocalDateTime startTime) {
         Reservation reservation = reservationRepository.findByReservationId(reservationId);

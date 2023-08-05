@@ -26,3 +26,4 @@ public class Town {
     private String district;
 
 }
+

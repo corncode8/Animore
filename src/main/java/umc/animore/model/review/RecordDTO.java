@@ -17,3 +17,4 @@ public class RecordDTO {
     private StoreDTO storeDTO;
     private Long userId;
 }
+

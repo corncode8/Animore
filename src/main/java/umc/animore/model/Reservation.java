@@ -89,3 +89,4 @@ public class Reservation {
         BATH, HEALING, CARBONATED
     }
 }
+

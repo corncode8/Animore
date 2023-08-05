@@ -556,7 +556,6 @@ public class SearchController {
         }
     }
 
-
     //시도 검색 거리순 API - 검색화면
     @ResponseBody
     @GetMapping("/search/town/recommend")

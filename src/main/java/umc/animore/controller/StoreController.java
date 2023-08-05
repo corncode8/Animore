@@ -32,5 +32,4 @@ public class StoreController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
-
 }

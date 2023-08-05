@@ -67,7 +67,6 @@ public class Store {
     private String dayoff1;
     private String dayoff2;
 
-
     //다대일 관계
     //한 개의 Town이 여러 개의 Store를 가질 수 있지만, 각각의 Store는 하나의 Town에만 속할 수 있는 관계
     @ManyToOne(fetch = FetchType.LAZY)

@@ -21,7 +21,6 @@ public class MypageMemberUpdate {
     private String gender;
 
 
-
     @Builder
     public MypageMemberUpdate(String email, String password,String nickname,String phone,String gender,String birthday) {
 
