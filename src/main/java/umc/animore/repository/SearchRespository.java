@@ -37,7 +37,6 @@ public interface SearchRespository extends JpaRepository<Store, Long> {
     @Query("SELECT r.store FROM Review r WHERE r.store.storeLocation = :storeLocation GROUP BY r.store ORDER BY COUNT(r) DESC")
     List<Store> findStoresWithMostReviewsByStoreLocationContaining(String storeLocation);
 
-
     //가게주소 후기별점 평균순
     @Query("SELECT r.store, AVG(r.reviewLike) as avgScore FROM Review r WHERE r.store.storeLocation = :storeLocation GROUP BY r.store ORDER BY avgScore DESC")
     List<Store> findStoresWithHighestAverageScoreByStoreLocationContaining(String storeLocation);

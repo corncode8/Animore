@@ -332,7 +332,7 @@ public class SearchController {
     //주소 검색 후기 많은 순 API -검색화면
     @ResponseBody
     @GetMapping("/search/location/top_reviews")
-    public BaseResponse<List<StoreDTO>> searchMostReviewsLocation (@RequestParam(value = "query") String storeLocation) {
+    public BaseResponse<List<StoreDTO>> searchMostReviewsLocation(@RequestParam(value = "query") String storeLocation) {
         try {
             if (storeLocation == null || storeLocation.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -341,7 +341,7 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
             }
 
-            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
             User user = userRepository.findById(userId);
             List<Store> store = searchService.searchLocationMostReviewsList(storeLocation);
@@ -358,11 +358,11 @@ public class SearchController {
             List<StoreDTO> resultStore = convertStoreToDTO(store);
 
             return new BaseResponse<>(resultStore);
-        } catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
+        } catch (Exception exception) {
+            return new BaseResponse<>(RESPONSE_ERROR);
         }
-
     }
+
 
     //주소 검색 후기 평점 평균 높은 순 API -검색화면
     @ResponseBody

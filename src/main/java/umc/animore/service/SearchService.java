@@ -124,7 +124,7 @@ public class SearchService {
     //주소 후기 많은 순
     public List<Store> searchLocationMostReviewsList(String storeLocation) throws BaseException {
         try{
-            List<Store> store = searchRespository.findStoresWithMostReviewsByStoreLocationContaining(storeLocation);
+            List<Store> store = reviewRepository.findStoresWithMostReviewsByStoreLocationContaining(storeLocation);
             return store;
         }catch (Exception exception){
             throw new BaseException(RESPONSE_ERROR);
@@ -575,7 +575,6 @@ public class SearchService {
             throw new BaseException(RESPONSE_ERROR);
         }
     }
-
 
 
 }
