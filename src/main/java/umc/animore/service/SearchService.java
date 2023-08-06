@@ -229,15 +229,31 @@ public class SearchService {
                         double distance = calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
                                 store.getLatitude(), store.getLongitude());
 
-                        // 최대 3개의 가까운 가게만 추가
-                        if (nearestStores.size() < 3) {
+                        // 현재 최소 거리와 같은 경우 가까운 가게 목록에 추가합니다
+                        if (distance == minDistance) {
                             nearestStores.add(store);
-                        } else {
-                            // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                nearestStores.remove(2); // 최대 3개를 유지하기 위해 마지막 요소를 제거합니다.
+                        }
+
+                        // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestStores.clear();
+                            nearestStores.add(store);
+                        }
+                    }
+                }
+
+                // 최소 3개 이상의 가게가 없다면 1개 또는 2개를 추가합니다.
+                if (nearestStores.size() < 3) {
+                    int remaining = 3 - nearestStores.size();
+                    for (Store store : allStores) {
+                        if (store.getStoreName().equals(storeName)) {
+                            if (!nearestStores.contains(store)) {
                                 nearestStores.add(store);
+                                remaining--;
+                                if (remaining == 0) {
+                                    break; // 최대 3개까지만 추가합니다.
+                                }
                             }
                         }
                     }
@@ -250,7 +266,6 @@ public class SearchService {
             throw new BaseException(RESPONSE_ERROR);
         }
     }
-
 
 
     //거리순 - 가게주소
@@ -271,15 +286,31 @@ public class SearchService {
                         double distance = calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
                                 store.getLatitude(), store.getLongitude());
 
-                        // 최대 3개의 가까운 가게만 추가
-                        if (nearestStores.size() < 3) {
+                        // 현재 최소 거리와 같은 경우 가까운 가게 목록에 추가합니다
+                        if (distance == minDistance) {
                             nearestStores.add(store);
-                        } else {
-                            // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                nearestStores.remove(2); // 최대 3개를 유지하기 위해 마지막 요소를 제거합니다.
+                        }
+
+                        // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestStores.clear();
+                            nearestStores.add(store);
+                        }
+                    }
+                }
+
+                // 최소 3개 이상의 가게가 없다면 1개 또는 2개를 추가합니다.
+                if (nearestStores.size() < 3) {
+                    int remaining = 3 - nearestStores.size();
+                    for (Store store : allStores) {
+                        if (store.getStoreLocation().equals(storeLocation)) {
+                            if (!nearestStores.contains(store)) {
                                 nearestStores.add(store);
+                                remaining--;
+                                if (remaining == 0) {
+                                    break; // 최대 3개까지만 추가합니다.
+                                }
                             }
                         }
                     }
@@ -292,7 +323,6 @@ public class SearchService {
             throw new BaseException(RESPONSE_ERROR);
         }
     }
-
 
 
     //거리순 - 가게시도
@@ -314,15 +344,31 @@ public class SearchService {
                         double distance = calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
                                 store.getLatitude(), store.getLongitude());
 
-                        // 최대 3개의 가까운 가게만 추가
-                        if (nearestStores.size() < 3) {
+                        // 현재 최소 거리와 같은 경우 가까운 가게 목록에 추가합니다
+                        if (distance == minDistance) {
                             nearestStores.add(store);
-                        } else {
-                            // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                nearestStores.remove(2); // 최대 3개를 유지하기 위해 마지막 요소를 제거합니다.
+                        }
+
+                        // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestStores.clear();
+                            nearestStores.add(store);
+                        }
+                    }
+                }
+
+                // 최소 3개 이상의 가게가 없다면 1개 또는 2개를 추가합니다.
+                if (nearestStores.size() < 3) {
+                    int remaining = 3 - nearestStores.size();
+                    for (Store store : allStores) {
+                        if (store.getTown().equals(town)) {
+                            if (!nearestStores.contains(store)) {
                                 nearestStores.add(store);
+                                remaining--;
+                                if (remaining == 0) {
+                                    break; // 최대 3개까지만 추가합니다.
+                                }
                             }
                         }
                     }
@@ -335,8 +381,6 @@ public class SearchService {
             throw new BaseException(RESPONSE_ERROR);
         }
     }
-
-
 
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371; // 지구의 반지름 (단위: km)
@@ -502,17 +546,25 @@ public class SearchService {
                         double distance = calculateDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
                                 store.getLatitude(), store.getLongitude());
 
-                        // 최대 3개의 가까운 가게만 추가
-                        if (nearestStores.size() < 3) {
+                        // 현재 최소 거리와 같은 경우 가까운 가게 목록에 추가합니다
+                        if (distance == minDistance) {
                             nearestStores.add(store);
-                        } else {
-                            // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                nearestStores.remove(2); // 최대 3개를 유지하기 위해 마지막 요소를 제거합니다.
-                                nearestStores.add(store);
-                            }
                         }
+
+                        // 현재 최소 거리보다 작은 경우 가장 가까운 가게 목록을 갱신합니다
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestStores.clear();
+                            nearestStores.add(store);
+                        }
+                    }
+                }
+
+                // 최소 3개 이상의 가게가 없다면 1개 또는 2개를 추가합니다.
+                if (nearestStores.size() < 3) {
+                    int remaining = 3 - nearestStores.size();
+                    for (int i = 0; i < remaining; i++) {
+                        nearestStores.add(allStores.get(i)); // 가게 목록에서 앞에서부터 추가합니다.
                     }
                 }
 
@@ -523,6 +575,7 @@ public class SearchService {
             throw new BaseException(RESPONSE_ERROR);
         }
     }
+
 
 
 }

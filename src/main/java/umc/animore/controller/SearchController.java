@@ -16,7 +16,9 @@ import umc.animore.repository.UserRepository;
 import umc.animore.service.SearchService;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static umc.animore.config.exception.BaseResponseStatus.*;
 
@@ -740,7 +742,7 @@ public class SearchController {
     @GetMapping("/search/hashtags")
     public BaseResponse<List<StoreDTO>> searchStoresByHashtags(@RequestParam List<String> tags) {
         try {
-            if (tags == null || tags.equals("")) {
+            if (tags == null || tags.isEmpty()) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
             }
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -748,19 +750,24 @@ public class SearchController {
             User user = userRepository.findById(userId);
             List<Store> store = searchService.searchStoresBytags(tags);
 
+            // 중복된 가게 제거
+            Set<Store> uniqueStores = new HashSet<>(store);
+            List<Store> uniqueStoreList = new ArrayList<>(uniqueStores);
+
             String hashtags = String.join(",", tags);
             searchService.postSearchHistory(user, hashtags);
-            if (store.isEmpty()) {
+            if (uniqueStoreList.isEmpty()) {
                 // 반환값이 없다
                 return new BaseResponse<>(DATABASE_ERROR);
             }
-            List<StoreDTO> resultStore = convertStoreToDTO(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(uniqueStoreList);
             return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
 
     //해시태그- 인기순
     // GET /search/hashtags/best?tags=픽업가능,스파가능,피부병치료
@@ -776,13 +783,17 @@ public class SearchController {
             User user = userRepository.findById(userId);
             List<Store> store = searchService.searchTagsBest(tags);
 
+            // 중복된 가게 제거
+            Set<Store> uniqueStores = new HashSet<>(store);
+            List<Store> uniqueStoreList = new ArrayList<>(uniqueStores);
+
             String hashtags = String.join(",", tags);
             searchService.postSearchHistory(user, hashtags);
             if (store.isEmpty()) {
                 // 반환값이 없다
                 return new BaseResponse<>(DATABASE_ERROR);
             }
-            List<StoreDTO> resultStore = convertStoreToDTO(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(uniqueStoreList);
             return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
@@ -804,13 +815,17 @@ public class SearchController {
             User user = userRepository.findById(userId);
             List<Store> store = searchService.searchTagsMostReviews(tags);
 
+            // 중복된 가게 제거
+            Set<Store> uniqueStores = new HashSet<>(store);
+            List<Store> uniqueStoreList = new ArrayList<>(uniqueStores);
+
             String hashtags = String.join(",", tags);
             searchService.postSearchHistory(user, hashtags);
             if (store.isEmpty()) {
                 // 반환값이 없다
                 return new BaseResponse<>(DATABASE_ERROR);
             }
-            List<StoreDTO> resultStore = convertStoreToDTO(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(uniqueStoreList);
             return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
@@ -832,13 +847,17 @@ public class SearchController {
             User user = userRepository.findById(userId);
             List<Store> store = searchService.searchTagsReviewsAvg(tags);
 
+            // 중복된 가게 제거
+            Set<Store> uniqueStores = new HashSet<>(store);
+            List<Store> uniqueStoreList = new ArrayList<>(uniqueStores);
+
             String hashtags = String.join(",", tags);
             searchService.postSearchHistory(user, hashtags);
             if (store.isEmpty()) {
                 // 반환값이 없다
                 return new BaseResponse<>(DATABASE_ERROR);
             }
-            List<StoreDTO> resultStore = convertStoreToDTO(store);
+            List<StoreDTO> resultStore = convertStoreToDTO(uniqueStoreList);
             return new BaseResponse<>(resultStore);
 
         } catch (BaseException exception) {
