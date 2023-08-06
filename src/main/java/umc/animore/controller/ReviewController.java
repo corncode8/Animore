@@ -669,6 +669,7 @@ public class ReviewController {
             storeDTO.setAmount(store.getAmount());
             storeDTO.setDayoff1(store.getDayoff1());
             storeDTO.setDayoff2(store.getDayoff2());
+            storeDTO.setTags(store.getTags());
 
             reservationResultDTO.setStoreDTO(storeDTO);
 
