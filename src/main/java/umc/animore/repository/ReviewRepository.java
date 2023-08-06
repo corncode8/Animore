@@ -16,11 +16,5 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
 
     Review findByReviewId(Long reviewId);
 
-    //가게주소 - 후기 많은 순
-    @Query("SELECT r.store FROM Review r WHERE r.store.storeLocation = :storeLocation GROUP BY r.store ORDER BY COUNT(r) DESC")
-    List<Store> findStoresWithMostReviewsByStoreLocationContaining(@Param("storeLocation") String storeLocation);
-
-    //가게주소 - 후기
-
 }
 
