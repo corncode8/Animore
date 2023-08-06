@@ -45,7 +45,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 //    List<Reservation> findByStartTimeGreaterThanEqualAndEndTimeLessThanEqual(LocalDateTime start, LocalDateTime end);
 
     //해당 가게의 예약횟수 조회
-    @Query("SELECT COUNT(r) FROM Reservation r GROUP BY r.store ORDER BY COUNT(r) DESC")
-    Integer findStoreWithHighestReservationCount();
+    @Query("SELECT COUNT(r) FROM Reservation r WHERE r.startTime >= :twoWeeksAgo GROUP BY r.store ORDER BY COUNT(r) DESC")
+    Integer findStoreWithHighestReservationCount(@Param("twoWeeksAgo") LocalDateTime twoWeeksAgo);
 
 }
