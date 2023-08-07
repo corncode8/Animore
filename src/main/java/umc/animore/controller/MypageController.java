@@ -67,6 +67,7 @@ public class MypageController {
 
             
             List<ReservationInfoMapping> reservationInfoMappings = reservationService.findByUserIdOrderByStartTimeDesc(userId);
+
             List<Map<Long, Object>> storeId_ImageUrl = imageService.findImageByReservationId(reservationInfoMappings);
 
             MypageHome mypageHome = MypageHome.builder()
