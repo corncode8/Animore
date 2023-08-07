@@ -113,11 +113,12 @@ public class MypageController {
      *  와이어프레임.프로필수정 - 수정하기 API
      */
     @PostMapping("/mypage/profile")
-    public BaseResponse<String> profileupdate(@RequestPart MultipartFile multipartFile,@RequestParam String nickname, @RequestParam String aboutMe, @Value("${upload_path}") String url) throws IOException {
+    public BaseResponse<MypageProfile> profileupdate(@RequestPart MultipartFile multipartFile,@RequestPart String nickname, @RequestPart String aboutMe, @Value("${upload.path}") String url) throws IOException {
 
         try {
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Long userId = principalDetails.getUser().getId();
+            User user = principalDetails.getUser();
+            Long userId = user.getId();
 
 
             Image image = new Image();
@@ -148,8 +149,15 @@ public class MypageController {
 
             imageService.save(image, userId, nickname, aboutMe);
 
+            user = userService.getUserId(userId);
 
-            return new BaseResponse<>(SUCCESS);
+            MypageProfile mypageProfile = MypageProfile.builder()
+                    .imgPath(user.getImage().getImgPath())
+                    .nickname(user.getNickname())
+                    .aboutMe(user.getAboutMe())
+                    .build();
+
+            return new BaseResponse<>(mypageProfile);
 
         }catch(BaseException e){
             return new BaseResponse<>(e.getStatus());
