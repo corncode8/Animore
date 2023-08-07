@@ -49,7 +49,7 @@ public class StoreService {
             store.setDayoff2(DateToEng(mypageStoreUpdate.getDayoff2()));
             store.setAmount(AmountStringToInt(mypageStoreUpdate.getAmount()));
             store.setStoreSignificant(mypageStoreUpdate.getStoreSignificant());
-            store.setTag(mypageStoreUpdate.getTag());
+            //store.setTags(mypageStoreUpdate.getTags());
             storeRepository.save(store);
 
             return mypageStoreUpdate;

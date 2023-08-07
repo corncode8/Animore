@@ -16,7 +16,9 @@ import umc.animore.repository.UserRepository;
 import umc.animore.service.SearchService;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static umc.animore.config.exception.BaseResponseStatus.*;
 
@@ -101,6 +103,7 @@ public class SearchController {
             storeDTO.setAmount(store.getAmount());
             storeDTO.setDayoff1(store.getDayoff1());
             storeDTO.setDayoff2(store.getDayoff2());
+            storeDTO.setTags(store.getTags());
 
             storeDTOList.add(storeDTO);
         }
@@ -329,7 +332,7 @@ public class SearchController {
     //주소 검색 후기 많은 순 API -검색화면
     @ResponseBody
     @GetMapping("/search/location/top_reviews")
-    public BaseResponse<List<StoreDTO>> searchMostReviewsLocation (@RequestParam(value = "query") String storeLocation) {
+    public BaseResponse<List<StoreDTO>> searchMostReviewsLocation(@RequestParam(value = "query") String storeLocation) {
         try {
             if (storeLocation == null || storeLocation.equals("")) {
                 return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
@@ -338,7 +341,7 @@ public class SearchController {
                 return new BaseResponse<>(GET_SEARCH_INVALID_QUERY2);
             }
 
-            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
             User user = userRepository.findById(userId);
             List<Store> store = searchService.searchLocationMostReviewsList(storeLocation);
@@ -355,11 +358,11 @@ public class SearchController {
             List<StoreDTO> resultStore = convertStoreToDTO(store);
 
             return new BaseResponse<>(resultStore);
-        } catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
+        } catch (Exception exception) {
+            return new BaseResponse<>(RESPONSE_ERROR);
         }
-
     }
+
 
     //주소 검색 후기 평점 평균 높은 순 API -검색화면
     @ResponseBody
@@ -672,6 +675,7 @@ public class SearchController {
             storeDTO.setAmount(store.getAmount());
             storeDTO.setDayoff1(store.getDayoff1());
             storeDTO.setDayoff2(store.getDayoff2());
+            storeDTO.setTags(store.getTags());
 
             return new BaseResponse<>(storeDTO);
         } catch (Exception exception) {
@@ -720,6 +724,7 @@ public class SearchController {
                 storeDTO.setAmount(store.getAmount());
                 storeDTO.setDayoff1(store.getDayoff1());
                 storeDTO.setDayoff2(store.getDayoff2());
+                storeDTO.setTags(store.getTags());
 
                 recordDTO.setStoreDTO(storeDTO);
                 recordDTOList.add(recordDTO);
@@ -728,6 +733,163 @@ public class SearchController {
             return new BaseResponse<>(recordDTOList);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    //해시태그
+    // GET /search/hashtags?tags=픽업가능,스파가능,피부병치료
+    @ResponseBody
+    @GetMapping("/search/hashtags")
+    public BaseResponse<List<StoreDTO>> searchStoresByHashtags(@RequestParam List<String> tags) {
+        try {
+            if (tags == null || tags.isEmpty()) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
+            List<Store> store = searchService.searchStoresBytags(tags);
+
+            // 중복된 가게 제거
+            Set<Store> uniqueStores = new HashSet<>(store);
+            List<Store> uniqueStoreList = new ArrayList<>(uniqueStores);
+
+            String hashtags = String.join(",", tags);
+            searchService.postSearchHistory(user, hashtags);
+            if (uniqueStoreList.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+            List<StoreDTO> resultStore = convertStoreToDTO(uniqueStoreList);
+            return new BaseResponse<>(resultStore);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+    //해시태그- 인기순
+    // GET /search/hashtags/best?tags=픽업가능,스파가능,피부병치료
+    @ResponseBody
+    @GetMapping("/search/hashtags/best")
+    public BaseResponse<List<StoreDTO>> searchBestByHashTags(@RequestParam List<String> tags) {
+        try {
+            if (tags == null || tags.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
+            List<Store> store = searchService.searchTagsBest(tags);
+
+            // 중복된 가게 제거
+            Set<Store> uniqueStores = new HashSet<>(store);
+            List<Store> uniqueStoreList = new ArrayList<>(uniqueStores);
+
+            String hashtags = String.join(",", tags);
+            searchService.postSearchHistory(user, hashtags);
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+            List<StoreDTO> resultStore = convertStoreToDTO(uniqueStoreList);
+            return new BaseResponse<>(resultStore);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    //해시태그- 후기 많은 순
+    // GET /search/hashtags/top_review?tags=픽업가능,스파가능,피부병치료
+    @ResponseBody
+    @GetMapping("/search/hashtags/top_reviews")
+    public BaseResponse<List<StoreDTO>> searchHashTagsMostReviews(@RequestParam List<String> tags) {
+        try {
+            if (tags == null || tags.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
+            List<Store> store = searchService.searchTagsMostReviews(tags);
+
+            // 중복된 가게 제거
+            Set<Store> uniqueStores = new HashSet<>(store);
+            List<Store> uniqueStoreList = new ArrayList<>(uniqueStores);
+
+            String hashtags = String.join(",", tags);
+            searchService.postSearchHistory(user, hashtags);
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+            List<StoreDTO> resultStore = convertStoreToDTO(uniqueStoreList);
+            return new BaseResponse<>(resultStore);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    //해시태그- 후기별점 평균 순
+    // GET /search/hashtags/avg?tags=픽업가능,스파가능,피부병치료
+    @ResponseBody
+    @GetMapping("/search/hashtags/avg")
+    public BaseResponse<List<StoreDTO>> searchReviewsAvgByHashtags(@RequestParam List<String> tags) {
+        try {
+            if (tags == null || tags.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
+            List<Store> store = searchService.searchTagsReviewsAvg(tags);
+
+            // 중복된 가게 제거
+            Set<Store> uniqueStores = new HashSet<>(store);
+            List<Store> uniqueStoreList = new ArrayList<>(uniqueStores);
+
+            String hashtags = String.join(",", tags);
+            searchService.postSearchHistory(user, hashtags);
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+            List<StoreDTO> resultStore = convertStoreToDTO(uniqueStoreList);
+            return new BaseResponse<>(resultStore);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    //해시태그- 거리순
+    // GET /search/hashtags/recommend?tags=픽업가능,스파가능,피부병치료
+    @ResponseBody
+    @GetMapping("/search/hashtags/recommend")
+    public BaseResponse<List<StoreDTO>> searchByHashTagsRecommend(@RequestParam List<String> tags) {
+        try {
+            if (tags == null || tags.equals("")) {
+                return new BaseResponse<>(GET_SEARCH_EMPTY_QUERY);
+            }
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = principalDetails.getUser().getId();
+            User user = userRepository.findById(userId);
+            List<Store> store = searchService.recommendNearestHashTags(tags);
+
+            String hashtags = String.join(",", tags);
+            searchService.postSearchHistory(user, hashtags);
+            if (store.isEmpty()) {
+                // 반환값이 없다
+                return new BaseResponse<>(DATABASE_ERROR);
+            }
+            List<StoreDTO> resultStore = convertStoreToDTO(store);
+            return new BaseResponse<>(resultStore);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
         }
     }
 

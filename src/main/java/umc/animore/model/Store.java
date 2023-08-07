@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 
 @Getter
@@ -60,7 +61,10 @@ public class Store {
     private int close;
     private int amount;                 // 최대 예약 건수
 
-    private String tag;
+    @ElementCollection
+    @CollectionTable(name = "store_hashtags", joinColumns = @JoinColumn(name = "store_id"))
+    @Column(name = "tags")
+    private List<String> tags;  //해시태그
 
     private String storeSignificant;
 
@@ -83,4 +87,5 @@ public class Store {
     public void setTown(Town town) {
         this.town = town;
     }
+
 }

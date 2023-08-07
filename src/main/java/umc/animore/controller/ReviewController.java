@@ -21,6 +21,7 @@ import umc.animore.service.StoreService;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static umc.animore.config.exception.BaseResponseStatus.*;
@@ -628,8 +629,11 @@ public class ReviewController {
 
             User user = userRepository.findById(userId);
             Store store = storeRepository.findByStoreId(storeId);
+
+            // 최근 2주 이전의 날짜 계산
+            LocalDateTime twoWeeksAgo = LocalDateTime.now().minusWeeks(2);
             //해당 가게의 예약횟수 조회
-            store.setStoreRecent(reservationRepository.findStoreWithHighestReservationCount());
+            store.setStoreRecent(reservationRepository.findStoreWithHighestReservationCount(twoWeeksAgo));
 
             // 해당 가게와 사용자에 대한 예약 정보 가져오기
             Reservation reservation = reservationRepository.findByUserAndStoreAndConfirmed(user, store, true);
@@ -669,6 +673,7 @@ public class ReviewController {
             storeDTO.setAmount(store.getAmount());
             storeDTO.setDayoff1(store.getDayoff1());
             storeDTO.setDayoff2(store.getDayoff2());
+            storeDTO.setTags(store.getTags());
 
             reservationResultDTO.setStoreDTO(storeDTO);
 

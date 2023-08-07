@@ -37,7 +37,6 @@ public interface SearchRespository extends JpaRepository<Store, Long> {
     @Query("SELECT r.store FROM Review r WHERE r.store.storeLocation = :storeLocation GROUP BY r.store ORDER BY COUNT(r) DESC")
     List<Store> findStoresWithMostReviewsByStoreLocationContaining(String storeLocation);
 
-
     //가게주소 후기별점 평균순
     @Query("SELECT r.store, AVG(r.reviewLike) as avgScore FROM Review r WHERE r.store.storeLocation = :storeLocation GROUP BY r.store ORDER BY avgScore DESC")
     List<Store> findStoresWithHighestAverageScoreByStoreLocationContaining(String storeLocation);
@@ -62,8 +61,20 @@ public interface SearchRespository extends JpaRepository<Store, Long> {
     List<Store> findStoresWithMostReviews();
 
     //예약이 가장 많은 순의 가게
-    @Query("SELECT r.store FROM Reservation r WHERE r.confirmed = 1 GROUP BY r.store ORDER BY COUNT(r) DESC")
+    @Query("SELECT r.store FROM Reservation r WHERE r.confirmed = true GROUP BY r.store ORDER BY COUNT(r) DESC")
     List<Store> findStoresWithMostReservations();
+
+    //해시태그 인기순
+    List<Store> findByTagsInOrderByStoreLikeDesc(List<String> tags);
+
+    //해시태그 후기 많은 순
+    @Query("SELECT r.store FROM Review r JOIN r.store.tags t WHERE t IN :tags GROUP BY r.store ORDER BY COUNT(r) DESC")
+    List<Store> findStoresWithMostReviewsByTagsIn(List<String> tags);
+
+    //해시태그 후기별점 평균 순
+    @Query("SELECT r.store, AVG(r.reviewLike) as avgScore FROM Review r JOIN r.store.tags t WHERE t IN :tags GROUP BY r.store ORDER BY avgScore DESC")
+    List<Store> findStoresWithHighestAverageScoreByTagsIn(List<String> tags);
+
 
 
 }

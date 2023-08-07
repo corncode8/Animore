@@ -8,6 +8,7 @@ import lombok.Setter;
 import umc.animore.model.Town;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,6 +33,7 @@ public class StoreDTO {
     private int amount;                 // 최대 예약 건수
     private String dayoff1;
     private String dayoff2;
+    private List<String> tags;
 
 }
 
