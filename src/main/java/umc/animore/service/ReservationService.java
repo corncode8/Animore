@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import umc.animore.config.exception.BaseException;
+import umc.animore.config.exception.BaseResponse;
 import umc.animore.model.*;
 import umc.animore.repository.DTO.ReservationInfoMapping;
 import umc.animore.repository.ReservationRepository;
@@ -11,6 +13,8 @@ import umc.animore.repository.UserRepository;
 
 import java.time.*;
 import java.util.*;
+
+import static umc.animore.config.exception.BaseResponseStatus.*;
 
 @Service
 public class ReservationService {
@@ -104,38 +108,46 @@ public class ReservationService {
     }
 
     /** 예약 생성 **/
-    public Reservation createReservation(Long user_id, Long storeId, Reservation.DogSize dogSize, Reservation.CutStyle cutStyle, Reservation.BathStyle bathStyle) {
-        User user = userService.getUserId(user_id);
-        if(user == null) {
-            // 예외처리
-            throw new IllegalArgumentException("해당 유저를 찾을 수 없습니다.");
+    public Reservation createReservation (Long user_id, Long storeId, Reservation.DogSize dogSize, Reservation.CutStyle cutStyle, Reservation.BathStyle bathStyle) throws BaseException{
+        User user = null;
+        try {
+            user = userService.getUserId(user_id);
+
+
+            if (user == null) {
+                // 예외처리
+                throw new IllegalArgumentException("해당 유저를 찾을 수 없습니다.");
+            }
+
+            Pet petInfo = petService.findByUserId(user_id);
+            if (petInfo == null) {
+                throw new IllegalStateException("유저의 해당 반려동물 정보를 찾을 수 없습니다.");
+            }
+
+            Store store = storeService.findStoreId(storeId);
+            if (store == null) {
+                throw new IllegalArgumentException("해당 매장을 찾을 수 없습니다.");
+            }
+
+            Reservation reservation = new Reservation();
+            reservation.setUser(user);
+            reservation.setUsername(user.getUsername());
+            reservation.setUser_phone(user.getPhone());
+            reservation.setAddress(user.getAddress());
+            reservation.setPet_name(petInfo.getPetName());
+            reservation.setPet_type(petInfo.getPetType());
+            reservation.setPet_gender(petInfo.getPetGender());
+            reservation.setDogSize(dogSize);
+            reservation.setBathStyle(bathStyle);
+            reservation.setCutStyle(cutStyle);
+            reservation.setStore(store);
+            reservation.setConfirmed(false);
+
+            return reservationRepository.save(reservation);
         }
-
-        Pet petInfo = petService.findByUserId(user_id);
-        if (petInfo == null) {
-            throw new IllegalStateException("유저의 해당 반려동물 정보를 찾을 수 없습니다.");
+        catch(Exception e){
+            throw new BaseException(RESPONSE_ERROR);
         }
-
-        Store store = storeService.findStoreId(storeId);
-        if (store == null) {
-            throw new IllegalArgumentException("해당 매장을 찾을 수 없습니다.");
-        }
-
-        Reservation reservation = new Reservation();
-        reservation.setUser(user);
-        reservation.setUsername(user.getUsername());
-        reservation.setUser_phone(user.getPhone());
-        reservation.setAddress(user.getAddress());
-        reservation.setPet_name(petInfo.getPetName());
-        reservation.setPet_type(petInfo.getPetType());
-        reservation.setPet_gender(petInfo.getPetGender());
-        reservation.setDogSize(dogSize);
-        reservation.setBathStyle(bathStyle);
-        reservation.setCutStyle(cutStyle);
-        reservation.setStore(store);
-        reservation.setConfirmed(false);
-
-        return reservationRepository.save(reservation);
     }
 
     /** 예약상세 3 **/

@@ -12,8 +12,7 @@ import umc.animore.repository.UserRepository;
 import java.util.HashMap;
 import java.util.Map;
 
-import static umc.animore.config.exception.BaseResponseStatus.GET_USER_EMPTY_NICKNAME_NAME;
-import static umc.animore.config.exception.BaseResponseStatus.RESPONSE_ERROR;
+import static umc.animore.config.exception.BaseResponseStatus.*;
 
 @Service
 public class UserService {
@@ -21,8 +20,16 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private PetService petService;
-    public User getUserId(Long userId) {
-        return userRepository.findById(userId);
+
+    @Transactional
+    public User getUserId(Long userId) throws BaseException{
+
+        try{
+            return userRepository.findById(userId);
+        }catch(Exception e){
+            throw new BaseException(RESPONSE_ERROR);
+        }
+
     }
 
     // 예약상세 저장내용 불러오기

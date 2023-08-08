@@ -25,8 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
-import static umc.animore.config.exception.BaseResponseStatus.NOT_FOUND_REVIEW;
-import static umc.animore.config.exception.BaseResponseStatus.RESPONSE_ERROR;
+import static umc.animore.config.exception.BaseResponseStatus.*;
 
 //import static umc.animore.config.exception.BaseResponseStatus.IMAGE_UPLOAD_ERROR;
 
@@ -57,7 +56,7 @@ public class ImageService {
     }
 
     @Transactional
-    public void save(Image image,Long userId,String nickname, String aboutMe) throws BaseException{
+    public void save(Image image, Long userId, String nickname, String aboutMe) throws BaseException {
         try {
             User user = userRepository.findById(userId);
             user.setNickname(nickname);
@@ -76,7 +75,7 @@ public class ImageService {
 
             imageRepository.save(img);
 
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new BaseException(RESPONSE_ERROR);
         }
 
@@ -154,21 +153,24 @@ public class ImageService {
         }
     }
 
-    public List<Map<Long,Object>> findImageByReservationId(List<ReservationInfoMapping> reservationInfoMappings) throws BaseException{
+    public List<Map<Long, Object>> findImageByReservationId(List<ReservationInfoMapping> reservationInfoMappings) throws BaseException {
 
-        List<Map<Long,Object>> records = new ArrayList<Map<Long,Object>>();
+        try {
+            List<Map<Long, Object>> records = new ArrayList<Map<Long, Object>>();
 
-        for(ReservationInfoMapping reservationInfomapping : reservationInfoMappings){
-            Map<Long, Object> record = new HashMap<Long,Object>();
-            System.out.println(reservationInfomapping.getStore_StoreId());
-            record.put(reservationInfomapping.getStore_StoreId(),(imageRepository.findByStoreId(reservationInfomapping.getStore_StoreId())).getImgPath());
-            records.add(record);
+            for (ReservationInfoMapping reservationInfomapping : reservationInfoMappings) {
+                Map<Long, Object> record = new HashMap<Long, Object>();
+                System.out.println(reservationInfomapping.getStore_StoreId());
+                record.put(reservationInfomapping.getStore_StoreId(), (imageRepository.findByStoreId(reservationInfomapping.getStore_StoreId())).getImgPath());
+                records.add(record);
+            }
+
+            return records;
+
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
         }
 
-        return records;
 
     }
-
-
-
 }
