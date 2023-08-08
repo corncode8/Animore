@@ -1,6 +1,10 @@
 package umc.animore.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +23,7 @@ import umc.animore.service.ReviewService;
 import umc.animore.service.StoreService;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -54,6 +59,8 @@ public class ReviewController {
 
     @Autowired
     private final ReviewImageRepository reviewImageRepository;
+
+    private static final String BASE_PATH = "/var/www/animore.co.kr/";
 
     public ReviewController(ReviewService reviewService, ImageService imageService, StoreService storeService,
                             ReviewRepository reviewRepository, StoreRepository storeRepository, UserRepository userRepository,
@@ -176,10 +183,10 @@ public class ReviewController {
 
 
         // 이미지 파일 저장 경로
-        String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
+        //String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
         UUID uuid = UUID.randomUUID();
         String originalFileName = uuid + "_" + imageFile.getOriginalFilename();
-        File saveFile = new File(projectPath + originalFileName);
+        File saveFile = new File(BASE_PATH + "image/" +originalFileName);
 
         Review review = reviewRepository.findByReviewId(reviewId);
         Long reviewUserId = review.getUser().getId();
@@ -683,4 +690,24 @@ public class ReviewController {
         }
     }
 
+    @ResponseBody
+    @GetMapping("reviews/images/{imageName}")
+    public ResponseEntity<byte[]> getImage(@PathVariable String imageName) {
+        String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
+        String imagePath = projectPath + imageName;
+
+        try {
+            FileInputStream imageStream = new FileInputStream(imagePath);
+            byte[] imageBytes = imageStream.readAllBytes();
+            imageStream.close();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG); // 이미지 타입에 맞게 설정
+
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
