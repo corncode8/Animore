@@ -186,7 +186,7 @@ public class ReviewController {
         String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
         UUID uuid = UUID.randomUUID();
         String originalFileName = uuid + "_" + imageFile.getOriginalFilename();
-        File saveFile = new File(BASE_PATH + "image/" +originalFileName);
+        File saveFile = new File(projectPath +originalFileName);
 
         Review review = reviewRepository.findByReviewId(reviewId);
         Long reviewUserId = review.getUser().getId();
