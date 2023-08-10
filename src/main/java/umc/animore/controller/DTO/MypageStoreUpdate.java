@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 public class MypageStoreUpdate {
@@ -23,9 +25,10 @@ public class MypageStoreUpdate {
 
     private String storeSignificant;
 
-    private String tag;
+    private List<String> tags;  //해시태그
 
-    public MypageStoreUpdate(String storeName, String storeExplain, String open, String close, String dayoff1, String dayoff2, String amount, String storeSignificant, String tag) {
+
+    public MypageStoreUpdate(String storeName, String storeExplain, String open, String close, String dayoff1, String dayoff2, String amount, String storeSignificant, List<String> tags) {
         this.storeName = storeName;
         this.storeExplain = storeExplain;
         this.open = open;
@@ -34,7 +37,7 @@ public class MypageStoreUpdate {
         this.dayoff2 = dayoff2;
         this.amount = amount;
         this.storeSignificant = storeSignificant;
-        this.tag = tag;
+        this.tags = tags;
     }
 }
 
