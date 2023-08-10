@@ -130,18 +130,21 @@ public class MypageController {
     /**
      *  와이어프레임.프로필수정 - 수정하기 API
      */
-    @PostMapping("/mypage/profile")
-    public BaseResponse<MypageProfile> profileupdate(@RequestPart MultipartFile multipartFile,@RequestPart String nickname, @RequestPart String aboutMe, @Value("${upload.path}") String url) throws IOException {
+    @PutMapping("/mypage/profile")
+    public BaseResponse<MypageProfile> profileupdate(@RequestPart(required = false) MultipartFile multipartFile,@RequestPart(required = false) String nickname, @RequestPart(required = false) String aboutMe, @Value("${upload.path}") String url) throws IOException {
 
         try {
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             User user = principalDetails.getUser();
             Long userId = user.getId();
 
-            imageService.saveImage(multipartFile,userId,url);
+            if(multipartFile != null) {
+                imageService.saveImage(multipartFile, userId, url);
+            }
 
-
-            user = userService.saveNicknameAboutMe(userId,nickname,aboutMe);
+            if(nickname != null || aboutMe != null) {
+                user = userService.saveNicknameAboutMe(userId, nickname, aboutMe);
+            }
 
             MypageProfile mypageProfile = MypageProfile.builder()
                     .nickname(user.getNickname())
@@ -186,21 +189,20 @@ public class MypageController {
      * 와이어프레임.회원정보수정 API
      */
     @GetMapping("/mypage/member/user")
-    public BaseResponse<MypageMemberUpdate> userupdate(){
+    public BaseResponse<MypageMember> userupdate(){
 
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
 
-        MypageMemberUpdate mypageMemberUpdate = MypageMemberUpdate.builder()
-                .email(user.getEmail())
-                .password(user.getPassword())
+        MypageMember mypageMember = MypageMember.builder()
                 .nickname(user.getNickname())
                 .phone(user.getPhone())
-                .gender(user.getGender())
                 .birthday(user.getBirthday())
+                .email(user.getEmail())
+                .gender(user.getGender())
                 .build();
 
-        return new BaseResponse<>(mypageMemberUpdate);
+        return new BaseResponse<>(mypageMember);
 
 
 
@@ -211,8 +213,8 @@ public class MypageController {
     /**
      * 와이어프레임.회원정보수정 - 수정하기 API
      */
-    @PostMapping("/mypage/member/user")
-    public BaseResponse<MypageMemberUpdate> userupdate(@RequestBody MypageMemberUpdate mypageMemberUpdate){
+    @PutMapping("/mypage/member/user")
+    public BaseResponse<MypageMember> userupdate(@RequestBody(required = false) MypageMemberUpdate mypageMemberUpdate){
 
         try {
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -247,8 +249,8 @@ public class MypageController {
     /**
      * 와이어프레임.반려동물수정 - 반려동물수정하기 API
      */
-    @PostMapping("/mypage/member/pet")
-    public BaseResponse<MypagePetUpdate> petupdate(@RequestBody MypagePetUpdate mypagePetUpdate){
+    @PutMapping("/mypage/member/pet")
+    public BaseResponse<MypagePetUpdate> petupdate(@RequestBody(required = false) MypagePetUpdate mypagePetUpdate){
         try {
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = principalDetails.getUser().getId();
@@ -262,7 +264,7 @@ public class MypageController {
         }
     }
 
-    @PostMapping("/mypage/member/remove")
+    @DeleteMapping("/mypage/member/remove")
     public BaseResponse<String> memberCancel(){
         try{
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.animore.config.exception.BaseException;
+import umc.animore.controller.DTO.MypageMember;
 import umc.animore.controller.DTO.MypageMemberUpdate;
 import umc.animore.controller.DTO.MypageProfile;
 import umc.animore.model.Pet;
@@ -60,24 +61,34 @@ public class UserService {
      * mypageMemberUpdate를 이용하여 user 업데이트
      **/
     @Transactional
-    public MypageMemberUpdate saveMypageMemberUpdate(MypageMemberUpdate mypageMemberUpdate, Long userId) throws BaseException {
+    public MypageMember saveMypageMemberUpdate(MypageMemberUpdate mypageMemberUpdate, Long userId) throws BaseException {
 
         try {
-            if (mypageMemberUpdate.getNickname() == null) {
-                throw new BaseException(GET_USER_EMPTY_NICKNAME_NAME);
-            }
+
 
 
             User user = userRepository.findById(userId);
 
-            user.setEmail(mypageMemberUpdate.getEmail());
-            user.setPassword(mypageMemberUpdate.getPassword());
-            user.setNickname(mypageMemberUpdate.getNickname());
-            user.setPhone(mypageMemberUpdate.getPhone());
-            user.setGender(mypageMemberUpdate.getGender());
-            user.setBirthday(mypageMemberUpdate.getBirthday());
+            if (mypageMemberUpdate.getNickname() != null) {
+                user.setNickname(mypageMemberUpdate.getNickname());
+            }
 
-            return mypageMemberUpdate;
+            if (mypageMemberUpdate.getPhone() != null) {
+                user.setPhone(mypageMemberUpdate.getPhone());
+            }
+
+            if (mypageMemberUpdate.getBirthday() != null) {
+                user.setBirthday(mypageMemberUpdate.getBirthday());
+            }
+
+            MypageMember returnmypagemember = MypageMember.builder()
+                    .gender(user.getGender())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .phone(user.getPhone())
+                    .birthday(user.getBirthday()).build();
+
+            return returnmypagemember;
         }
         catch(Exception e){
             throw new BaseException(RESPONSE_ERROR);
@@ -117,8 +128,13 @@ public class UserService {
     public User saveNicknameAboutMe(Long userId,String nickname, String aboutMe){
         User user = userRepository.findById(userId);
 
-        user.setNickname(nickname);
-        user.setAboutMe(aboutMe);
+        if(nickname != null) {
+            user.setNickname(nickname);
+        }
+
+        if(aboutMe != null){
+            user.setAboutMe(aboutMe);
+        }
 
         return user;
     }
