@@ -204,14 +204,16 @@ public class ImageService {
     public List<Map<Long, Object>> findImageByReservationId(List<ReservationInfoMapping> reservationInfoMappings) throws BaseException {
 
         try {
+
             List<Map<Long, Object>> records = new ArrayList<Map<Long, Object>>();
 
             for (ReservationInfoMapping reservationInfomapping : reservationInfoMappings) {
                 Map<Long, Object> record = new HashMap<Long, Object>();
                 System.out.println(reservationInfomapping.getStore_StoreId());
-                record.put(reservationInfomapping.getStore_StoreId(), (imageRepository.findByStoreId(reservationInfomapping.getStore_StoreId())).getImgPath());
+                record.put(reservationInfomapping.getStore_StoreId(), "http://www.animore.co.kr/reviews/images/"+(imageRepository.findByStoreId(reservationInfomapping.getStore_StoreId())).getImgName());
                 records.add(record);
             }
+
 
             return records;
 
