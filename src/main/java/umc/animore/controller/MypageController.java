@@ -1,21 +1,24 @@
 package umc.animore.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import net.bytebuddy.utility.RandomString;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import umc.animore.config.auth.PrincipalDetails;
 import umc.animore.config.exception.BaseException;
 import umc.animore.config.exception.BaseResponse;
-import umc.animore.controller.DTO.MypageHome;
-import umc.animore.controller.DTO.MypageMemberUpdate;
-import umc.animore.controller.DTO.MypagePetUpdate;
-import umc.animore.controller.DTO.MypageProfile;
+import umc.animore.controller.DTO.*;
 import umc.animore.model.Image;
 import umc.animore.model.Pet;
 import umc.animore.model.Reservation;
@@ -27,7 +30,12 @@ import umc.animore.service.ReservationService;
 import umc.animore.service.UserService;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.sql.Array;
 import java.util.*;
@@ -90,6 +98,9 @@ public class MypageController {
 
 
 
+
+
+
     /**
      * 마이페이지 - 프로필수정 click -> 와이어프레임.프로필수정 API
      */
@@ -97,16 +108,19 @@ public class MypageController {
     @GetMapping("/mypage/profile")
     public BaseResponse<MypageProfile> mypageProfile() {
 
-        PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = principalDetails.getUser();
+            PrincipalDetails principalDetails = (PrincipalDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User user = principalDetails.getUser();
 
-        MypageProfile mypageProfile = MypageProfile.builder()
-                .imgPath(user.getImage().getImgPath())
-                .nickname(user.getNickname())
-                .aboutMe(user.getAboutMe())
-                .build();
+            MypageProfile mypageProfile = MypageProfile.builder()
+                    .imageUrls("http://www.animore.co.kr/reviews/images/"+user.getImage().getImgName())
+                    .nickname(user.getNickname())
+                    .aboutMe(user.getAboutMe())
+                    .build();
 
-        return new BaseResponse<>(mypageProfile);
+            System.out.println(System.getProperty("user.dir"));
+            return new BaseResponse<>(mypageProfile);
+
+
     }
 
     /**
@@ -120,41 +134,14 @@ public class MypageController {
             User user = principalDetails.getUser();
             Long userId = user.getId();
 
+            imageService.saveImage(multipartFile,userId,url);
 
-            Image image = new Image();
-
-            String sourceFileName = multipartFile.getOriginalFilename();
-
-            String sourceFileNameExtension = FilenameUtils.getExtension(sourceFileName).toLowerCase();
-
-            FilenameUtils.removeExtension(sourceFileName);
-
-            File destinationFile;
-            String destinationFileName;
-
-            String fileUrl = url;
-
-            do {
-                destinationFileName = RandomStringUtils.randomAlphanumeric(32) + "." + sourceFileNameExtension;
-                destinationFile = new File(fileUrl + destinationFileName);
-            } while (destinationFile.exists());
-
-            destinationFile.getParentFile().mkdirs();
-            multipartFile.transferTo(destinationFile);
-
-            image.setImgName(destinationFileName);
-            image.setImgOriName(sourceFileName);
-            image.setImgPath(fileUrl);
-
-
-            imageService.save(image, userId, nickname, aboutMe);
 
             user = userService.getUserId(userId);
-
             MypageProfile mypageProfile = MypageProfile.builder()
-                    .imgPath(user.getImage().getImgPath())
                     .nickname(user.getNickname())
                     .aboutMe(user.getAboutMe())
+                    .imageUrls("http://www.animore.co.kr/reviews/images/"+user.getImage().getImgName())
                     .build();
 
             return new BaseResponse<>(mypageProfile);
@@ -286,8 +273,59 @@ public class MypageController {
 
 
 
+/* 프로필 이미지조회 방법 임시세이브
+
+// 이미지는 어떻게해야하나?? 일단은 주소를 반환
+@GetMapping("/mypage/profile")
+public HttpEntity<LinkedMultiValueMap<String, Object>> mypageProfile(@Value("${upload.path}") String url) {
+    try {
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = principalDetails.getUser();
+        Long userId = user.getId();
+        Image img = imageService.findImageByUserId(userId);
 
 
+        MypageProfile mypageProfile = MypageProfile.builder()
+                .nickname(user.getNickname())
+                .aboutMe(user.getAboutMe())
+                .build();
+
+        LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+        HttpStatus httpStatus = HttpStatus.CREATED;
+
+        map.add("user관련 값", new BaseResponse<>(mypageProfile));
+
+        map.add("사진 바이너리 값",
+                new FileSystemResource(url + img.getImgName()));
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(map, headers);
+
+
+        return requestEntity;
+
+    }catch(BaseException e){
+        LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+        HttpStatus httpStatus = HttpStatus.CREATED;
+
+        map.add("에러관련 값", new BaseResponse<>(e.getStatus()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(map, headers);
+        return requestEntity;
+    }
+
+}
+
+
+ */
 
 
 

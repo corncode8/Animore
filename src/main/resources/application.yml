@@ -68,5 +68,5 @@ spring:
             user-name-attribute: response
 
 upload:
-  path: C:\Users\master\OneDrive\Desktop\animore\
+  path: \src\main\resources\templates\image\
 

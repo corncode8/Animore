@@ -118,6 +118,54 @@ public class ImageService {
         return images;
     }
 
+    @Transactional
+    public void saveImage(MultipartFile multipartFile, Long userId, String url) throws BaseException{
+        try {
+
+            User user = userRepository.findById(userId);
+            Image img = user.getImage();
+
+            if (img == null) {
+                img = new Image();
+            }
+
+
+            String projectPath = System.getProperty("user.dir") + url;
+            String sourceFileName = multipartFile.getOriginalFilename();
+
+            String sourceFileNameExtension = FilenameUtils.getExtension(sourceFileName).toLowerCase();
+
+            FilenameUtils.removeExtension(sourceFileName);
+
+            File destinationFile;
+            String destinationFileName;
+
+
+            do {
+                destinationFileName = RandomStringUtils.randomAlphanumeric(32) + "." + sourceFileNameExtension;
+                destinationFile = new File(projectPath + destinationFileName);
+            } while (destinationFile.exists());
+
+            destinationFile.getParentFile().mkdirs();
+            multipartFile.transferTo(destinationFile);
+
+
+
+
+            img.setImgName(destinationFileName);
+            img.setImgOriName(sourceFileName);
+            img.setImgPath(projectPath);
+            img.setUser(user);
+            user.setImage(img);
+            imageRepository.save(img);
+        }
+        catch(Exception e){
+            System.out.println(e);
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
 
     //조회
     // 특정 리뷰에 연결된 이미지 목록을 가져오는 메서드
@@ -172,5 +220,15 @@ public class ImageService {
         }
 
 
+    }
+
+
+    public Image findImageByUserId(Long userId) throws BaseException{
+        try{
+            return imageRepository.findByUserId(userId);
+
+        }catch(Exception e){
+            throw new BaseException(RESPONSE_ERROR);
+        }
     }
 }
