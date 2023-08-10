@@ -137,12 +137,15 @@ public class MypageController {
             imageService.saveImage(multipartFile,userId,url);
 
 
-            user = userService.getUserId(userId);
+            user = userService.saveNicknameAboutMe(userId,nickname,aboutMe);
+
             MypageProfile mypageProfile = MypageProfile.builder()
                     .nickname(user.getNickname())
                     .aboutMe(user.getAboutMe())
                     .imageUrls("http://www.animore.co.kr/reviews/images/"+user.getImage().getImgName())
                     .build();
+
+
 
             return new BaseResponse<>(mypageProfile);
 

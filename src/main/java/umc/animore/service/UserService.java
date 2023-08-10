@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.animore.config.exception.BaseException;
 import umc.animore.controller.DTO.MypageMemberUpdate;
+import umc.animore.controller.DTO.MypageProfile;
 import umc.animore.model.Pet;
 import umc.animore.model.User;
 import umc.animore.repository.UserRepository;
@@ -110,6 +111,16 @@ public class UserService {
         }
 
 
+    }
+
+    @Transactional
+    public User saveNicknameAboutMe(Long userId,String nickname, String aboutMe){
+        User user = userRepository.findById(userId);
+
+        user.setNickname(nickname);
+        user.setAboutMe(aboutMe);
+
+        return user;
     }
 
 
