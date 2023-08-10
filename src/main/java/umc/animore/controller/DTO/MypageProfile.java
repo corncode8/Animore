@@ -15,14 +15,16 @@ public class MypageProfile {
 
     private String aboutMe;
 
-    private String imgPath;
+    private String imageUrls;
+
 
 
     @Builder
-    public MypageProfile(String nickname, String aboutMe,String imgPath) {
+    public MypageProfile(String nickname, String aboutMe, String imageUrls) {
         this.nickname = nickname;
         this.aboutMe = aboutMe;
-        this.imgPath = imgPath;
+        this.imageUrls = imageUrls;
+
     }
 
 

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.animore.config.exception.BaseException;
+import umc.animore.controller.DTO.MypageMemberUpdate;
 import umc.animore.controller.DTO.MypagePetUpdate;
 import umc.animore.model.Pet;
 import umc.animore.model.User;
@@ -100,27 +101,48 @@ public class PetService {
 
             User user = userRepository.findById(userId);
             List<Pet> pets = user.getPets();
-            Pet pet = null;
 
-            for (Pet tmp : pets) {
-                if (tmp.getPetId() == mypagePetUpdate.getPetId()) {
-                    pet = tmp;
-                }
-            }
 
-            if(pet == null){
+            if(pets == null){
                 throw new BaseException(GET_PET_EMPTY_ERROR);
             }
 
+            for (Pet pet : pets) {
+                if(pet.getPetId() == mypagePetUpdate.getPetId()) {
 
-            pet.setPetAge(mypagePetUpdate.getPetAge());
-            pet.setPetName(mypagePetUpdate.getPetName());
-            pet.setPetGender(mypagePetUpdate.getPetGender());
-            pet.setPetType(mypagePetUpdate.getPetType());
-            pet.setPetSpecials(mypagePetUpdate.getPetSpecials());
-            pet.setPetWeight(mypagePetUpdate.getPetWeight());
+                    if (mypagePetUpdate.getPetAge() != 0) {
+                        pet.setPetAge(mypagePetUpdate.getPetAge());
+                    }
+                    if (mypagePetUpdate.getPetName() != null) {
+                        pet.setPetName(mypagePetUpdate.getPetName());
+                    }
+                    if (mypagePetUpdate.getPetGender() != null) {
+                        pet.setPetGender(mypagePetUpdate.getPetGender());
+                    }
+                    if (mypagePetUpdate.getPetType() != null) {
+                        pet.setPetType(mypagePetUpdate.getPetType());
+                    }
+                    if (mypagePetUpdate.getPetSpecials() != null) {
+                        pet.setPetSpecials(mypagePetUpdate.getPetSpecials());
+                    }
+                    if (mypagePetUpdate.getPetWeight() != 0) {
+                        pet.setPetWeight(mypagePetUpdate.getPetWeight());
+                    }
 
-            return mypagePetUpdate;
+                    return new MypagePetUpdate().builder()
+                            .petId(pet.getPetId())
+                            .petAge(pet.getPetAge())
+                            .petName(pet.getPetName())
+                            .petGender(pet.getPetGender())
+                            .petType(pet.getPetType())
+                            .petSpecials(pet.getPetSpecials())
+                            .petWeight(pet.getPetWeight())
+                            .build();
+                }
+            }
+
+            System.out.println("여기까지 코드가 왔으면 강제에러");
+            throw new BaseException(RESPONSE_ERROR);
 
         }catch(BaseException e){
             throw new BaseException(GET_PET_EMPTY_ERROR);

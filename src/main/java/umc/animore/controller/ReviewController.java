@@ -1,6 +1,11 @@
 package umc.animore.controller;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +24,7 @@ import umc.animore.service.ReviewService;
 import umc.animore.service.StoreService;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -54,6 +60,8 @@ public class ReviewController {
 
     @Autowired
     private final ReviewImageRepository reviewImageRepository;
+
+    private static final String BASE_PATH = "/var/www/animore.co.kr/";
 
     public ReviewController(ReviewService reviewService, ImageService imageService, StoreService storeService,
                             ReviewRepository reviewRepository, StoreRepository storeRepository, UserRepository userRepository,
@@ -153,7 +161,7 @@ public class ReviewController {
                 imageDTO.setImgName(image.getImgName());
                 imageDTO.setImgOriName(image.getImgOriName());
                 imageDTO.setImgPath(image.getImgPath());
-                imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
+                imageDTO.setImageUrls("http://www.animore.co.kr/reviews/images/" + image.getImgName());
 
                 updatedImageDTOList.add(imageDTO);
             }
@@ -174,18 +182,17 @@ public class ReviewController {
         Long userId = principalDetails.getUser().getId();
 
 
-
         // 이미지 파일 저장 경로
         String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
         UUID uuid = UUID.randomUUID();
         String originalFileName = uuid + "_" + imageFile.getOriginalFilename();
-        File saveFile = new File(projectPath + originalFileName);
+        File saveFile = new File(projectPath +originalFileName);
 
         Review review = reviewRepository.findByReviewId(reviewId);
         Long reviewUserId = review.getUser().getId();
 
         // 이미지 URL 정보를 리스트에 추가
-        String imageUrl = "http://www.animore.co.kr/image/" + originalFileName;
+        String imageUrl = "http://www.animore.co.kr/reviews/images/" + originalFileName;
 
 
         if (userId != reviewUserId){
@@ -352,7 +359,7 @@ public class ReviewController {
             imageDTO.setImgName(image.getImgName());
             imageDTO.setImgOriName(image.getImgOriName());
             imageDTO.setImgPath(image.getImgPath());
-            imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
+            imageDTO.setImageUrls("http://www.animore.co.kr/reviews/images/" + image.getImgName());
             updatedImageDTOList.add(imageDTO);
         }
         reviewDTO.setImages(updatedImageDTOList);
@@ -553,7 +560,7 @@ public class ReviewController {
                     imageDTO.setImgName(image.getImgName());
                     imageDTO.setImgOriName(image.getImgOriName());
                     imageDTO.setImgPath(image.getImgPath());
-                    imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
+                    imageDTO.setImageUrls("http://www.animore.co.kr/reviews/images/" + image.getImgName());
                     imageDTOList.add(imageDTO);
                 }
                 reviewDTO.setImages(imageDTOList);
@@ -605,7 +612,7 @@ public class ReviewController {
                     imageDTO.setImgName(image.getImgName());
                     imageDTO.setImgOriName(image.getImgOriName());
                     imageDTO.setImgPath(image.getImgPath());
-                    imageDTO.setImageUrls("http://www.animore.co.kr/image/" + image.getImgOriName());
+                    imageDTO.setImageUrls("http://www.animore.co.kr/reviews/images/" + image.getImgName());
                     imageDTOList.add(imageDTO);
                 }
                 reviewDTO.setImages(imageDTOList);
@@ -683,4 +690,44 @@ public class ReviewController {
         }
     }
 
+    //저장된 이미지 조회
+    //리뷰를 조회하면 이미지 네임을 알 수 있음 그 거를 기반으로 이미지 조회하기
+    @ResponseBody
+    @GetMapping("reviews/images/{imageName}")
+    public ResponseEntity<byte[]> getImage(@PathVariable String imageName) {
+        String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\templates\\image\\";
+        String imagePath = projectPath + imageName;
+
+        try {
+            FileInputStream imageStream = new FileInputStream(imagePath);
+            byte[] imageBytes = imageStream.readAllBytes();
+            imageStream.close();
+
+            String contentType = determineContentType(imageName); // 이미지 파일 확장자에 따라 MIME 타입 결정
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(contentType));
+
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String determineContentType(String imageName) {
+        String extension = FilenameUtils.getExtension(imageName); // Commons IO 라이브러리 사용
+        switch (extension.toLowerCase()) {
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "png":
+                return "image/png";
+            case "gif":
+                return "image/gif";
+            // 다른 이미지 타입 추가 가능
+            default:
+                return "application/octet-stream"; // 기본적으로 이진 파일로 다룸
+        }
+    }
 }
