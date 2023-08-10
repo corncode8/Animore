@@ -25,6 +25,9 @@ public class StoreController {
         try {
             PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long storeId = principalDetails.getUser().getStore().getStoreId();
+            String userId = principalDetails.getUser().getRole();
+            //System.out.println(storeId);
+            System.out.println(userId);
 
             return new BaseResponse<>(storeService.saveMypageStoreUpdate(mypageStoreUpdate, storeId));
 

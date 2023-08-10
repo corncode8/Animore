@@ -55,20 +55,22 @@ public class Store {
     private double longitude; //경도
 
     private boolean isDiscounted;       // 할인 여부
-
+    @Column(name = "open")
     private int open;
-
+    @Column(name = "close")
     private int close;
+    @Column(name = "amount")
     private int amount;                 // 최대 예약 건수
 
     @ElementCollection
     @CollectionTable(name = "store_hashtags", joinColumns = @JoinColumn(name = "store_id"))
     @Column(name = "tags")
     private List<String> tags;  //해시태그
-
+    @Column(name = "storeSignificant")
     private String storeSignificant;
-
+    @Column(name = "dayoff1")
     private String dayoff1;
+    @Column(name = "dayoff2")
     private String dayoff2;
 
     //다대일 관계

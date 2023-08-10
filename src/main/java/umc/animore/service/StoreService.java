@@ -3,11 +3,13 @@ package umc.animore.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import umc.animore.config.exception.BaseException;
 import umc.animore.controller.DTO.MypageMemberUpdate;
 import umc.animore.controller.DTO.MypageStoreUpdate;
 import umc.animore.model.Store;
 import umc.animore.model.User;
+import umc.animore.model.review.StoreDTO;
 import umc.animore.repository.StoreRepository;
 
 import java.util.HashMap;
@@ -31,7 +33,7 @@ public class StoreService {
 
     //가게 정보 수정
     @Transactional
-    public MypageStoreUpdate saveMypageStoreUpdate(MypageStoreUpdate mypageStoreUpdate, Long storeId) throws BaseException {
+    public MypageStoreUpdate saveMypageStoreUpdate(MypageStoreUpdate mypageStoreUpdate, @PathVariable Long storeId) throws BaseException {
 
         try {
             if (mypageStoreUpdate.getStoreName() == null) {
@@ -47,9 +49,9 @@ public class StoreService {
             store.setClose(TimeCalculation(mypageStoreUpdate.getClose()));
             store.setDayoff1(DateToEng(mypageStoreUpdate.getDayoff1()));
             store.setDayoff2(DateToEng(mypageStoreUpdate.getDayoff2()));
+            store.setStoreSignificant(DateToEng(mypageStoreUpdate.getStoreSignificant()));
             store.setAmount(AmountStringToInt(mypageStoreUpdate.getAmount()));
-            store.setStoreSignificant(mypageStoreUpdate.getStoreSignificant());
-            //store.setTags(mypageStoreUpdate.getTags());
+            store.setTags(mypageStoreUpdate.getTags());
             storeRepository.save(store);
 
             return mypageStoreUpdate;
@@ -60,11 +62,9 @@ public class StoreService {
     }
 
     //최대 예약 건수 int 변환
-    public int AmountStringToInt(String Amount){
-        Amount.substring(4);
-        Amount.substring(0,-1);
-        System.out.println(Amount);
-        int amount = Integer.parseInt(Amount);
+    public int AmountStringToInt(String amountString) {
+        amountString = amountString.replaceAll("[^0-9]", ""); // 정규식을 사용하여 숫자 이외의 문자 제거
+        int amount = Integer.parseInt(amountString);
         return amount;
     }
 
