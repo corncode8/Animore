@@ -44,6 +44,7 @@ public class StoreService {
             Store store = storeRepository.findByStoreId(storeId);
 
             store.setStoreName(mypageStoreUpdate.getStoreName());
+            store.setStoreImageUrl(mypageStoreUpdate.getStoreImageUrl());
             store.setStoreExplain(mypageStoreUpdate.getStoreExplain());
             store.setOpen(TimeCalculation(mypageStoreUpdate.getOpen()));
             store.setClose(TimeCalculation(mypageStoreUpdate.getClose()));

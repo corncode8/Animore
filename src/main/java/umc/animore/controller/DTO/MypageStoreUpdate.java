@@ -14,6 +14,8 @@ public class MypageStoreUpdate {
 
     private String storeExplain;
 
+    private String storeImageUrl;
+
     private String open;
 
     private String close;
@@ -28,9 +30,10 @@ public class MypageStoreUpdate {
     private List<String> tags;  //해시태그
 
 
-    public MypageStoreUpdate(String storeName, String storeExplain, String open, String close, String dayoff1, String dayoff2, String amount, String storeSignificant, List<String> tags) {
+    public MypageStoreUpdate(String storeName, String storeExplain, String storeImageUrl, String open, String close, String dayoff1, String dayoff2, String amount, String storeSignificant, List<String> tags) {
         this.storeName = storeName;
         this.storeExplain = storeExplain;
+        this.storeImageUrl = storeImageUrl;
         this.open = open;
         this.close = close;
         this.dayoff1 = dayoff1;
