@@ -14,6 +14,7 @@ import umc.animore.model.Reservation;
 import umc.animore.model.Store;
 import umc.animore.model.User;
 import umc.animore.model.reservation.ReservationRequest;
+import umc.animore.service.EmailService;
 import umc.animore.service.ReservationService;
 import umc.animore.service.StoreService;
 import umc.animore.service.UserService;
@@ -35,6 +36,8 @@ public class ReservationController {
     private StoreService storeService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmailService emailService;
 
 
     // 향후 한달간 예약 가능한 시간 조회
@@ -174,9 +177,9 @@ public class ReservationController {
     }
 
 
-    // 예약 수정
+    // 예약 시간 수정
     @ResponseBody
-    @PutMapping("/my/booking/update/{reservationId}")
+    @PutMapping("/my/booking/update/time/{reservationId}")
     public BaseResponse<Map<String, Object>> updateReservation(@PathVariable Long reservationId, @RequestBody ReservationRequest reservationRequest) {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalDetails.getUser();
@@ -201,6 +204,36 @@ public class ReservationController {
             return new BaseResponse<>(RESERVAION_MODIFY_ERROR);
         }
 
+        return new BaseResponse<>(SUCCESS);
+    }
+
+    // 예약 요청사항 수정
+    @ResponseBody
+    @PutMapping("/my/booking/update/request/{reservationId}")
+    public BaseResponse<?> modifyRequest(@PathVariable Long reservationId, @RequestBody ReservationRequest reservationRequest) {
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = principalDetails.getUser();
+
+        if (reservationId == null) {
+            return new BaseResponse<>(NOT_FOUND_RESERVATION);
+        }
+
+        Reservation reservation = reservationService.findbyUserId(reservationId, user.getId());
+
+        if (!user.getId().equals(reservation.getUser().getId())) {
+            return new BaseResponse<>(NOT_MATCHED_USER);
+        }
+
+        if (reservationRequest.getCutStyle() == null || reservationRequest.getBathStyle() == null || reservationRequest.getDogSize() == null) {
+            return new BaseResponse<>(EMPTY_REQUEST_VALUE);
+        }
+
+
+        try {
+            reservationService.modifyRequest(reservationId, reservationRequest.getDogSize(), reservationRequest.getCutStyle(), reservationRequest.getBathStyle());
+        } catch (IllegalArgumentException e) {
+            return new BaseResponse<>(RESERVAION_MODIFY_ERROR);
+        }
         return new BaseResponse<>(SUCCESS);
     }
 
@@ -448,5 +481,15 @@ public class ReservationController {
         } catch (Exception e) {
             return new BaseResponse<>(SERVER_ERROR);
         }
+    }
+
+    // 예약 알림 메일 테스트
+    @GetMapping("/sendEmail")
+    public void sendEmail(String emailto) {
+        String to = emailto;
+        String subject = "테스트 메일 제목2";
+        String text = "테스트 메일 내용2";
+
+        emailService.sendEmail(to, subject, text);
     }
 }

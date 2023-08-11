@@ -11,6 +11,7 @@ import umc.animore.model.Store;
 import umc.animore.model.User;
 import umc.animore.repository.DTO.ReservationInfoMapping;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,6 +24,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     // 예약 현황 확인 (시간 범위에 포함되는 예약 조회 쿼리)
     @Query("SELECT r FROM Reservation r WHERE r.startTime >= :start AND r.endTime <= :end")
     List<Reservation> findReservationsBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    // 예약 알람
+    List<Reservation> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
 
     // store의 예약 목록
     List<Reservation> findByStoreAndStartTimeBetweenOrderByStartTime(Store store, LocalDateTime startOfMonth, LocalDateTime endOfMonth);

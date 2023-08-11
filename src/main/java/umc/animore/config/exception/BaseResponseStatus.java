@@ -53,7 +53,8 @@ public enum BaseResponseStatus { //열거 상수를 통해 응답상태를 나�
     INVALID_REQUEST_INFO(false, 6002, "잘못된 업체 정보 요청입니다."),
     NOT_MATCHED_USER(false, 6003, "일치하지 않은 유저입니다."),
     FALSE_RESERVATION(false, 6004, "예약에 실패하였습니다."),
-    NOT_FOUND_RECENT_BOOKING(false, 6005, "최근 예약을 찾을 수 없습니다");
+    NOT_FOUND_RECENT_BOOKING(false, 6005, "최근 예약을 찾을 수 없습니다"),
+    EMPTY_REQUEST_VALUE(false, 6006, "요청사항이 선택되지 않았습니다.");
 
     private final boolean isSuccess;
     private final int code;
