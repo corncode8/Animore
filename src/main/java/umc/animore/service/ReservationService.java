@@ -97,7 +97,7 @@ public class ReservationService {
                 }
             }
 
-            if (numOfReservations < 2) {
+            if (numOfReservations < store.getAmount()) {
                 availableTimes.add(nextHour);
             }
 
@@ -157,7 +157,7 @@ public class ReservationService {
             throw new IllegalArgumentException("reservationId is null");
         }
 
-        // 예약 기간 계산 (1시간) 수정할 수 있게 해줘야 함.
+        // 예약 기간 계산 (1시간)
         LocalDateTime endTime = startTime.plusHours(1);
 //
 //        // 겹치는 예약 확인 로직: 등록된 예약 중 겹치는 예약 반환

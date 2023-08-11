@@ -80,13 +80,13 @@ public class StoreService {
     //휴무일 영문 변환
     private String DateToEng(String day){
         HashMap<String, String> DateMapping = new HashMap<String, String>();
-        DateMapping.put("월요일", "Mon");
-        DateMapping.put("화요일", "Ths");
-        DateMapping.put("수요일", "Wen");
-        DateMapping.put("목요일", "Thr");
-        DateMapping.put("금요일", "Fir");
-        DateMapping.put("토요일", "Sat");
-        DateMapping.put("일요일", "Sun");
+        DateMapping.put("월요일", "MONDAY");
+        DateMapping.put("화요일", "TUESDAY");
+        DateMapping.put("수요일", "WEDNESDAY");
+        DateMapping.put("목요일", "THURSDAY");
+        DateMapping.put("금요일", "FRIDAY");
+        DateMapping.put("토요일", "SATURDAY");
+        DateMapping.put("일요일", "SUNDAY");
 
         return DateMapping.get(day);
     }
