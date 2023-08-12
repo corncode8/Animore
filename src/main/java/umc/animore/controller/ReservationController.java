@@ -20,6 +20,7 @@ import umc.animore.service.StoreService;
 import umc.animore.service.UserService;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -280,12 +281,14 @@ public class ReservationController {
         try {
             List<Reservation> reservations = reservationService.getMonthlyReservationsByStore(store, year, month);
 
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
 
             List<Map<String, Object>> result = new ArrayList<>();
             for (Reservation reservation : reservations) {
                 Map<String, Object> reservationData = new LinkedHashMap<>();
-                reservationData.put("time", timeFormatter.format(reservation.getStartTime()));
+
+                LocalDateTime dateTime = reservation.getStartTime();
+                reservationData.put("time", timeFormatter.format(dateTime));
                 reservationData.put("petName", reservation.getPet_name());
                 reservationData.put("confirmed", reservation.getConfirmed());
 
