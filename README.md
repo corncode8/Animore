@@ -47,7 +47,7 @@
 ![animore_erd](https://github.com/corncode8/Animore/assets/127717982/c804fbdc-c9fc-4d51-b7ec-71127b6cfbb0)
 
 ## Application Preview
-[상세 내용은 Figma를 확인해주세요](https://www.figma.com/file/qIsyfklPoWFBStX80bygy8/avs?type=design&node-id=0-1&mode=design)
+상세 내용은 [Figma](https://www.figma.com/file/qIsyfklPoWFBStX80bygy8/avs?type=design&node-id=0-1&mode=design)를 확인해주세요
 
 
 
